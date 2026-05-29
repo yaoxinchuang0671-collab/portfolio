@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>页面装修 — 作品集</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="edit-styles.css" />
+</head>
+<body>
+
+  <!-- 顶部工具栏 -->
+  <header class="edit-toolbar">
+    <div class="edit-toolbar-inner">
+      <h1 class="edit-logo">🎨 页面装修</h1>
+      <div class="edit-toolbar-actions">
+        <button class="edit-btn edit-btn-ghost" id="btnPreview">👁️ 预览</button>
+        <button class="edit-btn edit-btn-accent" id="btnSave">💾 保存</button>
+        <button class="edit-btn edit-btn-danger" id="btnReset">↺ 重置全部</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="edit-main">
+
+    <!-- 左侧：编辑面板 -->
+    <aside class="edit-sidebar" id="editSidebar">
+
+      <!-- 导航区块 -->
+      <details class="edit-section" open>
+        <summary class="edit-section-title">🔗 导航栏</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>Logo 文字</label>
+            <input type="text" id="editLogo" placeholder="Portfolio." />
+          </div>
+          <div class="edit-field">
+            <label>导航链接（每行一个，格式：文字|#锚点）</label>
+            <textarea id="editNavLinks" rows="5" placeholder="关于我|#about&#10;技能|#skills&#10;项目|#projects&#10;联系|#contact"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <!-- Hero 区块 -->
+      <details class="edit-section" open>
+        <summary class="edit-section-title">🏠 Hero 区域</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>打招呼文字</label>
+            <input type="text" id="editGreeting" placeholder="👋 你好，我是" />
+          </div>
+          <div class="edit-field">
+            <label>姓名</label>
+            <input type="text" id="editName" placeholder="你的名字" />
+          </div>
+          <div class="edit-field">
+            <label>打字机标题（每行一个）</label>
+            <textarea id="editTitles" rows="5" placeholder="前端开发工程师&#10;UI/UX 设计师&#10;全栈开发者"></textarea>
+          </div>
+          <div class="edit-field">
+            <label>个人简介</label>
+            <textarea id="editBio" rows="4" placeholder="这里是一段简短的自我介绍..."></textarea>
+          </div>
+          <div class="edit-field">
+            <label>按钮一文字</label>
+            <input type="text" id="editBtn1" placeholder="查看我的作品" />
+          </div>
+          <div class="edit-field">
+            <label>按钮二文字</label>
+            <input type="text" id="editBtn2" placeholder="联系我" />
+          </div>
+          <div class="edit-field">
+            <label>社交链接（每行：平台|URL）</label>
+            <textarea id="editSocials" rows="4" placeholder="GitHub|https://github.com/xxx&#10;LinkedIn|https://linkedin.com/in/xxx&#10;X|https://x.com/xxx"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <!-- 人物图区块 -->
+      <details class="edit-section" open>
+        <summary class="edit-section-title">🖼️ 人物图</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>上传人物图</label>
+            <input type="file" id="editCharImg" accept="image/*" />
+            <div class="edit-char-preview" id="editCharPreview"></div>
+          </div>
+          <div class="edit-field">
+            <label>融合背景
+              <input type="checkbox" id="editBlendMode" />
+              <span class="edit-hint">开启后白底融入深色背景</span>
+            </label>
+          </div>
+          <div class="edit-field">
+            <label>大小 <span id="editScaleVal">85%</span></label>
+            <input type="range" id="editScale" min="40" max="150" value="85" />
+          </div>
+          <div class="edit-field">
+            <label>上下 <span id="editOffsetYVal">0</span></label>
+            <input type="range" id="editOffsetY" min="-120" max="60" value="0" />
+          </div>
+          <div class="edit-field">
+            <label>左右 <span id="editOffsetXVal">0</span></label>
+            <input type="range" id="editOffsetX" min="-80" max="80" value="0" />
+          </div>
+          <div class="edit-field">
+            <label>透明度 <span id="editOpacityVal">100%</span></label>
+            <input type="range" id="editOpacity" min="20" max="100" value="100" />
+          </div>
+          <div class="edit-field" id="editBrightnessField" style="display:none">
+            <label>暗部亮度 <span id="editBrightnessVal">65%</span></label>
+            <input type="range" id="editBrightness" min="30" max="100" value="65" />
+          </div>
+        </div>
+      </details>
+
+      <!-- 关于我 -->
+      <details class="edit-section">
+        <summary class="edit-section-title">👤 关于我</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>区块标题</label>
+            <input type="text" id="editAboutTitle" placeholder="我是谁？" />
+          </div>
+          <div class="edit-field">
+            <label>自我介绍（支持多段，空行分隔）</</label>
+            <textarea id="editAboutText" rows="6" placeholder="你好，很高兴认识你！&#10;&#10;这里填写你的个人介绍..."></textarea>
+          </div>
+          <div class="edit-field">
+            <label>年份经验</label>
+            <input type="text" id="editStat1" placeholder="0+" />
+          </div>
+          <div class="edit-field">
+            <label>完成项目数</label>
+            <input type="text" id="editStat2" placeholder="0+" />
+          </div>
+          <div class="edit-field">
+            <label>合作客户数</label>
+            <input type="text" id="editStat3" placeholder="0+" />
+          </div>
+          <div class="edit-field">
+            <label>简历下载链接</label>
+            <input type="text" id="editResume" placeholder="https://..." />
+          </div>
+        </div>
+      </details>
+
+      <!-- 技能 -->
+      <details class="edit-section">
+        <summary class="edit-section-title">⚡ 技能</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>区块标题</label>
+            <input type="text" id="editSkillsTitle" placeholder="我会什么？" />
+          </div>
+          <div class="edit-field">
+            <label>技能分类（每行：分类名|图标emoji|技能标签逗号分隔）</label>
+            <textarea id="editSkills" rows="8" placeholder="前端开发|💻|React,Vue,TypeScript&#10;后端开发|⚙️|Node.js,Python,Go"></textarea>
+          </div>
+        </div>
+      </details>
+
+      <!-- 项目 -->
+      <details class="edit-section">
+        <summary class="edit-section-title">📁 项目</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>区块标题</label>
+            <input type="text" id="editProjectsTitle" placeholder="我做过什么？" />
+          </div>
+          <div id="editProjectsList"></div>
+          <button class="edit-btn edit-btn-ghost" id="btnAddProject">＋ 添加项目</button>
+        </div>
+      </details>
+
+      <!-- 联系 -->
+      <details class="edit-section">
+        <summary class="edit-section-title">📬 联系我</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>区块标题</label>
+            <input type="text" id="editContactTitle" placeholder="一起合作？" />
+          </div>
+          <div class="edit-field">
+            <label>邮箱</label>
+            <input type="text" id="editEmail" placeholder="your@email.com" />
+          </div>
+          <div class="edit-field">
+            <label>所在城市</label>
+            <input type="text" id="editCity" placeholder="你的城市，中国" />
+          </div>
+          <div class="edit-field">
+            <label>工作状态</label>
+            <input type="text" id="editStatus" placeholder="● 开放机会" />
+          </div>
+        </div>
+      </details>
+
+      <!-- 页脚 -->
+      <details class="edit-section">
+        <summary class="edit-section-title">🔻 页脚</summary>
+        <div class="edit-section-body">
+          <div class="edit-field">
+            <label>页脚文字</label>
+            <input type="text" id="editFooter" placeholder="© 2026 · 用 ❤️ 设计并开发" />
+          </div>
+        </div>
+      </details>
+
+    </aside>
+
+    <!-- 右侧：实时预览 -->
+    <section class="edit-preview">
+      <iframe id="previewFrame" src="index.html"></iframe>
+    </section>
+
+  </main>
+
+  <!-- 保存成功提示 -->
+  <div class="edit-toast" id="editToast">✅ 已保存！</div>
+
+  <script src="edit-main.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>我的作品集</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="gallery.css" />
+</head>
+<body>
+
+  <!-- ===== 导航栏 ===== -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#home" class="logo">Portfolio<span class="dot">.</span></a>
+      <nav class="nav-links"><!-- 导航链接待填充 --></nav>
+    </div>
+  </header>
+
+  <!-- ===== Hero 区域（含静态兜底内容）===== -->
+  <section class="hero" id="home">
+    <div class="hero-bg">
+      <div class="hero-blob blob-1"></div>
+      <div class="hero-blob blob-2"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="container hero-layout">
+      <div class="hero-content">
+        <p class="hero-greeting" id="heroGreeting">👋 你好，我是</p>
+        <h1 class="hero-name" id="heroName">你的名字</h1>
+        <p class="hero-title">
+          <span class="typed-text" id="typedText">UI/UX 设计师</span><span class="cursor">|</span>
+        </p>
+        <p class="hero-bio" id="heroBio">这里是一段简短的自我介绍，描述你的专业方向、热情所在，以及你能带来的价值。</p>
+        </div>
+      </div>
+  </section>
+
+  <!-- ===== 分类筛选栏 ===== -->
+  <section class="filter-bar-section">
+    <div class="container">
+      <div class="filter-bar" id="filterBar">
+        <button class="filter-btn active" data-filter="all">全部</button>
+        <button class="filter-btn" data-filter="cat1">分类一</button>
+        <button class="filter-btn" data-filter="cat2">分类二</button>
+        <button class="filter-btn" data-filter="cat3">分类三</button>
+        <button class="filter-btn" data-filter="cat4">分类四</button>
+        <button class="filter-btn" data-filter="cat5">分类五</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 瀑布流展示区 ===== -->
+  <section class="gallery-section" id="gallery">
+    <div class="container">
+      <h2 class="section-title">作品展示</h2>
+      <p class="section-subtitle">精选图片作品，点击查看大图</p>
+      <div class="waterfall" id="waterfall">
+        <div class="waterfall-item" data-caption="作品一（GIF动图）" data-category="cat1">
+          <img src="img/work1.gif" alt="作品一" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品一（GIF动图）</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+        <div class="waterfall-item" data-caption="作品二" data-category="cat2">
+          <img src="img/work2.svg" alt="作品二" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品二</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+        <div class="waterfall-item" data-caption="作品三" data-category="cat1">
+          <img src="img/work3.svg" alt="作品三" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品三</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+        <div class="waterfall-item" data-caption="作品四" data-category="cat3">
+          <img src="img/work4.svg" alt="作品四" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品四</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+        <div class="waterfall-item" data-caption="作品五" data-category="cat2">
+          <img src="img/work5.svg" alt="作品五" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品五</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+        <div class="waterfall-item" data-caption="作品六" data-category="cat4">
+          <img src="img/work6.svg" alt="作品六" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品六</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+        <div class="waterfall-item" data-caption="作品七" data-category="cat5">
+          <img src="img/work7.svg" alt="作品七" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品七</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+        <div class="waterfall-item" data-caption="作品八" data-category="cat3">
+          <img src="img/work8.svg" alt="作品八" loading="lazy" />
+          <div class="item-overlay">
+            <span class="item-caption">作品八</span>
+            <button class="item-zoom" aria-label="查看大图">⤢</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 灯箱 -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">×</button>
+    <button class="lightbox-prev" id="lightboxPrev">‹</button>
+    <button class="lightbox-next" id="lightboxNext">›</button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+  </div>
+
+  <script src="main.js"></script>
+  <script src="gallery.js"></script>
+  <script src="filter.js"></script>
+</html>
