@@ -53,49 +53,51 @@
     if (elName)     elName.textContent     = h.name || '';
     if (elBio)      elBio.textContent      = h.bio || '';
 
-    // 打字机效果
-    const typedEl = document.getElementById('typedText');
-    if (typedEl && Array.isArray(h.typedTexts) && h.typedTexts.length > 0) {
-      let idx = 0, charIdx = 0, deleting = false;
+    // 打字机效果（完全重写，稳定可靠）
+    const typedWrap = document.getElementById('typedWrap');
+    if (typedWrap && Array.isArray(h.typedTexts) && h.typedTexts.length > 0) {
+      const texts = h.typedTexts;
+      let ti = 0;   // 当前词索引
+      let ci = 0;   // 当前字符位置（0 = 还没开始打）
+      let isDeleting = false;
       let timer = null;
-      const TYPE_SPEED = 220;    // 打字：每字 220ms（中文清晰可读）
-      const DELETE_SPEED = 120;   // 删除：每字 120ms
-      const PAUSE_AFTER = 2200;  // 打完一个词后停 2.2 秒
-      const PAUSE_BEFORE = 600;   // 删完后停 0.6 秒再打下一个
 
-      // 先清空静态文字，避免闪现
-      typedEl.textContent = '';
+      // 确保容器为空
+      typedWrap.textContent = '';
 
-      function tick() {
-        if (timer) clearTimeout(timer);
-        const cur = h.typedTexts[idx];
+      function step() {
+        const cur = texts[ti];
 
-        if (!deleting) {
-          // 逐字打出
-          charIdx++;
-          typedEl.textContent = cur.slice(0, charIdx);
-          if (charIdx === cur.length) {
-            deleting = true;
-            timer = setTimeout(tick, PAUSE_AFTER);
+        if (!isDeleting) {
+          // —— 打字阶段 ——
+          ci++;
+          typedWrap.textContent = cur.slice(0, ci);
+
+          if (ci === cur.length) {
+            // 打完一个完整词，等待后开始删除
+            isDeleting = true;
+            timer = setTimeout(step, 2000);
             return;
           }
-          timer = setTimeout(tick, TYPE_SPEED);
+          timer = setTimeout(step, 200);
         } else {
-          // 逐字删除
-          charIdx--;
-          typedEl.textContent = cur.slice(0, charIdx);
-          if (charIdx === 0) {
-            deleting = false;
-            idx = (idx + 1) % h.typedTexts.length;
-            timer = setTimeout(tick, PAUSE_BEFORE);
+          // —— 删除阶段 ——
+          ci--;
+          typedWrap.textContent = cur.slice(0, ci);
+
+          if (ci === 0) {
+            // 全部删除完毕，切换到下一个词
+            isDeleting = false;
+            ti = (ti + 1) % texts.length;
+            timer = setTimeout(step, 600);
             return;
           }
-          timer = setTimeout(tick, DELETE_SPEED);
+          timer = setTimeout(step, 100);
         }
       }
 
-      // 页面加载后延迟 0.5 秒开始打字，避免和页面动画冲突
-      timer = setTimeout(tick, 500);
+      // 等待 hero 动画结束后开始（约 1 秒后）
+      timer = setTimeout(step, 1200);
     }
   }
 

@@ -31,8 +31,8 @@
       <div class="hero-content">
         <p class="hero-greeting" id="heroGreeting"></p>
         <h1 class="hero-name" id="heroName"></h1>
-        <p class="hero-title">
-          <span class="typed-text" id="typedText"></span><span class="cursor">|</span>
+        <p class="hero-title" id="heroTitle">
+          <span id="typedWrap"></span><span class="cursor">|</span>
         </p>
         <p class="hero-bio" id="heroBio"></p>
         </div>
@@ -51,8 +51,6 @@
   <!-- ===== 瀑布流展示区（由 render.js 动态渲染）===== -->
   <section class="gallery-section" id="gallery">
     <div class="container">
-      <h2 class="section-title">作品展示</h2>
-      <p class="section-subtitle">精选图片作品，点击查看大图</p>
       <div class="waterfall" id="waterfall">
         <!-- 作品卡片由 render.js 动态生成 -->
       </div>

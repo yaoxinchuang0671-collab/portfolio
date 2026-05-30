@@ -5,506 +5,608 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>作品集管理后台</title>
   <style>
+    :root {
+      --clr-bg: #0a0a0f;
+      --clr-bg2: #12121a;
+      --clr-surface: #1a1a2e;
+      --clr-border: #2a2a3e;
+      --clr-text: #e0e0e0;
+      --clr-text2: #8888aa;
+      --clr-accent: #6c5ce7;
+      --clr-accent2: #a29bfe;
+      --clr-danger: #ff6b6b;
+      --clr-success: #51cf66;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: #0d0d0f; color: #f0f0f5; line-height: 1.6;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--clr-bg);
+      color: var(--clr-text);
+      min-height: 100vh;
     }
-    header {
-      background: #131316; border-bottom: 1px solid rgba(255,255,255,0.08);
-      padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 100;
+    /* 顶部导航 */
+    .topbar {
+      background: var(--clr-bg2);
+      border-bottom: 1px solid var(--clr-border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    header h1 { font-size: 1.2rem; font-weight: 600; }
-    header h1 span { color: #7c6af5; }
-    .header-actions { display: flex; gap: 12px; }
-    .btn {
-      padding: 8px 20px; border-radius: 8px; border: none;
-      font-size: 0.9rem; cursor: pointer; font-weight: 500; transition: all 0.2s;
+    .topbar h1 { font-size: 18px; font-weight: 600; color: var(--clr-accent2); }
+    .topbar .links a {
+      color: var(--clr-text2);
+      text-decoration: none;
+      font-size: 14px;
+      margin-left: 20px;
     }
-    .btn-primary { background: #7c6af5; color: #fff; }
-    .btn-primary:hover { background: #6a56e8; }
-    .btn-outline { background: transparent; color: #7c6af5; border: 1px solid #7c6af5; }
-    .btn-outline:hover { background: rgba(124,106,245,0.1); }
-    .btn-danger { background: #e74c3c; color: #fff; }
-    .btn-danger:hover { background: #c0392b; }
-    .btn-sm { padding: 6px 14px; font-size: 0.82rem; }
+    .topbar .links a:hover { color: var(--clr-accent2); }
 
-    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    /* 主布局 */
+    .layout {
+      display: flex;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      gap: 24px;
+    }
 
-    /* 标签页 */
-    .tabs { display: flex; gap: 4px; margin-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .tab-btn {
-      padding: 12px 24px; background: none; border: none; color: #a0a0b0;
-      cursor: pointer; font-size: 0.95rem; border-bottom: 2px solid transparent;
+    /* 侧边栏 */
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+    }
+    .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
+    .sidebar nav button {
+      background: none;
+      border: none;
+      color: var(--clr-text2);
+      padding: 10px 16px;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 14px;
+      cursor: pointer;
       transition: all 0.2s;
     }
-    .tab-btn:hover { color: #f0f0f5; }
-    .tab-btn.active { color: #7c6af5; border-bottom-color: #7c6af5; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
+    .sidebar nav button:hover { background: var(--clr-surface); color: var(--clr-text); }
+    .sidebar nav button.active { background: var(--clr-accent); color: #fff; }
+
+    /* 内容区 */
+    .content { flex: 1; min-width: 0; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .panel h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--clr-border);
+    }
 
     /* 表单 */
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
     .form-group label {
-      display: block; font-size: 0.88rem; color: #a0a0b0;
-      margin-bottom: 6px; font-weight: 500;
+      display: block;
+      font-size: 13px;
+      color: var(--clr-text2);
+      margin-bottom: 6px;
     }
     .form-group input,
     .form-group textarea {
-      width: 100%; padding: 10px 14px; border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.12); background: #1a1a1f;
-      color: #f0f0f5; font-size: 0.95rem; font-family: inherit;
+      width: 100%;
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--clr-text);
+      font-size: 14px;
+      outline: none;
       transition: border-color 0.2s;
     }
     .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none; border-color: #7c6af5;
-    }
+    .form-group textarea:focus { border-color: var(--clr-accent); }
     .form-group textarea { min-height: 80px; resize: vertical; }
-    .form-hint { font-size: 0.8rem; color: #6b6b80; margin-top: 4px; }
 
-    /* 打字机标签 */
-    .typed-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .typed-tag {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(124,106,245,0.15); color: #a78bfa;
-      padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;
+    /* 标签输入 */
+    .tag-input { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .tag {
+      background: var(--clr-accent);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .typed-tag .remove-tag {
-      cursor: pointer; opacity: 0.6; font-size: 1rem;
+    .tag .remove {
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      opacity: 0.7;
     }
-    .typed-tag .remove-tag:hover { opacity: 1; }
+    .tag .remove:hover { opacity: 1; }
+    .tag-input input {
+      background: none !important;
+      border: none !important;
+      padding: 4px 0 !important;
+      flex: 1;
+      min-width: 120px;
+    }
 
-    /* 卡片 */
+    /* 按钮 */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--clr-accent); color: #fff; }
+    .btn-primary:hover { background: var(--clr-accent2); }
+    .btn-danger { background: var(--clr-danger); color: #fff; }
+    .btn-danger:hover { opacity: 0.8; }
+    .btn-ghost { background: var(--clr-surface); color: var(--clr-text); }
+    .btn-ghost:hover { border-color: var(--clr-accent); }
+    .btn-sm { padding: 6px 12px; font-size: 13px; }
+    .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+
+    /* 卡片列表 */
+    .card-list { display: flex; flex-direction: column; gap: 12px; }
     .card {
-      background: #131316; border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px; padding: 24px; margin-bottom: 20px;
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
     }
-    .card-title { font-size: 1.05rem; font-weight: 600; margin-bottom: 16px; }
+    .card .thumb {
+      width: 80px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: var(--clr-bg);
+      flex-shrink: 0;
+    }
+    .card .info { flex: 1; min-width: 0; }
+    .card .info h4 { font-size: 15px; margin-bottom: 4px; }
+    .card .info p { font-size: 13px; color: var(--clr-text2); }
+    .card .actions { display: flex; gap: 8px; flex-shrink: 0; }
 
-    /* 分类管理 */
-    .cat-list { display: flex; flex-direction: column; gap: 10px; }
-    .cat-item {
-      display: flex; align-items: center; gap: 12px;
-      background: #1a1a1f; padding: 10px 16px; border-radius: 10px;
+    /* 分类标签 */
+    .cat-tag {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      margin: 2px;
     }
-    .cat-item input { flex: 1; }
-    .cat-id { color: #6b6b80; font-size: 0.82rem; font-family: monospace; min-width: 60px; }
-    .cat-drag { cursor: grab; color: #6b6b80; }
-
-    /* 作品管理 */
-    .work-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
-    .work-card {
-      background: #1a1a1f; border-radius: 12px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.08); transition: border-color 0.2s;
-    }
-    .work-card:hover { border-color: rgba(124,106,245,0.4); }
-    .work-card-img {
-      width: 100%; height: 160px; object-fit: cover; display: block;
-      background: #131316;
-    }
-    .work-card-body { padding: 12px; }
-    .work-card-body input { font-size: 0.85rem; margin-bottom: 8px; }
-    .work-card-body select { font-size: 0.85rem; }
-    .work-card-actions { display: flex; gap: 8px; margin-top: 10px; }
-
-    /* 上传区域 */
-    .upload-zone {
-      border: 2px dashed rgba(255,255,255,0.15); border-radius: 14px;
-      padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s;
-      margin-bottom: 20px;
-    }
-    .upload-zone:hover { border-color: #7c6af5; background: rgba(124,106,245,0.05); }
-    .upload-zone p { color: #a0a0b0; margin-top: 8px; }
-    .upload-zone .icon { font-size: 2.5rem; opacity: 0.5; }
 
     /* Toast */
     .toast {
-      position: fixed; bottom: 32px; right: 32px; background: #1e1e24;
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 12px;
-      padding: 14px 24px; font-size: 0.92rem; transform: translateY(80px);
-      opacity: 0; transition: all 0.3s; z-index: 999;
+      position: fixed;
+      top: 70px;
+      right: 24px;
+      background: var(--clr-surface);
+      border: 1px solid var(--clr-border);
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 14px;
+      z-index: 999;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
     }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .toast.success { border-color: #50d8a4; }
-    .toast.error  { border-color: #e74c3c; }
+    .toast.show { transform: translateX(0); }
+    .toast.success { border-color: var(--clr-success); }
+    .toast.error { border-color: var(--clr-danger); }
 
-    /* 预览链接 */
-    .preview-bar {
-      background: rgba(124,106,245,0.1); border: 1px solid rgba(124,106,245,0.3);
-      border-radius: 10px; padding: 14px 20px; margin-bottom: 24px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
+    /* 空状态 */
+    .empty { text-align: center; padding: 60px 20px; color: var(--clr-text2); font-size: 15px; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1><span>●</span> 作品集管理后台</h1>
-  <div class="header-actions">
-    <button class="btn btn-outline" onclick="previewSite()">🔗 预览网站</button>
-    <button class="btn btn-primary" onclick="exportData()">📥 导出 data.json</button>
-  </div>
-</header>
-
-<div class="container">
-
-  <!-- 预览提示 -->
-  <div class="preview-bar">
-    <span>💡 修改后点击「导出 data.json」，将下载的文件放入 <code>portfolio/</code> 文件夹即可生效</span>
+  <!-- 顶部导航 -->
+  <div class="topbar">
+    <h1>⚙️ 作品集管理后台</h1>
+    <div class="links">
+      <a href="index.html" target="_blank">📱 预览前台</a>
+      <a href="admin.html">🔧 管理后台</a>
+    </div>
   </div>
 
-  <!-- 标签页 -->
-  <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('hero')">📝 文案编辑</button>
-    <button class="tab-btn" onclick="switchTab('works')">🖼️ 作品管理</button>
-    <button class="tab-btn" onclick="switchTab('cats')">🏷️ 分类管理</button>
-  </div>
+  <div class="layout">
+    <!-- 侧边栏 -->
+    <div class="sidebar">
+      <nav>
+        <button class="active" onclick="switchPanel('hero')">🏠 Hero 设置</button>
+        <button onclick="switchPanel('categories')">📂 分类管理</button>
+        <button onclick="switchPanel('works')">🖼️ 作品管理</button>
+        <button onclick="switchPanel('data')">📦 数据导出</button>
+      </nav>
+    </div>
 
-  <!-- ===== 文案编辑 ===== -->
-  <div class="tab-panel active" id="tab-hero">
-    <div class="card">
-      <div class="card-title">Hero 区域文案</div>
-      <div class="form-group">
-        <label>招呼语</label>
-        <input type="text" id="f-greeting" placeholder="例：👋 你好，我是" />
-      </div>
-      <div class="form-group">
-        <label>姓名</label>
-        <input type="text" id="f-name" placeholder="例：张三" />
-      </div>
-      <div class="form-group">
-        <label>打字机标题（多条）</label>
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="f-typed-input" placeholder="输入一条标题，按回车添加" style="flex:1"
-                 onkeydown="if(event.key==='Enter'){event.preventDefault();addTyped();}" />
-          <button class="btn btn-outline btn-sm" onclick="addTyped()">添加</button>
+    <!-- 内容区 -->
+    <div class="content">
+
+      <!-- Hero 设置 -->
+      <div class="panel active" id="panel-hero">
+        <h2>Hero 区域设置</h2>
+        <div class="form-group">
+          <label>问候语（如：👋 你好，这里是）</label>
+          <input type="text" id="f-greeting" placeholder="👋 你好，这里是" />
         </div>
-        <div class="typed-tags" id="typedTags"></div>
-        <div class="form-hint">打字机效果会循环展示这些标题</div>
-      </div>
-      <div class="form-group">
-        <label>个人简介</label>
-        <textarea id="f-bio" placeholder="简短的自我介绍…"></textarea>
-      </div>
-      <button class="btn btn-primary" onclick="saveHero()">保存文案</button>
-    </div>
-  </div>
-
-  <!-- ===== 作品管理 ===== -->
-  <div class="tab-panel" id="tab-works">
-    <div class="card">
-      <div class="card-title">上传新作品</div>
-      <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
-        <div class="icon">📁</div>
-        <p>点击或拖拽图片到这里上传</p>
-        <p style="font-size:0.82rem;color:#6b6b80">支持 JPG / PNG / GIF / WebP</p>
-      </div>
-      <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFiles(event)" />
-      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-        <input type="text" id="upload-caption" placeholder="作品标题/描述" style="flex:1;min-width:200px;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:#1a1a1f;color:#f0f0f5;" />
-        <select id="upload-category" style="padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:#1a1a1f;color:#f0f0f5;"></select>
-      </div>
-      <div id="uploadPreview" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;"></div>
-      <button class="btn btn-primary" onclick="confirmUpload()">确认上传选中图片</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title">已有作品（<span id="workCount">0</span> 件）</div>
-      <div class="work-grid" id="workGrid"></div>
-    </div>
-  </div>
-
-  <!-- ===== 分类管理 ===== -->
-  <div class="tab-panel" id="tab-cats">
-    <div class="card">
-      <div class="card-title">分类列表</div>
-      <div class="cat-list" id="catList"></div>
-      <hr style="border-color:rgba(255,255,255,0.06);margin:20px 0" />
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="new-cat-label" placeholder="新分类名称" style="flex:1;min-width:160px;padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);background:#1a1a1f;color:#f0f0f5;" />
-        <button class="btn btn-primary btn-sm" onclick="addCategory()">+ 添加分类</button>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
-
-<script>
-/* ==============================================
-   管理后台 JS
-   ============================================== */
-let DATA = {};
-let pendingFiles = []; // 待确认的图片文件
-
-// ---------- 初始化 ----------
-async function init() {
-  await loadData();
-  renderHeroForm();
-  renderCategories();
-  renderWorks();
-  initDragUpload();
-}
-
-async function loadData() {
-  try {
-    const res = await fetch('data.json?t=' + Date.now());
-    DATA = await res.json();
-  } catch(e) {
-    DATA = { hero: { greeting:'', name:'', typedTexts:[], bio:'' }, categories:[], works:[] };
-    showToast('未找到 data.json，已创建空白数据', 'error');
-  }
-}
-
-// ---------- 标签页 ----------
-function switchTab(name) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
-}
-
-// ---------- Hero 表单 ----------
-function renderHeroForm() {
-  const h = DATA.hero || {};
-  document.getElementById('f-greeting').value = h.greeting || '';
-  document.getElementById('f-name').value     = h.name || '';
-  document.getElementById('f-bio').value      = h.bio || '';
-  renderTypedTags();
-}
-
-function renderTypedTags() {
-  const texts = (DATA.hero && DATA.hero.typedTexts) || [];
-  document.getElementById('typedTags').innerHTML = texts.map((t,i) =>
-    `<span class="typed-tag">${escHTML(t)}<span class="remove-tag" onclick="removeTyped(${i})">×</span></span>`
-  ).join('');
-}
-
-function addTyped() {
-  const input = document.getElementById('f-typed-input');
-  const val = input.value.trim();
-  if (!val) return;
-  if (!DATA.hero) DATA.hero = {};
-  if (!DATA.hero.typedTexts) DATA.hero.typedTexts = [];
-  DATA.hero.typedTexts.push(val);
-  input.value = '';
-  renderTypedTags();
-}
-
-function removeTyped(i) {
-  DATA.hero.typedTexts.splice(i, 1);
-  renderTypedTags();
-}
-
-function saveHero() {
-  if (!DATA.hero) DATA.hero = {};
-  DATA.hero.greeting   = document.getElementById('f-greeting').value;
-  DATA.hero.name       = document.getElementById('f-name').value;
-  DATA.hero.bio        = document.getElementById('f-bio').value;
-  showToast('文案已保存（记得导出 data.json 生效）', 'success');
-}
-
-// ---------- 分类管理 ----------
-function renderCategories() {
-  const cats = DATA.categories || [];
-  document.getElementById('catList').innerHTML = cats.map((c,i) => `
-    <div class="cat-item">
-      <span class="cat-drag">⠿</span>
-      <span class="cat-id">${escHTML(c.id)}</span>
-      <input type="text" value="${escAttr(c.label)}" onchange="updateCatLabel(${i}, this.value)" />
-      <button class="btn btn-danger btn-sm" onclick="deleteCat(${i})">删除</button>
-    </div>
-  `).join('');
-
-  // 更新作品管理中的分类下拉
-  const sel = document.getElementById('upload-category');
-  if (sel) {
-    sel.innerHTML = cats.map(c => `<option value="${escAttr(c.id)}">${escHTML(c.label)}</option>`).join('');
-  }
-}
-
-function updateCatLabel(i, val) {
-  if (!DATA.categories[i]) return;
-  DATA.categories[i].label = val;
-}
-
-function addCategory() {
-  const input = document.getElementById('new-cat-label');
-  const label = input.value.trim();
-  if (!label) return;
-  const id = 'cat' + Date.now();
-  if (!DATA.categories) DATA.categories = [];
-  DATA.categories.push({ id, label });
-  input.value = '';
-  renderCategories();
-  showToast('分类「' + label + '」已添加', 'success');
-}
-
-function deleteCat(i) {
-  const c = DATA.categories[i];
-  if (!confirm('确定删除分类「' + c.label + '」？关联作品不会被删除。')) return;
-  DATA.categories.splice(i, 1);
-  renderCategories();
-}
-
-// ---------- 作品管理 ----------
-function renderWorks() {
-  const works = DATA.works || [];
-  document.getElementById('workCount').textContent = works.length;
-  document.getElementById('workGrid').innerHTML = works.map((w,i) => `
-    <div class="work-card">
-      <img class="work-card-img" src="${escAttr(w.src)}" alt="" />
-      <div class="work-card-body">
-        <input type="text" value="${escAttr(w.caption || '')}" placeholder="作品描述"
-               onchange="updateWorkField(${i},'caption',this.value)" />
-        <select onchange="updateWorkField(${i},'category',this.value)">
-          ${(DATA.categories||[]).map(c =>
-            `<option value="${escAttr(c.id)}" ${w.category===c.id?'selected':''}>${escHTML(c.label)}</option>`
-          ).join('')}
-        </select>
-        <div class="work-card-actions">
-          <button class="btn btn-danger btn-sm" onclick="deleteWork(${i})">删除</button>
+        <div class="form-group">
+          <label>名字 / 品牌名</label>
+          <input type="text" id="f-name" placeholder="潮汐视界" />
+        </div>
+        <div class="form-group">
+          <label>打字机效果文字（每行一个，按 Enter 添加）</label>
+          <div class="tag-input" id="typedTags">
+            <input type="text" id="typedInput" placeholder="输入后按 Enter 添加" onkeydown="addTypedText(event)" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>个人简介 / Bio</label>
+          <textarea id="f-bio" placeholder="选择潮汐视界，搭建您的视觉殿堂"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="saveHero()">💾 保存 Hero 设置</button>
         </div>
       </div>
+
+      <!-- 分类管理 -->
+      <div class="panel" id="panel-categories">
+        <h2>分类管理</h2>
+        <div class="form-group">
+          <label>新增分类</label>
+          <div style="display:flex;gap:10px;">
+            <input type="text" id="newCatLabel" placeholder="分类名称" style="flex:1;" />
+            <button class="btn btn-primary btn-sm" onclick="addCategory()">+ 添加</button>
+          </div>
+        </div>
+        <div id="catList" class="card-list"></div>
+      </div>
+
+      <!-- 作品管理 -->
+      <div class="panel" id="panel-works">
+        <h2>作品管理</h2>
+        <div class="btn-row" style="margin-bottom:20px;">
+          <button class="btn btn-primary" onclick="showWorkForm()">+ 新增作品</button>
+        </div>
+        <div id="workList" class="card-list"></div>
+
+        <!-- 作品编辑表单（隐藏） -->
+        <div id="workForm" style="display:none; background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:12px; padding:20px; margin-top:20px;">
+          <h3 id="workFormTitle">新增作品</h3>
+          <div class="form-group">
+            <label>选择图片文件</label>
+            <input type="file" id="f-work-file" accept="image/*" onchange="onFileSelected(this)" style="width:100%; padding:10px; border-radius:8px; border:1px dashed var(--clr-border); cursor:pointer;" />
+            <div id="filePreview" style="margin-top:10px; display:none;">
+              <img id="previewImg" style="max-width:300px; max-height:200px; border-radius:8px; border:1px solid var(--clr-border);" />
+              <p style="font-size:12px; color:var(--clr-text2); margin-top:6px;">路径：<code id="previewPath" style="color:var(--clr-accent2);">img/</code></p>
+            </div>
+          </div>
+          <input type="hidden" id="f-work-src" />
+          <div class="form-group">
+            <label>作品标题 / 描述</label>
+            <input type="text" id="f-work-caption" placeholder="零贰肆电竞小程序轮播图" />
+          </div>
+          <div class="form-group">
+            <label>所属分类</label>
+            <select id="f-work-cat" style="width:100%; background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:10px 14px; color:var(--clr-text); font-size:14px;"></select>
+          </div>
+          <p style="color:var(--clr-text2); font-size:12px; margin-bottom:0;">⚠️ 选择图片后，请将图片文件手动放入 <code style="color:var(--clr-accent2);">portfolio/img/</code> 文件夹中</p>
+          <div class="btn-row">
+            <button class="btn btn-primary" id="btnSaveWork" onclick="saveWork()">💾 保存</button>
+            <button class="btn btn-ghost" onclick="cancelWorkForm()">取消</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 数据导出 -->
+      <div class="panel" id="panel-data">
+        <h2>数据导出 / 备份</h2>
+        <p style="color:var(--clr-text2); margin-bottom:20px;">将当前数据保存为 data.json 文件，上传到 GitHub 即可生效。</p>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="downloadData()">📥 下载 data.json</button>
+          <button class="btn btn-ghost" onclick="copyDataToClipboard()">📋 复制 JSON 到剪贴板</button>
+        </div>
+        <div style="margin-top:30px;">
+          <h3 style="font-size:16px;margin-bottom:12px;">当前数据预览</h3>
+          <pre id="dataPreview" style="background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:16px; font-size:13px; max-height:400px; overflow:auto; color:var(--clr-text2); white-space:pre-wrap;"></pre>
+        </div>
+      </div>
+
     </div>
-  `).join('');
-}
+  </div>
 
-function updateWorkField(i, field, val) {
-  if (!DATA.works[i]) return;
-  DATA.works[i][field] = val;
-}
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
 
-function deleteWork(i) {
-  const w = DATA.works[i];
-  if (!confirm('确定删除作品「' + (w.caption || w.src) + '」？')) return;
-  DATA.works.splice(i, 1);
-  renderWorks();
-  showToast('作品已删除', 'success');
-}
+  <script>
+    // ============ 数据 ============
+    let DATA = {};
+    let editingWorkId = null;
 
-// ---------- 图片上传 ----------
-function initDragUpload() {
-  const zone = document.getElementById('uploadZone');
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = '#7c6af5'; });
-  zone.addEventListener('dragleave', () => { zone.style.borderColor = ''; });
-  zone.addEventListener('drop', e => {
-    e.preventDefault(); zone.style.borderColor = '';
-    handleFiles({ target: { files: e.dataTransfer.files } });
-  });
-}
+    // 加载数据
+    async function loadData() {
+      try {
+        const res = await fetch('data.json?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        DATA = await res.json();
+      } catch (e) {
+        showToast('无法加载 data.json，请确认文件存在', 'error');
+        DATA = { hero: { greeting:'', name:'', typedTexts:[], bio:'' }, categories:[], works:[] };
+      }
+      renderAll();
+    }
 
-function handleFiles(e) {
-  const files = Array.from(e.target.files);
-  pendingFiles = files;
-  const preview = document.getElementById('uploadPreview');
-  preview.innerHTML = '';
-  files.forEach((f, i) => {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const div = document.createElement('div');
-      div.style.cssText = 'width:120px;text-align:center;';
-      div.innerHTML = `
-        <img src="${ev.target.result}" style="width:120px;height:90px;object-fit:cover;border-radius:8px;" />
-        <div style="font-size:0.75rem;color:#a0a0b0;margin-top:4px;word-break:break-all;">${escHTML(f.name)}</div>
-      `;
-      preview.appendChild(div);
-    };
-    reader.readAsDataURL(f);
-  });
-  showToast('已选择 ' + files.length + ' 张图片，填写信息后点击「确认上传」', 'success');
-}
+    // ============ 面板切换 ============
+    function switchPanel(name) {
+      document.querySelectorAll('.sidebar nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('panel-' + name).classList.add('active');
+      if (name === 'data') updateDataPreview();
+    }
 
-async function confirmUpload() {
-  if (pendingFiles.length === 0) { showToast('请先选择图片', 'error'); return; }
-  const caption = document.getElementById('upload-caption').value.trim();
-  const category = document.getElementById('upload-category').value;
+    // ============ Hero 设置 ============
+    function renderHeroForm() {
+      const h = DATA.hero || {};
+      document.getElementById('f-greeting').value = h.greeting || '';
+      document.getElementById('f-name').value = h.name || '';
+      document.getElementById('f-bio').value = h.bio || '';
+      renderTypedTags(h.typedTexts || []);
+    }
 
-  for (let i = 0; i < pendingFiles.length; i++) {
-    const f = pendingFiles[i];
-    // 转为 base64 存入 data.json（适合小文件；大文件建议手动放 img/ 文件夹）
-    const dataUrl = await readFileAsDataUrl(f);
-    // 检测是否是 GIF
-    const isGif = f.type === 'image/gif' || f.name.toLowerCase().endsWith('.gif');
-    // 生成文件名
-    const ext = f.name.includes('.') ? f.name.split('.').pop() : 'png';
-    const fileName = 'img/work_' + Date.now() + '_' + i + '.' + ext;
+    function renderTypedTags(texts) {
+      const container = document.getElementById('typedTags');
+      container.innerHTML = '';
+      (texts || []).forEach((t, i) => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = t + '<span class="remove" onclick="removeTypedText(' + i + ')">×</span>';
+        container.appendChild(tag);
+      });
+      // 重新添加输入框
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = 'typedInput';
+      input.placeholder = '输入后按 Enter 添加';
+      input.onkeydown = addTypedText;
+      container.appendChild(input);
+    }
 
-    if (!DATA.works) DATA.works = [];
-    DATA.works.push({
-      id: Date.now() + i,
-      src: fileName,  // 提示用户手动将图片放入 img/ 文件夹
-      caption: caption || f.name,
-      category: category,
-      type: isGif ? 'gif' : 'image',
-      _base64: dataUrl  // 临时保存，导出时提示用户
-    });
-  }
+    function addTypedText(e) {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const input = document.getElementById('typedInput');
+      const val = input.value.trim();
+      if (!val) return;
+      if (!DATA.hero) DATA.hero = {};
+      if (!DATA.hero.typedTexts) DATA.hero.typedTexts = [];
+      DATA.hero.typedTexts.push(val);
+      input.value = '';
+      renderTypedTags(DATA.hero.typedTexts);
+    }
 
-  pendingFiles = [];
-  document.getElementById('uploadPreview').innerHTML = '';
-  document.getElementById('upload-caption').value = '';
-  renderWorks();
-  showToast('作品已添加！导出时会提示你保存图片文件。', 'success');
-}
+    function removeTypedText(i) {
+      DATA.hero.typedTexts.splice(i, 1);
+      renderTypedTags(DATA.hero.typedTexts);
+    }
 
-function readFileAsDataUrl(f) {
-  return new Promise(resolve => {
-    const r = new FileReader();
-    r.onload = () => resolve(r.result);
-    r.readAsDataURL(f);
-  });
-}
+    function saveHero() {
+      if (!DATA.hero) DATA.hero = {};
+      DATA.hero.greeting = document.getElementById('f-greeting').value;
+      DATA.hero.name = document.getElementById('f-name').value;
+      DATA.hero.bio = document.getElementById('f-bio').value;
+      downloadData();
+      showToast('Hero 设置已保存，请上传 data.json 到 GitHub', 'success');
+    }
 
-// ---------- 导出 ----------
-function exportData() {
-  // 清理临时 _base64 字段，生成提示
-  const worksWithoutBase64 = (DATA.works || []).map(w => {
-    const { _base64, ...rest } = w;
-    return rest;
-  });
+    // ============ 分类管理 ============
+    function renderCategories() {
+      const list = document.getElementById('catList');
+      const cats = DATA.categories || [];
+      if (cats.length === 0) { list.innerHTML = '<div class="empty">暂无分类，请添加</div>'; return; }
+      list.innerHTML = cats.map((c, i) => `
+        <div class="card">
+          <div class="info">
+            <h4>${c.label}</h4>
+            <p>ID: ${c.id}</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" onclick="editCategory(${i})">编辑</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCategory(${i})">删除</button>
+          </div>
+        </div>
+      `).join('');
+    }
 
-  const exportData = { ...DATA, works: worksWithoutBase64 };
-  const json = JSON.stringify(exportData, null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'data.json';
-  a.click(); URL.revokeObjectURL(url);
+    function addCategory() {
+      const input = document.getElementById('newCatLabel');
+      const label = input.value.trim();
+      if (!label) return;
+      if (!DATA.categories) DATA.categories = [];
+      DATA.categories.push({ id: 'cat' + Date.now(), label });
+      input.value = '';
+      renderCategories();
+      showToast('分类已添加，记得下载 data.json', 'success');
+    }
 
-  // 检查是否有带 _base64 的作品需要提示
-  const hasNewImages = (DATA.works || []).some(w => w._base64);
-  if (hasNewImages) {
-    showToast('data.json 已下载！新上传的图片请手动保存到 portfolio/img/ 文件夹', 'success');
-  } else {
-    showToast('data.json 已下载！替换 portfolio/data.json 即可生效', 'success');
-  }
-}
+    function editCategory(i) {
+      const newLabel = prompt('修改分类名称：', DATA.categories[i].label);
+      if (newLabel && newLabel.trim()) {
+        DATA.categories[i].label = newLabel.trim();
+        renderCategories();
+      }
+    }
 
-// ---------- 预览 ----------
-function previewSite() {
-  window.open('index.html', '_blank');
-}
+    function deleteCategory(i) {
+      if (!confirm('确定删除分类「' + DATA.categories[i].label + '」？')) return;
+      DATA.categories.splice(i, 1);
+      renderCategories();
+    }
 
-// ---------- Toast ----------
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast ' + (type || '');
-  setTimeout(() => t.classList.add('show'), 10);
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+    // ============ 作品管理 ============
+    function renderWorks() {
+      const list = document.getElementById('workList');
+      const works = DATA.works || [];
+      if (works.length === 0) { list.innerHTML = '<div class="empty">暂无作品，请添加</div>'; return; }
+      list.innerHTML = works.map((w, i) => `
+        <div class="card">
+          <img class="thumb" src="${w.src}" alt="${w.caption || ''}" onerror="this.style.background='#333'" />
+          <div class="info">
+            <h4>${w.caption || '（无标题）'}</h4>
+            <p>${w.src}</p>
+            <p style="margin-top:4px;">分类：${(DATA.categories||[]).find(c=>c.id===w.category)?.label || '（未分类）'}</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" onclick="editWork(${i})">编辑</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteWork(${i})">删除</button>
+          </div>
+        </div>
+      `).join('');
+    }
 
-// ---------- 工具 ----------
-function escHTML(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function escAttr(s) { return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function renderCatSelect(selectedId) {
+      const sel = document.getElementById('f-work-cat');
+      sel.innerHTML = (DATA.categories || []).map(c =>
+        '<option value="' + c.id + '"' + (c.id === selectedId ? ' selected' : '') + '>' + c.label + '</option>'
+      ).join('');
+    }
 
-// ---------- 启动 ----------
-init();
-</script>
+    function showWorkForm(edit) {
+      document.getElementById('workForm').style.display = 'block';
+      renderCatSelect('');
+      resetFileInput();
+      if (!edit) {
+        editingWorkId = null;
+        document.getElementById('workFormTitle').textContent = '新增作品';
+        document.getElementById('f-work-src').value = '';
+        document.getElementById('f-work-caption').value = '';
+      }
+    }
+
+    function editWork(i) {
+      editingWorkId = i;
+      const w = DATA.works[i];
+      document.getElementById('workFormTitle').textContent = '编辑作品';
+      document.getElementById('f-work-src').value = w.src || '';
+      document.getElementById('f-work-caption').value = w.caption || '';
+      renderCatSelect(w.category || '');
+      document.getElementById('workForm').style.display = 'block';
+      resetFileInput();
+      // 显示已有图片预览
+      if (w.src) {
+        showExistingPreview(w.src);
+      }
+    }
+
+    function showExistingPreview(src) {
+      document.getElementById('filePreview').style.display = 'block';
+      document.getElementById('previewImg').src = src;
+      document.getElementById('previewPath').innerHTML = '路径：<code style="color:var(--clr-accent2);">' + src + '</code>';
+    }
+
+    function onFileSelected(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const ext = file.name.split('.').pop().toLowerCase();
+      const newName = 'work_' + Date.now() + '.' + ext;
+      const path = 'img/' + newName;
+      document.getElementById('f-work-src').value = path;
+
+      // 预览
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('filePreview').style.display = 'block';
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('previewPath').innerHTML = '路径：<code style="color:var(--clr-accent2);">' + path + '</code>';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetFileInput() {
+      document.getElementById('f-work-file').value = '';
+      document.getElementById('filePreview').style.display = 'none';
+    }
+
+    function cancelWorkForm() {
+      document.getElementById('workForm').style.display = 'none';
+      editingWorkId = null;
+      resetFileInput();
+    }
+
+    function saveWork() {
+      const src = document.getElementById('f-work-src').value.trim();
+      const caption = document.getElementById('f-work-caption').value.trim();
+      const cat = document.getElementById('f-work-cat').value;
+      if (!src) { showToast('请填写图片路径', 'error'); return; }
+      if (editingWorkId !== null) {
+        DATA.works[editingWorkId].src = src;
+        DATA.works[editingWorkId].caption = caption;
+        DATA.works[editingWorkId].category = cat;
+      } else {
+        DATA.works.push({ id: Date.now(), src, caption, category: cat, type: 'image' });
+      }
+      cancelWorkForm();
+      renderWorks();
+      showToast('作品已保存，记得下载 data.json', 'success');
+    }
+
+    function deleteWork(i) {
+      if (!confirm('确定删除作品「' + DATA.works[i].caption + '」？')) return;
+      DATA.works.splice(i, 1);
+      renderWorks();
+    }
+
+    // ============ 数据导出 ============
+    function updateDataPreview() {
+      document.getElementById('dataPreview').textContent = JSON.stringify(DATA, null, 2);
+    }
+
+    function downloadData() {
+      const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'data.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function copyDataToClipboard() {
+      navigator.clipboard.writeText(JSON.stringify(DATA, null, 2)).then(() => {
+        showToast('JSON 已复制到剪贴板', 'success');
+      });
+    }
+
+    // ============ Toast ============
+    function showToast(msg, type) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (type || '');
+      setTimeout(() => t.classList.add('show'), 10);
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // ============ 初始化 ============
+    function renderAll() {
+      renderHeroForm();
+      renderCategories();
+      renderWorks();
+    }
+
+    loadData();
+  </script>
 </body>
 </html>
