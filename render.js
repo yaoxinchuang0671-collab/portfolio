@@ -22,23 +22,101 @@
     works: [] // 默认无案例作品
   };
 
-  // ---------- 加载数据（带 2 秒超时）----------
+  // ---------- 加载数据（data.json 为基准 + localStorage 补丁覆盖）----------
+  const STORAGE_KEY = 'portfolio_data';
+
   async function loadData() {
+    // 1. 始终先从 data.json 加载完整数据作为基准
+    let serverData = null;
     try {
       const ctrl = new AbortController();
       const t = setTimeout(function () { ctrl.abort(); }, 2000);
       const res = await fetch('data.json?t=' + Date.now(), { signal: ctrl.signal });
       clearTimeout(t);
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      DATA = await res.json();
-      console.log('[render] data.json 加载成功');
-    } catch (e) {
-      console.warn('无法加载 data.json，使用内联默认数据。原因：', e.message);
-      const inline = document.getElementById('inlineData');
-      if (inline) {
-        try { DATA = JSON.parse(inline.textContent); console.log('[render] 使用内联数据'); return; } catch(e2) {}
+      if (res.ok) {
+        serverData = await res.json();
+        console.log('[render] data.json 加载成功（基准数据）');
       }
-      DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    } catch (e) {
+      console.warn('[render] data.json 不可用:', e.message);
+    }
+
+    // 2. 读取 localStorage 作为补丁
+    let localData = null;
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        localData = JSON.parse(stored);
+        console.log('[render] localStorage 数据读取成功（补丁数据）');
+      }
+    } catch (e) {
+      console.warn('[render] localStorage 数据解析失败');
+      localStorage.removeItem(STORAGE_KEY);
+    }
+
+    // 3. 合并策略：data.json 为底，localStorage 逐字段覆盖（空值不覆盖）
+    if (serverData) {
+      DATA = serverData;
+      if (localData) {
+        // hero 逐字段合并
+        if (localData.hero) {
+          if (!DATA.hero) DATA.hero = {};
+          var lh = localData.hero;
+          if (lh.greeting != null) DATA.hero.greeting = lh.greeting;
+          if (lh.name != null) DATA.hero.name = lh.name;
+          if (lh.bio != null) DATA.hero.bio = lh.bio;
+          if (Array.isArray(lh.typedTexts)) {
+            DATA.hero.typedTexts = lh.typedTexts;
+          }
+        }
+        // 分类：按 id 逐条合并，data.json 字段优先
+        if (localData.categories && localData.categories.length > 0 && DATA.categories) {
+          var serverCats = {};
+          DATA.categories.forEach(function(c) { serverCats[c.id] = c; });
+          localData.categories.forEach(function(lc) {
+            if (serverCats[lc.id]) {
+              Object.keys(lc).forEach(function(k) {
+                if (serverCats[lc.id][k] == null) serverCats[lc.id][k] = lc[k];
+              });
+            } else {
+              DATA.categories.push(lc);
+            }
+          });
+        }
+        // 作品：按 id 逐条合并，data.json 字段优先
+        if (localData.works && localData.works.length > 0 && DATA.works) {
+          var serverWorks = {};
+          DATA.works.forEach(function(w) { serverWorks[w.id] = w; });
+          localData.works.forEach(function(lw) {
+            if (serverWorks[lw.id]) {
+              Object.keys(lw).forEach(function(k) {
+                if (serverWorks[lw.id][k] == null) serverWorks[lw.id][k] = lw[k];
+              });
+            } else {
+              DATA.works.push(lw);
+            }
+          });
+        }
+        if (localData.logo) DATA.logo = localData.logo;
+        if (localData.navLinks) DATA.navLinks = localData.navLinks;
+        if (localData.footer) DATA.footer = localData.footer;
+        console.log('[render] 数据合并完成: data.json(基准) + localStorage(补丁)');
+      } else {
+        console.log('[render] 仅使用 data.json 数据');
+      }
+    } else {
+      // data.json 不可用 → localStorage → 内联 → 默认
+      if (localData) {
+        DATA = localData;
+        console.log('[render] 使用 localStorage 数据（data.json 不可用）');
+      } else {
+        console.warn('无法加载 data.json，使用内联默认数据。');
+        const inline = document.getElementById('inlineData');
+        if (inline) {
+          try { DATA = JSON.parse(inline.textContent); console.log('[render] 使用内联数据'); return; } catch(e2) {}
+        }
+        DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
     }
   }
 
@@ -52,6 +130,19 @@
     if (elGreeting) elGreeting.textContent = h.greeting || '';
     if (elName)     elName.textContent     = h.name || '';
     if (elBio)      elBio.textContent      = h.bio || '';
+
+    // 背景图 — 根据图片真实比例自适应卡片高度
+    const heroCard   = document.getElementById('heroCard');
+    const heroCardBg = document.getElementById('heroCardBg');
+    if (heroCardBg) {
+      if (h.bg) {
+        heroCardBg.style.backgroundImage = 'url("' + h.bg + '")';
+        setHeroHeightFromImage(h.bg);
+      } else {
+        heroCardBg.style.backgroundImage = '';
+        if (heroCard) { heroCard.style.height = ''; }
+      }
+    }
 
     // 打字机效果（完全重写，稳定可靠）
     const typedWrap = document.getElementById('typedWrap');
@@ -101,6 +192,41 @@
     }
   }
 
+  // ---------- Hero 背景图高度自适应 ----------
+  let heroBgAspectRatio = null;
+  let heroResizeTimer = null;
+
+  function setHeroHeightFromImage(bgPath) {
+    const heroCard = document.getElementById('heroCard');
+    if (!heroCard || !bgPath) return;
+
+    var img = new Image();
+    img.onload = function() {
+      heroBgAspectRatio = img.naturalHeight / img.naturalWidth;
+      applyHeroHeight();
+    };
+    img.onerror = function() {
+      // 图片加载失败，恢复默认高度
+      heroCard.style.height = '';
+      heroBgAspectRatio = null;
+    };
+    img.src = bgPath;
+  }
+
+  function applyHeroHeight() {
+    var heroCard = document.getElementById('heroCard');
+    if (!heroCard || !heroBgAspectRatio) return;
+    var w = heroCard.offsetWidth;
+    heroCard.style.height = Math.round(w * heroBgAspectRatio) + 'px';
+  }
+
+  window.addEventListener('resize', function() {
+    clearTimeout(heroResizeTimer);
+    heroResizeTimer = setTimeout(function() {
+      if (heroBgAspectRatio) applyHeroHeight();
+    }, 150);
+  });
+
   // ---------- 渲染分类筛选栏 ----------
   function renderCategories() {
     const bar = document.getElementById('filterBar');
@@ -129,11 +255,12 @@
     const wf = document.getElementById('waterfall');
     if (!wf || !Array.isArray(DATA.works)) return;
     wf.innerHTML = '';
-    DATA.works.forEach(w => {
+    DATA.works.forEach((w, idx) => {
       const div = document.createElement('div');
       div.className = 'waterfall-item';
       div.dataset.caption = w.caption || '';
       div.dataset.category = w.category || '';
+      div.dataset.order = String(idx);
       div.innerHTML = `
         <img src="${w.src}" alt="${w.caption || ''}" loading="lazy" />
         <div class="item-overlay">
@@ -144,6 +271,11 @@
     });
     // 重新绑定图片点击（lightbox）
     if (typeof bindNewItems === 'function') bindNewItems();
+    // 首次 masonry，再等图片加载完精确重排
+    requestAnimationFrame(function () {
+      if (typeof window.applyMasonry === 'function') window.applyMasonry();
+      if (typeof window.waitImagesAndReflow === 'function') window.waitImagesAndReflow();
+    });
   }
 
   // ---------- 分类筛选逻辑（内置，确保在渲染后绑定） ----------
@@ -200,6 +332,12 @@
           }, 250);
         }
       });
+
+      // 筛选动画完成后 masonry 重排
+      setTimeout(function () {
+        if (typeof window.applyMasonry === 'function') window.applyMasonry();
+        if (typeof window.waitImagesAndReflow === 'function') window.waitImagesAndReflow();
+      }, 260);
     });
   }
 
