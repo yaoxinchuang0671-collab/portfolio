@@ -1,37 +1,10 @@
 /* ===================================================
    作品集网站 · 主交互脚本
    支持从 localStorage (key=portfolio_data) 加载装修数据
+   注意：打字机效果和 Hero 渲染已由 render.js 接管
    =================================================== */
 
 const STORAGE_KEY = 'portfolio_data';
-
-// ── 打字机效果 ──────────────────────────────────────
-const typedEl = document.getElementById('typedText');
-let phrases = [
-  '前端开发工程师',
-  'UI/UX 设计师',
-  '全栈开发者',
-  '创意工作者',
-];
-let phraseIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-
-function type() {
-  const currentPhrases = window.phrases || phrases || [];
-  if (!currentPhrases.length) return;
-  if (phraseIndex >= currentPhrases.length) phraseIndex = 0;
-  const current = currentPhrases[phraseIndex];
-  if (!current) return;
-  typedEl.textContent = isDeleting
-    ? current.slice(0, --charIndex)
-    : current.slice(0, ++charIndex);
-
-  let delay = isDeleting ? 60 : 110;
-  if (!isDeleting && charIndex === current.length) { delay = 1800; isDeleting = true; }
-  else if (isDeleting && charIndex === 0) { isDeleting = false; phraseIndex = (phraseIndex + 1) % currentPhrases.length; delay = 400; }
-  setTimeout(type, delay);
-}
 
 // ── 导航栏滚动 ──────────────────────────────────────
 const navbar = document.getElementById('navbar');
@@ -181,11 +154,5 @@ window.addEventListener('DOMContentLoaded', () => {
   resetCharacterStyle();
   // 加载装修数据
   loadPortfolioData();
-  type();
   navbar.classList.toggle('scrolled', window.scrollY > 20);
 });
-
-// ── 暴露给 dec.js（仅保留 phrases）────────────────────
-try {
-  window.phrases = phrases;
-} catch(e) {}
