@@ -1,28 +1,26 @@
 /* =================================================
-   分类筛选逻辑
+   分类筛选逻辑（事件委托版，兼容动态渲染）
    ================================================= */
-
 (function () {
-  const filterBar  = document.getElementById('filterBar');
+  const filterBar = document.getElementById('filterBar');
   if (!filterBar) return;
 
-  const buttons = filterBar.querySelectorAll('.filter-btn');
-  const items   = document.querySelectorAll('.waterfall-item');
-
+  // 用事件委托监听分类按钮点击
   filterBar.addEventListener('click', function (e) {
     const btn = e.target.closest('.filter-btn');
     if (!btn) return;
 
     // 切换 active 状态
-    buttons.forEach(function (b) { b.classList.remove('active'); });
+    filterBar.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
     btn.classList.add('active');
 
     var cat = btn.dataset.filter;
+    var items = document.querySelectorAll('.waterfall-item');
 
     items.forEach(function (item) {
       if (cat === 'all' || item.dataset.category === cat) {
         item.style.display = '';
-        // 重新触发瀑布流重排动画
+        // 重新触发动画
         item.style.opacity = '0';
         item.style.transform = 'translateY(12px)';
         setTimeout(function () {

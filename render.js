@@ -1,13 +1,13 @@
 /* ==================================================
-   从 data.json 加载数据并渲染页面
+   从 data.json 加载数据并渲染页面（含分类筛选）
    ================================================== */
 (async function () {
   let DATA = {};
 
-  // ---------- 默认数据（fetch 失败时使用）----------
+  // ---------- 默认数据（无案例作品） ----------
   const DEFAULT_DATA = {
     hero: {
-      greeting: '👋 你好，我是',
+      greeting: '你好，我是',
       name: '你的名字',
       typedTexts: ['UI/UX 设计师', '前端开发者', '数字产品设计师'],
       bio: '这里是一段简短的自我介绍，描述你的专业方向、热情所在，以及你能带来的价值。'
@@ -17,30 +17,23 @@
       { id: 'cat2', label: '分类二' },
       { id: 'cat3', label: '分类三' },
       { id: 'cat4', label: '分类四' },
-      { id: 'cat5', label: '分类五' },
+      { id: 'cat5', label: '分类五' }
     ],
-    works: [
-      { id: 1, src: 'img/work1.gif', caption: '作品一（GIF动图）', category: 'cat1', type: 'gif' },
-      { id: 2, src: 'img/work2.svg', caption: '作品二', category: 'cat2', type: 'image' },
-      { id: 3, src: 'img/work3.svg', caption: '作品三', category: 'cat1', type: 'image' },
-      { id: 4, src: 'img/work4.svg', caption: '作品四', category: 'cat3', type: 'image' },
-      { id: 5, src: 'img/work5.svg', caption: '作品五', category: 'cat2', type: 'image' },
-      { id: 6, src: 'img/work6.svg', caption: '作品六', category: 'cat4', type: 'image' },
-      { id: 7, src: 'img/work7.svg', caption: '作品七', category: 'cat5', type: 'image' },
-      { id: 8, src: 'img/work8.svg', caption: '作品八', category: 'cat3', type: 'image' },
-    ]
+    works: [] // 默认无案例作品
   };
 
-  // ---------- 加载数据 ----------
+  // ---------- 加载数据（带 2 秒超时）----------
   async function loadData() {
     try {
-      const res = await fetch('data.json?t=' + Date.now());
+      const ctrl = new AbortController();
+      const t = setTimeout(function () { ctrl.abort(); }, 2000);
+      const res = await fetch('data.json?t=' + Date.now(), { signal: ctrl.signal });
+      clearTimeout(t);
       if (!res.ok) throw new Error('HTTP ' + res.status);
       DATA = await res.json();
       console.log('[render] data.json 加载成功');
     } catch (e) {
       console.warn('无法加载 data.json，使用内联默认数据。原因：', e.message);
-      // 尝试读取内联 <script type="application/json" id="inlineData"> 标签
       const inline = document.getElementById('inlineData');
       if (inline) {
         try { DATA = JSON.parse(inline.textContent); console.log('[render] 使用内联数据'); return; } catch(e2) {}
@@ -51,101 +44,167 @@
 
   // ---------- 渲染 Hero ----------
   function renderHero() {
-    const h = DATA.hero || {};
+    const h = DATA.hero;
+    if (!h) return;
     const elGreeting = document.getElementById('heroGreeting');
     const elName     = document.getElementById('heroName');
     const elBio      = document.getElementById('heroBio');
-
     if (elGreeting) elGreeting.textContent = h.greeting || '';
     if (elName)     elName.textContent     = h.name || '';
     if (elBio)      elBio.textContent      = h.bio || '';
 
     // 打字机效果
-    const typedTexts = h.typedTexts || [];
-    if (typedTexts.length > 0) {
-      initTyped(typedTexts);
-    }
-  }
+    const typedEl = document.getElementById('typedText');
+    if (typedEl && Array.isArray(h.typedTexts) && h.typedTexts.length > 0) {
+      let idx = 0, charIdx = 0, deleting = false;
+      let timer = null;
+      const TYPE_SPEED = 220;    // 打字：每字 220ms（中文清晰可读）
+      const DELETE_SPEED = 120;   // 删除：每字 120ms
+      const PAUSE_AFTER = 2200;  // 打完一个词后停 2.2 秒
+      const PAUSE_BEFORE = 600;   // 删完后停 0.6 秒再打下一个
 
-  // ---------- 打字机 ----------
-  function initTyped(texts) {
-    const el = document.getElementById('typedText');
-    if (!el) return;
-    let idx = 0, charIdx = 0, deleting = false;
-    const speed = 120, deleteSpeed = 60, pauseAfterWord = 1500;
+      // 先清空静态文字，避免闪现
+      typedEl.textContent = '';
 
-    function tick() {
-      const current = texts[idx];
-      if (!deleting) {
-        el.textContent = current.slice(0, charIdx + 1);
-        charIdx++;
-        if (charIdx === current.length) {
-          deleting = true;
-          setTimeout(tick, pauseAfterWord);
-          return;
+      function tick() {
+        if (timer) clearTimeout(timer);
+        const cur = h.typedTexts[idx];
+
+        if (!deleting) {
+          // 逐字打出
+          charIdx++;
+          typedEl.textContent = cur.slice(0, charIdx);
+          if (charIdx === cur.length) {
+            deleting = true;
+            timer = setTimeout(tick, PAUSE_AFTER);
+            return;
+          }
+          timer = setTimeout(tick, TYPE_SPEED);
+        } else {
+          // 逐字删除
+          charIdx--;
+          typedEl.textContent = cur.slice(0, charIdx);
+          if (charIdx === 0) {
+            deleting = false;
+            idx = (idx + 1) % h.typedTexts.length;
+            timer = setTimeout(tick, PAUSE_BEFORE);
+            return;
+          }
+          timer = setTimeout(tick, DELETE_SPEED);
         }
-        setTimeout(tick, speed);
-      } else {
-        el.textContent = current.slice(0, charIdx - 1);
-        charIdx--;
-        if (charIdx === 0) {
-          deleting = false;
-          idx = (idx + 1) % texts.length;
-          setTimeout(tick, 400);
-          return;
-        }
-        setTimeout(tick, deleteSpeed);
       }
+
+      // 页面加载后延迟 0.5 秒开始打字，避免和页面动画冲突
+      timer = setTimeout(tick, 500);
     }
-    tick();
   }
 
   // ---------- 渲染分类筛选栏 ----------
-  function renderFilterBar() {
+  function renderCategories() {
     const bar = document.getElementById('filterBar');
-    if (!bar) return;
-    const cats = DATA.categories || [];
-    let html = '<button class="filter-btn active" data-filter="all">全部</button>';
-    cats.forEach(c => {
-      html += `<button class="filter-btn" data-filter="${c.id}">${escHTML(c.label)}</button>`;
+    if (!bar || !Array.isArray(DATA.categories)) return;
+    bar.innerHTML = '';
+
+    // 全部按钮
+    const allBtn = document.createElement('button');
+    allBtn.className = 'filter-btn active';
+    allBtn.dataset.filter = 'all';
+    allBtn.textContent = '全部';
+    bar.appendChild(allBtn);
+
+    // 分类按钮
+    DATA.categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.dataset.filter = cat.id;
+      btn.textContent = cat.label;
+      bar.appendChild(btn);
     });
-    bar.innerHTML = html;
   }
 
-  // ---------- 渲染瀑布流 ----------
-  function renderWaterfall() {
+  // ---------- 渲染作品瀑布流 ----------
+  function renderWorks() {
     const wf = document.getElementById('waterfall');
-    if (!wf) return;
-    const works = DATA.works || [];
-    wf.innerHTML = works.map(w => `
-      <div class="waterfall-item" data-caption="${escAttr(w.caption || '')}" data-category="${escAttr(w.category || '')}">
-        <img src="${escAttr(w.src || '')}" alt="${escAttr(w.caption || '')}" loading="lazy" />
+    if (!wf || !Array.isArray(DATA.works)) return;
+    wf.innerHTML = '';
+    DATA.works.forEach(w => {
+      const div = document.createElement('div');
+      div.className = 'waterfall-item';
+      div.dataset.caption = w.caption || '';
+      div.dataset.category = w.category || '';
+      div.innerHTML = `
+        <img src="${w.src}" alt="${w.caption || ''}" loading="lazy" />
         <div class="item-overlay">
-          <span class="item-caption">${escHTML(w.caption || '')}</span>
-          <button class="item-zoom" aria-label="查看大图">⤢</button>
-        </div>
-      </div>
-    `).join('');
+          <span class="item-caption">${w.caption || ''}</span>
+          <button class="item-zoom" aria-label="查看大图">&#11170;</button>
+        </div>`;
+      wf.appendChild(div);
+    });
+    // 重新绑定图片点击（lightbox）
+    if (typeof bindNewItems === 'function') bindNewItems();
   }
 
-  // ---------- 工具函数 ----------
-  function escHTML(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-  function escAttr(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // ---------- 分类筛选逻辑（内置，确保在渲染后绑定） ----------
+  function initFilter() {
+    const filterBar = document.getElementById('filterBar');
+    const waterfall = document.getElementById('waterfall');
+    if (!filterBar || !waterfall) return;
+
+    filterBar.addEventListener('click', function (e) {
+      const btn = e.target.closest('.filter-btn');
+      if (!btn) return;
+
+      // 切换 active 高亮状态
+      filterBar.querySelectorAll('.filter-btn').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+
+      // 获取筛选分类
+      const cat = btn.dataset.filter;
+      const items = waterfall.querySelectorAll('.waterfall-item');
+
+      items.forEach(function (item) {
+        if (cat === 'all' || item.dataset.category === cat) {
+          // 显示
+          item.style.display = '';
+
+          // 强制重新播放 GIF/WebP 动图：cloneNode 替换是最可靠的跨浏览器方式
+          var img = item.querySelector('img');
+          if (img) {
+            var src = img.getAttribute('src') || img.src;
+            var baseSrc = src.split('?')[0];
+            if (baseSrc.match(/\.(gif|webp)(\?|$)/i)) {
+              var clone = img.cloneNode(true);
+              clone.src = baseSrc + '?t=' + Date.now();
+              img.parentNode.replaceChild(clone, img);
+            }
+          }
+
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(16px) scale(0.96)';
+          requestAnimationFrame(function () {
+            item.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0) scale(1)';
+          });
+        } else {
+          // 隐藏
+          item.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+          item.style.opacity = '0';
+          item.style.transform = 'translateY(8px) scale(0.98)';
+          setTimeout(function () {
+            item.style.display = 'none';
+          }, 250);
+        }
+      });
+    });
   }
 
-  // ---------- 启动 ----------
+  // ---------- 主流程 ----------
   await loadData();
   renderHero();
-  renderFilterBar();
-  renderWaterfall();
-
-  // 等 DOM 更新后重新绑定 gallery.js / filter.js 的事件
-  setTimeout(() => {
-    if (typeof bindNewItems === 'function') bindNewItems();
-    if (typeof initFilter === 'function') initFilter();
-  }, 100);
-
+  renderCategories();
+  renderWorks();
+  initFilter();
 })();

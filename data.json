@@ -1,25 +1,45 @@
 {
   "hero": {
-    "greeting": "👋 你好，我是",
-    "name": "你的名字",
-    "typedTexts": ["UI/UX 设计师", "前端开发者", "数字产品设计师", "创意技术爱好者"],
-    "bio": "这里是一段简短的自我介绍，描述你的专业方向、热情所在，以及你能带来的价值。"
+    "greeting": "👋 你好，这里是",
+    "name": "潮汐视界",
+    "typedTexts": [
+      "游戏海报设计师",
+      "游戏小程序搭建、装修",
+      "KOOK装修",
+      "抖音装修",
+      "直播UI"
+    ],
+    "bio": "选择潮汐视界，搭建您的视觉殿堂"
   },
   "categories": [
-    { "id": "cat1", "label": "分类一" },
-    { "id": "cat2", "label": "分类二" },
-    { "id": "cat3", "label": "分类三" },
-    { "id": "cat4", "label": "分类四" },
-    { "id": "cat5", "label": "分类五" }
+    {
+      "id": "cat1",
+      "label": "价格表"
+    },
+    {
+      "id": "cat2",
+      "label": "小程序"
+    },
+    {
+      "id": "cat3",
+      "label": "分类三"
+    },
+    {
+      "id": "cat4",
+      "label": "分类四"
+    },
+    {
+      "id": "cat5",
+      "label": "分类五"
+    }
   ],
   "works": [
-    { "id": 1, "src": "img/work1.gif", "caption": "作品一（GIF动图）", "category": "cat1", "type": "gif" },
-    { "id": 2, "src": "img/work2.svg", "caption": "作品二", "category": "cat2", "type": "image" },
-    { "id": 3, "src": "img/work3.svg", "caption": "作品三", "category": "cat1", "type": "image" },
-    { "id": 4, "src": "img/work4.svg", "caption": "作品四", "category": "cat3", "type": "image" },
-    { "id": 5, "src": "img/work5.svg", "caption": "作品五", "category": "cat2", "type": "image" },
-    { "id": 6, "src": "img/work6.svg", "caption": "作品六", "category": "cat4", "type": "image" },
-    { "id": 7, "src": "img/work7.svg", "caption": "作品七", "category": "cat5", "type": "image" },
-    { "id": 8, "src": "img/work8.svg", "caption": "作品八", "category": "cat3", "type": "image" }
+    {
+      "id": 1780097374025,
+      "src": "img/work_1780097374025_0.webp",
+      "caption": "零贰肆电竞小程序轮播图",
+      "category": "cat2",
+      "type": "image"
+    }
   ]
 }
