@@ -2,8 +2,7 @@
    图片瀑布流展示区
    ===================================================== */
 .gallery-section {
-  padding: 40px 0 80px;
-  background: var(--clr-bg2);
+  padding: 20px 0 80px;
 }
 
 .section-title {
@@ -23,25 +22,33 @@
   margin-bottom: 36px;
 }
 
-/* 瀑布流容器 — 纯 CSS column-count */
+/* 瀑布流容器 — JS Masonry 砌体布局（左到右轮询，紧密贴合） */
 .waterfall {
-  column-count: 4;
-  column-gap: 20px;
-  max-width: 1280px;
+  display: flex;
+  gap: 16px;
+  max-width: none;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0;
+}
+
+/* JS 动态创建的列容器 */
+.waterfall-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
 .waterfall-item {
-  break-inside: avoid;
-  margin-bottom: 20px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   position: relative;
   cursor: pointer;
   background: var(--clr-surface);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.25s ease;
   max-height: 600px;
+  width: 100%;
 }
 
 .waterfall-item:hover {
@@ -241,32 +248,35 @@
 /* =====================================================
    瀑布流响应式
    ===================================================== */
-@media (max-width: 1100px) {
-  .waterfall { column-count: 3; }
-}
-
 @media (max-width: 768px) {
-  .waterfall { column-count: 2; column-gap: 12px; padding: 0 16px; }
-  .waterfall-item { margin-bottom: 12px; border-radius: var(--radius-md); }
-  .gallery-section { padding: 60px 0 80px; }
+  .waterfall, .waterfall-col { gap: 12px; }
+  .waterfall-item { border-radius: var(--radius-md); }
+  .gallery-section { padding: 16px 0 60px; }
   .section-subtitle { margin-bottom: 36px; font-size: 1rem; }
   .lightbox-prev { left: 12px; width: 40px; height: 40px; font-size: 1.5rem; }
   .lightbox-next  { right: 12px; width: 40px; height: 40px; font-size: 1.5rem; }
   .lightbox-close { top: 12px; right: 12px; width: 40px; height: 40px; }
   .lightbox-caption { bottom: 20px; font-size: 0.9rem; }
+  .filter-panel { padding: 8px 14px; }
 }
 
 @media (max-width: 480px) {
-  .waterfall { column-count: 2; column-gap: 8px; padding: 0 12px; }
-  .waterfall-item { margin-bottom: 8px; }
+  .waterfall, .waterfall-col { gap: 8px; }
 }
 
 /* =====================================================
    分类筛选栏
    ===================================================== */
 .filter-bar-section {
-  background: var(--clr-bg2);
-  padding: 32px 0 16px;
+  padding: 12px 0;
+}
+
+.filter-panel {
+  background: transparent;
+  border-radius: var(--radius-lg);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
 }
 
 .filter-bar {
