@@ -171,14 +171,14 @@
           // 显示
           item.style.display = '';
 
-          // 强制重新播放 GIF/WebP 动图：cloneNode 替换是最可靠的跨浏览器方式
+          // 强制重新播放 GIF/WebP 动图：cloneNode 替换（图片已预加载，秒开）
           var img = item.querySelector('img');
           if (img) {
             var src = img.getAttribute('src') || img.src;
             var baseSrc = src.split('?')[0];
             if (baseSrc.match(/\.(gif|webp)(\?|$)/i)) {
               var clone = img.cloneNode(true);
-              clone.src = baseSrc + '?t=' + Date.now();
+              clone.src = baseSrc;  // 不用 cache-buster，浏览器从预加载缓存服务
               img.parentNode.replaceChild(clone, img);
             }
           }
@@ -203,10 +203,36 @@
     });
   }
 
+  // ---------- 预加载动图（加速切换分类） ----------
+  function preloadAnimatedImages() {
+    var imgs = document.querySelectorAll('.waterfall-item img');
+    var preloaded = 0;
+    imgs.forEach(function (img) {
+      var src = img.getAttribute('src') || img.src;
+      var baseSrc = src.split('?')[0];
+      if (baseSrc.match(/\.(gif|webp)(\?|$)/i)) {
+        // 创建一个隐藏的 Image 对象预加载到浏览器缓存
+        var preloader = new Image();
+        preloader.src = baseSrc;
+        preloader.onload = function () {
+          preloaded++;
+          // console.log('[preload] ' + baseSrc + ' ready');
+        };
+        preloader.onerror = function () {
+          // console.log('[preload] failed: ' + baseSrc);
+        };
+      }
+    });
+  }
+
   // ---------- 主流程 ----------
   await loadData();
   renderHero();
   renderCategories();
   renderWorks();
+  // 立即预加载所有动图到浏览器缓存
+  preloadAnimatedImages();
+  // 延迟 2 秒后再预加载一次（确保 DOM 渲染完成）
+  setTimeout(preloadAnimatedImages, 2000);
   initFilter();
 })();
