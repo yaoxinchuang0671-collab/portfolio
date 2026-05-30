@@ -3,22 +3,48 @@
    ================================================== */
 
 (function () {
-  const lightbox   = document.getElementById('lightbox');
-  const lightboxImg   = document.getElementById('lightboxImg');
+  const lightbox       = document.getElementById('lightbox');
+  const lightboxImg    = document.getElementById('lightboxImg');
   const lightboxCaption = document.getElementById('lightboxCaption');
-  const btnClose    = document.getElementById('lightboxClose');
-  const btnPrev     = document.getElementById('lightboxPrev');
-  const btnNext     = document.getElementById('lightboxNext');
-  const items       = Array.from(document.querySelectorAll('.waterfall-item'));
+  const btnClose       = document.getElementById('lightboxClose');
+  const btnPrev        = document.getElementById('lightboxPrev');
+  const btnNext        = document.getElementById('lightboxNext');
 
-  let currentIndex = -1;
+  let currentOrder = -1; // 当前打开作品的 data-order
 
-  function openLightbox(index) {
-    if (index < 0 || index >= items.length) return;
-    currentIndex = index;
-    const img = items[index].querySelector('img');
-    const caption = items[index].dataset.caption || '';
-    lightboxImg.src = img.src.replace(/\/\d+\/\d+$/, '/1200/0'); // 尝试拉大图
+  // 获取所有可见作品，按 data-order 排序
+  function getVisibleItems() {
+    return Array.from(document.querySelectorAll('.waterfall-item'))
+      .filter(function (it) { return it.style.display !== 'none'; })
+      .sort(function (a, b) {
+        return parseInt(a.dataset.order || '0', 10) - parseInt(b.dataset.order || '0', 10);
+      });
+  }
+
+  // 根据 data-order 找索引
+  function findIndexByOrder(order) {
+    var items = getVisibleItems();
+    for (var i = 0; i < items.length; i++) {
+      if (parseInt(items[i].dataset.order || '0', 10) === order) return i;
+    }
+    return -1;
+  }
+
+  function openLightboxByOrder(order) {
+    var items = getVisibleItems();
+    var idx = findIndexByOrder(order);
+    if (idx < 0 || idx >= items.length) return;
+
+    currentOrder = order;
+    var item    = items[idx];
+    var img     = item.querySelector('img');
+    var caption = item.dataset.caption || '';
+
+    // 尝试拉大图：把路径中的 /thumb/ 替换为 /large/ 或原图
+    var src = img.src;
+    // 如果路径里有尺寸后缀（如 /300/0），替换为 /1200/0 拉大图
+    src = src.replace(/\/(\d+)\/(\d+)$/, '/1200/0');
+    lightboxImg.src = src;
     lightboxImg.alt = img.alt;
     lightboxCaption.textContent = caption;
     lightbox.classList.add('active');
@@ -28,154 +54,185 @@
   function closeLightbox() {
     lightbox.classList.remove('active');
     document.body.style.overflow = '';
-    setTimeout(() => { lightboxImg.src = ''; }, 300);
+    setTimeout(function () { lightboxImg.src = ''; }, 300);
   }
 
   function showPrev() {
-    openLightbox((currentIndex - 1 + items.length) % items.length);
+    var items = getVisibleItems();
+    var idx = findIndexByOrder(currentOrder);
+    if (idx < 0) return;
+    idx = (idx - 1 + items.length) % items.length;
+    openLightboxByOrder(parseInt(items[idx].dataset.order || '0', 10));
   }
 
   function showNext() {
-    openLightbox((currentIndex + 1) % items.length);
+    var items = getVisibleItems();
+    var idx = findIndexByOrder(currentOrder);
+    if (idx < 0) return;
+    idx = (idx + 1) % items.length;
+    openLightboxByOrder(parseInt(items[idx].dataset.order || '0', 10));
   }
 
-  // 点击图片或放大按钮
-  items.forEach((item, i) => {
-    const zoomBtn = item.querySelector('.item-zoom');
+  // 绑定单个作品卡片
+  function bindItem(item) {
+    if (item._bound) return;
+    item._bound = true;
+
+    var order = parseInt(item.dataset.order || '0', 10);
+
+    function onClick(e) {
+      e.stopPropagation();
+      openLightboxByOrder(order);
+    }
+
+    var zoomBtn = item.querySelector('.item-zoom');
     if (zoomBtn) {
-      zoomBtn.addEventListener('click', (e) => {
+      zoomBtn.addEventListener('click', function (e) {
         e.stopPropagation();
-        openLightbox(i);
+        openLightboxByOrder(order);
       });
     }
-    item.addEventListener('click', () => openLightbox(i));
-  });
+    item.addEventListener('click', function (e) {
+      // 排除按钮区域
+      if (e.target.closest('.item-actions')) return;
+      openLightboxByOrder(order);
+    });
+  }
+
+  // 全量重新绑定（供 render.js / applyMasonry 后调用）
+  function bindAllItems() {
+    document.querySelectorAll('.waterfall-item').forEach(bindItem);
+  }
 
   // 关闭
-  if (btnClose) btnClose.addEventListener('click', closeLightbox);
-  lightbox.addEventListener('click', (e) => {
-    if (e.target === lightbox) closeLightbox();
+  if (btnClose) btnClose.addEventListener('click', function (e) {
+    e.stopPropagation();
+    closeLightbox();
   });
+  if (lightbox) {
+    lightbox.addEventListener('click', function (e) {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
 
   // 上一张 / 下一张
-  if (btnPrev) btnPrev.addEventListener('click', (e) => { e.stopPropagation(); showPrev(); });
-  if (btnNext) btnNext.addEventListener('click', (e) => { e.stopPropagation(); showNext(); });
+  if (btnPrev) btnPrev.addEventListener('click', function (e) {
+    e.stopPropagation();
+    showPrev();
+  });
+  if (btnNext) btnNext.addEventListener('click', function (e) {
+    e.stopPropagation();
+    showNext();
+  });
 
   // 键盘
-  document.addEventListener('keydown', (e) => {
-    if (!lightbox.classList.contains('active')) return;
-    if (e.key === 'Escape')    closeLightbox();
+  document.addEventListener('keydown', function (e) {
+    if (!lightbox || !lightbox.classList.contains('active')) return;
+    if (e.key === 'Escape')     closeLightbox();
     if (e.key === 'ArrowLeft')  showPrev();
     if (e.key === 'ArrowRight') showNext();
   });
 
-  // 「滚动自动加载更多」模拟
-  let loadCount = 0;
-  const MAX_LOAD = 3;
-  const moreSeeds = [
-    [800, 600], [900, 700], [700, 800], [850, 650],
-    [750, 900], [950, 700], [600, 850], [800, 750],
-  ];
-
-  function loadMore() {
-    if (loadCount >= MAX_LOAD) return;
-    const fragment = document.createDocumentFragment();
-    const seeds = moreSeeds.slice(loadCount * 4, (loadCount + 1) * 4);
-    seeds.forEach(([h, w], j) => {
-      const idx = loadCount * 4 + j + 9;
-      const div = document.createElement('div');
-      div.className = 'waterfall-item';
-      div.dataset.caption = '作品' + idx;
-      div.innerHTML = `
-        <img src="https://picsum.photos/seed/m${idx}/${w}/${h}" alt="作品${idx}" loading="lazy" />
-        <div class="item-overlay">
-          <span class="item-caption">作品${idx}</span>
-          <button class="item-zoom" aria-label="查看大图">⤢</button>
-        </div>`;
-      fragment.appendChild(div);
-    });
-    document.getElementById('waterfall').appendChild(fragment);
-    bindNewItems();
-    loadCount++;
-  }
-
-  // 滚动到底部附近时自动触发加载（防抖）
-  let scrollTimer = null;
-  let loading = false;
-  window.addEventListener('scroll', () => {
-    if (loading) return; // 正在加载中，忽略
-    if (scrollTimer) clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-      if (loadCount >= MAX_LOAD) return; // 已全部加载
-      const scrollH = document.documentElement.scrollHeight;
-      const scrollT = document.documentElement.scrollTop || document.body.scrollTop;
-      const clientH  = window.innerHeight;
-      // 距离底部 300px 以内时触发
-      if (scrollH - scrollT - clientH < 300) {
-        loading = true;
-        loadMore();
-        // 等图片加载一会儿再允许下一次触发
-        setTimeout(() => { loading = false; }, 1000);
-      }
-    }, 200);
-  }, { passive: true });
-
-  function bindNewItems() {
-    const allItems = document.querySelectorAll('.waterfall-item');
-    allItems.forEach((item, i) => {
-      if (item._bound) return;
-      item._bound = true;
-      const zoomBtn = item.querySelector('.item-zoom');
-      if (zoomBtn) {
-        zoomBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          reopenLightbox(i);
-        });
-      }
-      item.addEventListener('click', () => reopenLightbox(i));
-    });
-    // 更新 items 引用
-    items.length = 0;
-    document.querySelectorAll('.waterfall-item').forEach(el => items.push(el));
-  }
-
-  function reopenLightbox(index) {
-    currentIndex = index;
-    const img = items[index].querySelector('img');
-    const caption = items[index].dataset.caption || '';
-    lightboxImg.src = img.src;
-    lightboxImg.alt = img.alt;
-    lightboxCaption.textContent = caption;
-    lightbox.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
-
   // 初始化绑定
-  bindNewItems();
+  bindAllItems();
 
-  // 检测图片是否被裁剪，添加底部渐变提示
+  // 暴露到全局
+  window.bindNewItems = bindAllItems;
+
+  // ============ 检测图片是否被裁剪 ============
   function markClippedImages() {
-    document.querySelectorAll('.waterfall-item').forEach(item => {
-      const img = item.querySelector('img');
+    document.querySelectorAll('.waterfall-item').forEach(function (item) {
+      var img = item.querySelector('img');
       if (!img) return;
-      // 图片原始宽高比换算后的渲染高度 > 容器最大高度，说明被裁剪了
-      const renderedH = img.naturalHeight * (img.offsetWidth / img.naturalWidth);
+      var renderedH = img.naturalHeight * (img.offsetWidth / img.naturalWidth);
       if (renderedH > 600) {
         item.classList.add('clipped');
+      } else {
+        item.classList.remove('clipped');
       }
     });
   }
 
-  // 页面加载后执行
-  if (document.readyState === 'complete') {
-    markClippedImages();
-  } else {
-    window.addEventListener('load', markClippedImages);
+  // ============ Masonry 砌体布局 ============
+  function getColCount() {
+    var wf = document.getElementById('waterfall');
+    var w = wf ? wf.clientWidth : window.innerWidth;
+    if (w < 600)  return 1;
+    if (w < 900)  return 2;
+    if (w < 1200) return 3;
+    if (w < 1600) return 4;
+    return 5;
   }
-  // 动态加载的图片也重新检测
-  const obs = new MutationObserver(() => {
+
+  function applyMasonry() {
+    var wf = document.getElementById('waterfall');
+    if (!wf) return;
+
+    var allItems     = Array.from(wf.querySelectorAll('.waterfall-item'));
+    var visibleItems = allItems.filter(function (it) { return it.style.display !== 'none'; });
+    var hiddenItems  = allItems.filter(function (it) { return it.style.display === 'none'; });
+    if (visibleItems.length === 0) return;
+
+    var colCount = getColCount();
+
+    // 按原始 data.json 顺序排序
+    visibleItems.sort(function (a, b) {
+      return parseInt(a.dataset.order || '0', 10) - parseInt(b.dataset.order || '0', 10);
+    });
+
+    var cols = [];
+    for (var i = 0; i < colCount; i++) {
+      var col = document.createElement('div');
+      col.className = 'waterfall-col';
+      cols.push(col);
+    }
+
+    visibleItems.forEach(function (item, idx) {
+      cols[idx % colCount].appendChild(item);
+    });
+
+    wf.innerHTML = '';
+    cols.forEach(function (col) { wf.appendChild(col); });
+    hiddenItems.forEach(function (item) { wf.appendChild(item); });
+
+    bindAllItems();
     markClippedImages();
+  }
+
+  function waitImagesAndReflow() {
+    var wf = document.getElementById('waterfall');
+    if (!wf) return;
+    var imgs = Array.from(wf.querySelectorAll('.waterfall-item img'));
+    if (imgs.length === 0) { applyMasonry(); return; }
+
+    var checked = 0;
+    var total = imgs.length;
+
+    function tryReflow() {
+      checked++;
+      if (checked >= total) applyMasonry();
+    }
+
+    imgs.forEach(function (img) {
+      if (img.complete && img.naturalWidth > 0) {
+        tryReflow();
+      } else {
+        img.addEventListener('load', tryReflow, { once: true });
+        img.addEventListener('error', tryReflow, { once: true });
+      }
+    });
+  }
+
+  window.applyMasonry      = applyMasonry;
+  window.waitImagesAndReflow = waitImagesAndReflow;
+
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(applyMasonry, 200);
   });
-  obs.observe(document.getElementById('waterfall'), { childList: true });
+
+  var wfEl = document.getElementById('waterfall');
+  if (wfEl) new MutationObserver(markClippedImages).observe(wfEl, { childList: true });
 })();
 
