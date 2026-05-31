@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=6" />
   <link rel="stylesheet" href="gallery.css?v=3" />
   <style>
     /* 禁止图片右键保存/拖拽保存 */
@@ -190,78 +190,29 @@
 
   <script src="main.js?v=3"></script>
   <script src="gallery.js?v=3"></script>
-  <script src="render.js?v=5"></script>
-  <!-- ===== 预加载控制脚本 ===== -->
+  <script src="render.js?v=6"></script>
+  <!-- ===== 预加载屏 UI 控制（逻辑在 render.js）===== -->
   <script>
   (function() {
-    var preloader   = document.getElementById('preloader');
-    var bar         = document.getElementById('preloaderBar');
-    var statusEl    = document.getElementById('preloaderStatus');
-    var spinner     = document.getElementById('preloaderSpin');
-    var totalImages = 0;
-    var loadedCount = 0;
-    var minTime     = 1200;     // 最少显示 1.2 秒
-    var maxTime     = 12000;    // 最多等 12 秒
-    var startTime   = Date.now();
-    var finished    = false;
+    var preloader = document.getElementById('preloader');
+    var bar       = document.getElementById('preloaderBar');
+    var statusEl  = document.getElementById('preloaderStatus');
 
-    // 渲染完成后由 render.js 调用，传入所有图片 URL 数组
-    window.startPreload = function(urls) {
-      totalImages = urls.length;
-      if (totalImages === 0) {
-        // 没有图片要加载，等最小时间后隐藏
-        scheduleHide();
-        return;
-      }
-      statusEl.textContent = '\u52A0\u8F7D\u4E2D 0%';
-      bar.style.width = '0%';
-
-      urls.forEach(function(url) {
-        var img = new Image();
-        img.onload  = onOneLoaded;
-        img.onerror = onOneLoaded;  // 加载失败也算完成
-        img.src = url;
-      });
+    window.updatePreloader = function(pct, text) {
+      bar.style.width = pct + '%';
+      if (text) statusEl.textContent = text;
     };
 
-    function onOneLoaded() {
-      loadedCount++;
-      var pct = Math.round(loadedCount / totalImages * 100);
-      bar.style.width = pct + '%';
-      statusEl.textContent = '\u52A0\u8F7D\u4E2D ' + pct + '%';
-      if (loadedCount >= totalImages) {
-        scheduleHide();
-      }
-    }
-
-    function scheduleHide() {
-      if (finished) return;
-      finished = true;
-      var elapsed = Date.now() - startTime;
-      var delay = Math.max(0, minTime - elapsed);
-      setTimeout(hidePreloader, delay);
-    }
-
-    function hidePreloader() {
+    window.hidePreloader = function() {
       bar.style.width = '100%';
       statusEl.textContent = '\u5B8C\u6210';
-      // 微小的庆祝停顿
       setTimeout(function() {
         preloader.classList.add('preloader-hidden');
-        // 彻底移除
         setTimeout(function() {
           if (preloader.parentNode) preloader.remove();
         }, 600);
       }, 300);
-    }
-
-    // 安全兜底：超过最大时间强制隐藏
-    setTimeout(function() {
-      if (!finished) {
-        finished = true;
-        hidePreloader();
-      }
-    }, maxTime);
+    };
   })();
   </script>
 </html>
