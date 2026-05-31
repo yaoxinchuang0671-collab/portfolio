@@ -339,8 +339,15 @@
       div.dataset.caption = w.caption || '';
       div.dataset.category = w.category || '';
       div.dataset.order = String(idx);
+
+      // 前 KEY_COUNT 张立即加载（首屏可见），其余懒加载
+      var isKey = idx < KEY_COUNT;
+      var loadingAttr = isKey
+        ? 'loading="eager" fetchpriority="high"'
+        : 'loading="lazy"';
+
       div.innerHTML = `
-        <img src="${w.src}" alt="${w.caption || ''}" loading="lazy" />
+        <img src="${w.src}" alt="${w.caption || ''}" ${loadingAttr} />
         <div class="item-overlay">
           <span class="item-caption">${w.caption || ''}</span>
           <button class="item-zoom" aria-label="查看大图">&#11170;</button>
@@ -441,27 +448,90 @@
     });
   }
 
-  // ---------- 主流程 ----------
-  await loadData();
-  renderNav();
-  renderHero();
-  renderCategories();
-  renderWorks();
-  // 立即预加载所有动图到浏览器缓存
-  preloadAnimatedImages();
-  // 延迟 2 秒后再预加载一次（确保 DOM 渲染完成）
-  setTimeout(preloadAnimatedImages, 2000);
-  initFilter();
-
-  // ===== 启动预加载屏追踪 =====
-  var imageUrls = [];
-  if (Array.isArray(DATA.works)) {
-    DATA.works.forEach(function(w) {
-      if (w.src) imageUrls.push(w.src);
+  // ---------- 预加载关键图片（首屏可见） ----------
+  function preloadImages(urls, onProgress) {
+    return new Promise(function(resolve) {
+      var loaded = 0;
+      var total = urls.length;
+      if (total === 0) { resolve(); return; }
+      urls.forEach(function(url) {
+        var img = new Image();
+        img.onload = img.onerror = function() {
+          loaded++;
+          if (onProgress) onProgress(Math.round(loaded / total * 100));
+          if (loaded >= total) resolve();
+        };
+        img.src = url;
+      });
     });
   }
-  if (DATA.hero && DATA.hero.bg) imageUrls.push(DATA.hero.bg);
-  if (typeof window.startPreload === 'function') {
-    window.startPreload(imageUrls);
+
+  // ---------- 在 <head> 动态插入 preload link ----------
+  function addPreloadLink(href, asType) {
+    if (!href) return;
+    var id = 'preload-' + href.replace(/[^a-zA-Z0-9]/g, '_');
+    if (document.getElementById(id)) return;
+    var link = document.createElement('link');
+    link.id = id;
+    link.rel = 'preload';
+    link.as = asType || 'image';
+    link.href = href;
+    document.head.appendChild(link);
+  }
+
+  // ═══════════════════════════════════════════════════
+  // 主流程：先加载数据 → 预加载关键图片 → 完成后渲染
+  // ═══════════════════════════════════════════════════
+  await loadData();
+
+  // 收集关键图片（hero 背景 + 前 8 张作品 = 首屏可见）
+  var KEY_COUNT = 8;
+  var keyUrls = [];
+  if (DATA.hero && DATA.hero.bg) {
+    keyUrls.push(DATA.hero.bg);
+    addPreloadLink(DATA.hero.bg, 'image');
+  }
+  if (Array.isArray(DATA.works)) {
+    DATA.works.slice(0, KEY_COUNT).forEach(function(w) {
+      if (w.src) keyUrls.push(w.src);
+    });
+  }
+
+  // 预加载关键图片 + 更新进度条 + 5 秒超时兜底
+  var preloadDone = false;
+  var preloadTimeout = setTimeout(function() {
+    if (!preloadDone) {
+      preloadDone = true;
+      if (typeof window.hidePreloader === 'function') window.hidePreloader();
+      startRender();
+    }
+  }, 5000);  // 最多等 5 秒
+
+  if (typeof window.updatePreloader === 'function') {
+    window.updatePreloader(0, '正在加载作品…');
+  }
+
+  preloadImages(keyUrls, function(pct) {
+    if (typeof window.updatePreloader === 'function') {
+      window.updatePreloader(pct, '\u52A0\u8F7D\u4E2D ' + pct + '%');
+    }
+  }).then(function() {
+    if (preloadDone) return;
+    preloadDone = true;
+    clearTimeout(preloadTimeout);
+    if (typeof window.hidePreloader === 'function') window.hidePreloader();
+    startRender();
+  });
+
+  // 预加载完成后才开始渲染
+  function startRender() {
+    renderNav();
+    renderHero();
+    renderCategories();
+    renderWorks();
+    // 预加载所有动图到浏览器缓存（加速切换分类）
+    preloadAnimatedImages();
+    setTimeout(preloadAnimatedImages, 2000);
+    initFilter();
   }
 })();
