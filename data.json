@@ -41,6 +41,11 @@
     {
       "id": "cat1780333285249",
       "label": "各类物料"
+    },
+    {
+      "id": "cat_miniapp",
+      "label": "小程序UI素材",
+      "phoneFrame": true
     }
   ],
   "works": [
