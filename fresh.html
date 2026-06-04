@@ -1,0 +1,21 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>清除缓存</title></head><body style="background:#0d0d0f;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><div style="text-align:center"><h2>正在清除缓存，请稍候...</h2><p id="status" style="color:#7c6af5"></p></div>
+<script>
+var s = document.getElementById('status');
+s.textContent = '步骤1: 注销旧版 Service Worker...';
+navigator.serviceWorker.getRegistrations().then(function(regs) {
+  var ps = [];
+  regs.forEach(function(r) { ps.push(r.unregister()); });
+  return Promise.all(ps);
+}).then(function() {
+  s.textContent = '步骤2: 清除所有缓存...';
+  return caches.keys().then(function(keys) {
+    return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+  });
+}).then(function() {
+  s.textContent = '完成！正在跳转首页...';
+  setTimeout(function() { location.href = '/'; }, 800);
+}).catch(function(e) {
+  s.textContent = '错误: ' + e + '（请直接访问 / ）';
+});
+</script>
+</body></html>
