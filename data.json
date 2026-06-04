@@ -46,6 +46,10 @@
       "id": "cat_miniapp",
       "label": "小程序",
       "phoneFrame": true
+    },
+    {
+      "id": "cat1780500017357",
+      "label": "KOOK/东东平台"
     }
   ],
   "works": [
@@ -2775,6 +2779,14 @@
       "thumbnail": "img/thumb_6月3日__1__1780452688668.webp",
       "caption": "Rush麻匪电竞",
       "category": "cat_miniapp",
+      "type": "video"
+    },
+    {
+      "id": 1780505131046,
+      "src": "img/雾霾电竞KOOK背景.webp",
+      "thumbnail": "img/thumb_雾霾电竞KOOK背景.webp",
+      "caption": "雾霾电竞KOOK背景",
+      "category": "cat1780500017357",
       "type": "video"
     }
   ]
