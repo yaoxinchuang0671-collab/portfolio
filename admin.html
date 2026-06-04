@@ -1,15 +1,19 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>潮汐视界-作品集 · 管理后台</title> <style>
+﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>潮汐视界-作品集 · 管理后台</title> <style>
     :root {
-      --clr-bg: #0a0a0f;
-      --clr-bg2: #12121a;
-      --clr-surface: #1a1a2e;
-      --clr-border: #2a2a3e;
-      --clr-text: #e0e0e0;
-      --clr-text2: #8888aa;
-      --clr-accent: #6c5ce7;
-      --clr-accent2: #a29bfe;
-      --clr-danger: #ff6b6b;
-      --clr-success: #51cf66;
+      /* ═══ 黑金配色（与 ledger.html 统一）═══ */
+      --clr-bg:       #0A0A0A;
+      --clr-bg2:      #111111;
+      --clr-surface:   #1E1E1E;
+      --clr-border:    #2A2A2A;
+      --clr-text:      #E8DCC8;
+      --clr-text2:     #8A8070;
+      --clr-accent:    #D4A843;
+      --clr-accent2:   #F5D36E;
+      --clr-accent-dim: #8B7340;
+      --clr-danger:    #E06060;
+      --clr-danger-bg: #8B3A3A;
+      --clr-success:    #D4A843;
+      --clr-success-bg: rgba(212,168,67,0.12);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -346,7 +350,7 @@
     body.dragging .card-checkbox { opacity: 0 !important; }
     .card.selected {
       border-color: var(--clr-accent) !important;
-      box-shadow: 0 0 0 2px rgba(108,92,231,0.3) !important;
+      box-shadow: 0 0 0 2px rgba(212,168,67,0.3) !important;
     }
     /* 批量操作栏 */
     .batch-bar {
@@ -639,11 +643,11 @@
     .dropzone:hover,
     .dropzone.dragover {
       border-color: var(--clr-accent);
-      background: rgba(108,92,231,0.08);
+      background: rgba(212,168,67,0.08);
     }
     .dropzone.dragover {
       transform: scale(1.02);
-      box-shadow: 0 0 0 4px rgba(108,92,231,0.15);
+      box-shadow: 0 0 0 4px rgba(212,168,67,0.15);
     }
 
     /* ===== 全局拖入覆盖层 ===== */
@@ -678,8 +682,8 @@
     }
     .global-drag-overlay.active .global-drag-inner {
       transform: scale(1.03);
-      background: rgba(108,92,231,0.12);
-      box-shadow: 0 0 40px rgba(108,92,231,0.2);
+      background: rgba(212,168,67,0.12);
+      box-shadow: 0 0 40px rgba(212,168,67,0.2);
     }
     .global-drag-icon {
       font-size: 56px;
@@ -849,7 +853,7 @@
       opacity: 0.12;
       border-color: var(--clr-accent);
       border-style: dashed;
-      background: rgba(108,92,231,0.04);
+      background: rgba(212,168,67,0.04);
       box-shadow: none;
       transform: scale(0.92);
       transition: transform 0.15s;
@@ -868,7 +872,7 @@
     .drag-clone .drag-handle { display: none; }
     /* 放置占位符 */
     .drop-placeholder {
-      background: rgba(108,92,231,0.04);
+      background: rgba(212,168,67,0.04);
       border: 2px dashed var(--clr-accent);
       border-radius: 12px;
       display: flex;
@@ -881,15 +885,15 @@
     .drop-placeholder::before,
     .drop-placeholder::after { display: none; }
     @keyframes placeholderPulse {
-      0%, 100% { border-color: rgba(108,92,231,0.4); background: rgba(108,92,231,0.03); }
-      50%       { border-color: rgba(108,92,231,0.9); background: rgba(108,92,231,0.08); }
+      0%, 100% { border-color: rgba(212,168,67,0.4); background: rgba(212,168,67,0.03); }
+      50%       { border-color: rgba(212,168,67,0.9); background: rgba(212,168,67,0.08); }
     }
 
     /* 框选 */
     .selection-rect {
       position: fixed;
       border: 2px dashed var(--clr-accent2);
-      background: rgba(108,92,231,0.1);
+      background: rgba(212,168,67,0.1);
       pointer-events: none;
       z-index: 9999;
     }
@@ -925,7 +929,7 @@
     .hero-bg-dropzone:hover,
     .hero-bg-dropzone.dragover {
       border-color: var(--clr-accent);
-      background: rgba(108,92,231,0.08);
+      background: rgba(212,168,67,0.08);
     }
     .hero-bg-drop-hint { pointer-events: none; }
     .hero-bg-preview {
@@ -972,7 +976,7 @@
       font-size: 13px;
       font-weight: 600;
       color: var(--clr-accent2);
-      background: rgba(108,92,231,0.15);
+      background: rgba(212,168,67,0.15);
       padding: 3px 10px;
       border-radius: 20px;
     }
@@ -991,7 +995,7 @@
     }
     .nav-img-dropzone:hover {
       border-color: var(--clr-accent);
-      background: rgba(108,92,231,0.06);
+      background: rgba(212,168,67,0.06);
     }
     .nav-img-hint {
       text-align: center;
@@ -1028,7 +1032,62 @@
     .nav-img-remove:hover { opacity: 0.85; }
 
   </style>
-</head><body><div class="topbar"><h1>⚙️ 作品集管理后台</h1><div class="links"><button class="btn-publish" id="btnPublish" onclick="publishSite('code')" title="发布代码到线上">🚀 发布代码</button><button class="btn-publish btn-publish-all" id="btnPublishAll" onclick="publishSite('all')" title="发布代码+有变化的图片">📦 全部发布</button><a href="index.html" target="_blank">📱 预览前台</a><a href="admin.html">🔧 管理后台</a></div></div><div class="layout"><div class="sidebar"><nav><button class="active" onclick="switchPanel('hero')">🏠 Hero 设置</button><button onclick="switchPanel('works')">🖼️ 作品管理</button><button onclick="switchPanel('nav')">🔗 导航设置</button><button onclick="switchPanel('data')">📦 数据导出</button></nav></div><div class="content"><div class="panel active" id="panel-hero"><h2>Hero 区域设置</h2><div class="form-group"><label>问候语（如：👋 你好，这里是）</label><input type="text" id="f-greeting" placeholder="👋 你好，这里是" /></div><div class="form-group"><label>名字 / 品牌名</label><input type="text" id="f-name" placeholder="潮汐视界" /></div><div class="form-group"><label>打字机效果文字（每行一个，按 Enter 添加）</label><div class="tag-input" id="typedTags"><input type="text" id="typedInput" placeholder="输入后按 Enter 添加" onkeydown="addTypedText(event)" /></div></div><div class="form-group"><label>个人简介 / Bio</label> <textarea id="f-bio" placeholder="选择潮汐视界，搭建您的视觉殿堂"></textarea> </div><div class="form-group"><label> 🖼️ Hero 背景图 <span style="font-size:11px;color:var(--clr-text2);margin-left:6px;"> 推荐尺寸 1920×500px（与 Hero 卡片区域同比例），支持 JPG/PNG/GIF/WebP/SVG </span></label><div class="hero-bg-dropzone" id="heroBgDropzone"><div class="hero-bg-drop-hint" id="heroBgHint"><div style="font-size:32px;opacity:0.5;margin-bottom:8px;">📤</div><div style="font-size:13px;color:var(--clr-text);">拖拽背景图到此处，或点击选择</div><div style="font-size:11px;color:var(--clr-text2);margin-top:4px;">所有格式自动压缩优化</div></div><div class="hero-bg-preview" id="heroBgPreview" style="display:none;"><img id="heroBgPreviewImg" src="" alt="背景图预览" draggable="false" /><div class="hero-bg-preview-info" id="heroBgPreviewInfo"></div><button class="hero-bg-remove" onclick="removeHeroBg(event)">✕ 移除背景图</button></div><input type="file" id="f-hero-bg-file" accept="image/*,.psd" style="display:none;" /></div></div><div class="btn-row"><button class="btn btn-primary" onclick="saveHero()">💾 保存 Hero 设置</button></div></div><div class="panel" id="panel-works"><div class="panel-header"><h2>作品管理<span id="sortHint" class="sort-hint"></span></h2><button class="btn btn-ghost btn-sm" onclick="openCatMgmt()">⚙️ 管理分类</button></div><div class="filter-tabs" id="filterTabs"></div><div class="btn-row" style="margin-bottom:20px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="showWorkForm()">+ 新增作品</button><div class="cols-control" id="colsControl" style="margin-left:auto;"><span>每排</span><button data-cols="auto" onclick="setAdminCols('auto')">自动</button><button data-cols="1" onclick="setAdminCols(1)">1</button><button data-cols="2" onclick="setAdminCols(2)">2</button><button data-cols="3" onclick="setAdminCols(3)">3</button><button data-cols="4" onclick="setAdminCols(4)">4</button><button data-cols="5" onclick="setAdminCols(5)">5</button><button data-cols="6" onclick="setAdminCols(6)">6</button><button data-cols="7" onclick="setAdminCols(7)">7</button><button data-cols="8" onclick="setAdminCols(8)">8</button></div></div><div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn btn-sm" style="background:var(--clr-surface);color:var(--clr-text2);border:1px solid var(--clr-border);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;" onclick="renumberFiles()">💾 保存顺序</button></div><div class="batch-bar" id="batchBar" style="display:none;"><span class="batch-count" id="batchCountText">已选 0 件</span><select id="batchCatSelect"></select><button class="btn btn-sm btn-primary" onclick="applyBatchCategory()">应用分类</button><button class="btn btn-sm btn-ghost" onclick="selectAllVisible()">全选</button><button class="btn btn-sm btn-ghost" onclick="deselectAll()">取消选择</button><span class="kb-hint" id="kbHint" style="display:none;margin-left:auto;"> 💡 按 <kbd>1-7</kbd> 快捷归类 | 拖拽空白区域框选 </span></div><div id="workList" class="card-list"></div></div><div id="catMgmtOverlay" style="display:none;" class="cat-mgmt-overlay"><div class="cat-mgmt-panel"><h3>⚙️ 管理分类</h3><div class="cat-mgmt-add"><input type="text" id="catMgmtNewInput" placeholder="新分类名称" /><button class="btn btn-primary btn-sm" onclick="catMgmtAdd()">+ 添加</button></div><div id="catMgmtList"></div><div class="btn-row" style="margin-top:20px;"><button class="btn btn-primary btn-sm" onclick="catMgmtSave()">💾 保存</button><button class="btn btn-ghost btn-sm" onclick="catMgmtClose()">取消</button></div></div></div><div class="panel" id="panel-nav"><h2>🔗 导航设置</h2><p style="color:var(--clr-text2);font-size:13px;margin-bottom:20px;"> 设置导航栏显示的两个链接，每个链接可以绑定一张图片，访客点击时以弹窗形式展示（适合价格表、联系方式等）。 </p><div class="nav-item-card" id="navCard0"><div class="nav-item-header"><span class="nav-item-index">导航 1</span></div><div class="form-group"><label>链接文字</label><input type="text" id="nav-text-0" placeholder="如：联系我" /></div><div class="form-group"><label>点击后弹出的图片</label><div class="nav-img-dropzone" id="navDropzone0" onclick="triggerNavFileInput(0)"><div class="nav-img-hint" id="navHint0"><div style="font-size:28px;opacity:0.4;margin-bottom:6px;">📤</div><div style="font-size:13px;">点击上传图片</div><div style="font-size:11px;color:var(--clr-text2);margin-top:3px;">支持 JPG/PNG/WebP，自动压缩</div></div><div class="nav-img-preview" id="navPreview0" style="display:none;"><img id="navPreviewImg0" src="" alt="" /><button class="nav-img-remove" onclick="removeNavImg(event,0)">✕</button></div><input type="file" id="navFile0" accept="image/*,.psd" style="display:none;" onchange="handleNavFileChange(0)" /></div><input type="hidden" id="nav-img-0" /></div></div><div class="nav-item-card" id="navCard1" style="margin-top:20px;"><div class="nav-item-header"><span class="nav-item-index">导航 2</span></div><div class="form-group"><label>链接文字</label><input type="text" id="nav-text-1" placeholder="如：预存福利" /></div><div class="form-group"><label>点击后弹出的图片</label><div class="nav-img-dropzone" id="navDropzone1" onclick="triggerNavFileInput(1)"><div class="nav-img-hint" id="navHint1"><div style="font-size:28px;opacity:0.4;margin-bottom:6px;">📤</div><div style="font-size:13px;">点击上传图片</div><div style="font-size:11px;color:var(--clr-text2);margin-top:3px;">支持 JPG/PNG/WebP，自动压缩</div></div><div class="nav-img-preview" id="navPreview1" style="display:none;"><img id="navPreviewImg1" src="" alt="" /><button class="nav-img-remove" onclick="removeNavImg(event,1)">✕</button></div><input type="file" id="navFile1" accept="image/*,.psd" style="display:none;" onchange="handleNavFileChange(1)" /></div><input type="hidden" id="nav-img-1" /></div></div><div class="btn-row"><button class="btn btn-primary" onclick="saveNavSettings()">💾 保存导航设置</button></div></div><div class="panel" id="panel-data"><h2>数据导出 / 备份</h2><p style="color:var(--clr-text2); margin-bottom:20px;"> 💡 修改内容已<b>实时同步到首页</b>（通过浏览器本地存储）。<br> 下载 data.json 用于上传 GitHub 或备份。 </p><div class="btn-row"><button class="btn btn-primary" onclick="downloadData()">📥 下载 data.json（GitHub 上传）</button><button class="btn btn-ghost" onclick="copyDataToClipboard()">📋 复制 JSON 到剪贴板</button></div><div class="btn-row" style="margin-top:16px;"><button class="btn btn-ghost" onclick="forceSync()">🔄 强制同步到首页</button><button class="btn btn-danger btn-sm" onclick="clearStorage()" style="margin-left:auto;">🧹 清除本地缓存（恢复 data.json）</button></div><div style="margin-top:30px;"><h3 style="font-size:16px;margin-bottom:12px;">当前数据预览</h3> <pre id="dataPreview" style="background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:16px; font-size:13px; max-height:400px; overflow:auto; color:var(--clr-text2); white-space:pre-wrap;"></pre> </div></div></div></div><div class="modal-overlay" id="viewModal"><div class="modal modal-view"><button class="modal-close" onclick="closeViewModal()">✕</button><div class="view-img-wrap"><img id="viewImg" src="" alt="" draggable="false" /></div><div class="view-info" style="display:none;"><span id="viewImgInfo"></span></div><div class="view-img-caption" id="viewCaption"></div><div class="view-img-category" id="viewCategory"></div><div class="view-actions" id="viewActions"><button class="btn btn-primary" onclick="openEditFromView()">✏️ 编辑</button><button class="btn btn-danger" id="btnDeleteFromView" onclick="deleteFromView()">🗑 删除</button></div></div></div><div class="modal-overlay" id="workModal"><div class="modal"><h3 id="workFormTitle">🖼️ 新增作品</h3><div class="dropzone" id="dropzone"><div class="dropzone-icon">📤</div><div class="dropzone-text">拖拽文件到此处，或点击选择</div><div class="dropzone-hint">支持图片（JPG/PNG/GIF/WebP/PSD）和视频（MP4/MOV/AVI/MKV），自动转 WebP</div><input type="file" id="f-work-file" multiple accept="image/*,.psd,video/*,.mp4,.mov,.avi,.mkv,.webm,.m4v,.flv" /></div><div class="upload-preview" id="filePreview"><div class="preview-img-wrap"><img id="previewImg" src="" alt="" draggable="false" /></div><div class="preview-info" id="previewInfo"></div></div><div class="progress-bar-wrap" id="progressWrap"><div class="progress-bar-fill" id="progressFill"></div></div><div class="progress-text" id="progressText"></div><input type="hidden" id="f-work-src" /><div class="form-group" style="margin-top:16px;"><label>作品标题 / 描述</label><input type="text" id="f-work-caption" placeholder="零贰肆电竞小程序轮播图" /></div><div class="form-group"><label>所属分类</label><select id="f-work-cat" style="width:100%; background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:10px 14px; color:var(--clr-text); font-size:14px;"></select></div><div class="modal-actions"><button class="btn btn-primary" id="btnSaveWork" onclick="saveWork()">💾 保存</button><button class="btn btn-ghost" onclick="closeWorkModal()">取消</button></div></div></div><div class="toast" id="toast"></div><div class="modal-overlay" id="batchUploadModal" style="z-index:10001;"><div class="modal" style="max-width:520px;"><h3>📦 批量上传（<span id="batchCount">0</span> 个文件）</h3><div id="batchFileList" style="max-height:260px;overflow:auto;margin-bottom:16px;display:flex;flex-direction:column;gap:6px;"></div><div class="form-group"><label>所属分类</label><select id="f-batch-cat" style="width:100%;background:var(--clr-surface);border:1px solid var(--clr-border);border-radius:8px;padding:10px 14px;color:var(--clr-text);font-size:14px;"></select></div><div class="modal-actions"><button class="btn btn-primary" id="btnBatchUpload" onclick="doBatchUpload()">⬆️ 全部上传</button><button class="btn btn-ghost" onclick="closeBatchModal()">取消</button></div><div class="progress-bar-wrap" id="batchProgressWrap" style="display:none;margin-top:12px;"><div class="progress-bar-fill" id="batchProgressFill"></div></div><div class="progress-text" id="batchProgressText" style="display:none;"></div></div></div><div class="global-drag-overlay" id="globalDragOverlay"><div class="global-drag-inner"><div class="global-drag-icon">⬆️</div><div class="global-drag-text">松开上传</div><div class="global-drag-hint">支持 JPG / PNG / GIF / WebP，自动压缩</div></div></div> <script>
+</head><body><div class="topbar"><h1>⚙️ 作品集管理后台</h1><div class="links"><button class="btn-publish" id="btnPublish" onclick="publishSite('code')" title="发布代码到线上">🚀 发布代码</button><button class="btn-publish btn-publish-all" id="btnPublishAll" onclick="publishSite('all')" title="发布代码+有变化的图片">📦 全部发布</button><a href="index.html" target="_blank">📱 预览前台</a><a href="admin.html">🔧 管理后台</a></div></div><div class="layout"><div class="sidebar"><nav><button class="active" onclick="switchPanel('hero')">🏠 Hero 设置</button><button onclick="switchPanel('works')">🖼️ 作品管理</button><button onclick="switchPanel('nav')">🔗 导航设置</button><button onclick="switchPanel('data')">📦 数据导出</button><button onclick="switchPanel('ledger')">📒 账本工具</button></nav></div><div class="content"><div class="panel active" id="panel-hero"><h2>Hero 区域设置</h2><div class="form-group"><label>问候语（如：👋 你好，这里是）</label><input type="text" id="f-greeting" placeholder="👋 你好，这里是" /></div><div class="form-group"><label>名字 / 品牌名</label><input type="text" id="f-name" placeholder="潮汐视界" /></div><div class="form-group"><label>打字机效果文字（每行一个，按 Enter 添加）</label><div class="tag-input" id="typedTags"><input type="text" id="typedInput" placeholder="输入后按 Enter 添加" onkeydown="addTypedText(event)" /></div></div><div class="form-group"><label>个人简介 / Bio</label> <textarea id="f-bio" placeholder="选择潮汐视界，搭建您的视觉殿堂"></textarea> </div><div class="form-group"><label> 🖼️ Hero 背景图 <span style="font-size:11px;color:var(--clr-text2);margin-left:6px;"> 推荐尺寸 1920×500px（与 Hero 卡片区域同比例），支持 JPG/PNG/GIF/WebP/SVG </span></label><div class="hero-bg-dropzone" id="heroBgDropzone"><div class="hero-bg-drop-hint" id="heroBgHint"><div style="font-size:32px;opacity:0.5;margin-bottom:8px;">📤</div><div style="font-size:13px;color:var(--clr-text);">拖拽背景图到此处，或点击选择</div><div style="font-size:11px;color:var(--clr-text2);margin-top:4px;">所有格式自动压缩优化</div></div><div class="hero-bg-preview" id="heroBgPreview" style="display:none;"><img id="heroBgPreviewImg" src="" alt="背景图预览" draggable="false" /><div class="hero-bg-preview-info" id="heroBgPreviewInfo"></div><button class="hero-bg-remove" onclick="removeHeroBg(event)">✕ 移除背景图</button></div><input type="file" id="f-hero-bg-file" accept="image/*,.psd" style="display:none;" /></div></div><div class="btn-row"><button class="btn btn-primary" onclick="saveHero()">💾 保存 Hero 设置</button></div></div><div class="panel" id="panel-works"><div class="panel-header"><h2>作品管理<span id="sortHint" class="sort-hint"></span></h2><button class="btn btn-ghost btn-sm" onclick="openCatMgmt()">⚙️ 管理分类</button></div><div class="filter-tabs" id="filterTabs"></div><div class="btn-row" style="margin-bottom:20px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="showWorkForm()">+ 新增作品</button><div class="cols-control" id="colsControl" style="margin-left:auto;"><span>每排</span><button data-cols="auto" onclick="setAdminCols('auto')">自动</button><button data-cols="1" onclick="setAdminCols(1)">1</button><button data-cols="2" onclick="setAdminCols(2)">2</button><button data-cols="3" onclick="setAdminCols(3)">3</button><button data-cols="4" onclick="setAdminCols(4)">4</button><button data-cols="5" onclick="setAdminCols(5)">5</button><button data-cols="6" onclick="setAdminCols(6)">6</button><button data-cols="7" onclick="setAdminCols(7)">7</button><button data-cols="8" onclick="setAdminCols(8)">8</button></div></div><div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn btn-sm" style="background:var(--clr-surface);color:var(--clr-text2);border:1px solid var(--clr-border);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;" onclick="renumberFiles()">💾 保存顺序</button></div><div class="batch-bar" id="batchBar" style="display:none;"><span class="batch-count" id="batchCountText">已选 0 件</span><select id="batchCatSelect"></select><button class="btn btn-sm btn-primary" onclick="applyBatchCategory()">应用分类</button><button class="btn btn-sm btn-ghost" onclick="selectAllVisible()">全选</button><button class="btn btn-sm btn-ghost" onclick="deselectAll()">取消选择</button><span class="kb-hint" id="kbHint" style="display:none;margin-left:auto;"> 💡 按 <kbd>1-7</kbd> 快捷归类 | 拖拽空白区域框选 </span></div><div id="workList" class="card-list"></div></div><div id="catMgmtOverlay" style="display:none;" class="cat-mgmt-overlay"><div class="cat-mgmt-panel"><h3>⚙️ 管理分类</h3><div class="cat-mgmt-add"><input type="text" id="catMgmtNewInput" placeholder="新分类名称" /><button class="btn btn-primary btn-sm" onclick="catMgmtAdd()">+ 添加</button></div><div id="catMgmtList"></div><div class="btn-row" style="margin-top:20px;"><button class="btn btn-primary btn-sm" onclick="catMgmtSave()">💾 保存</button><button class="btn btn-ghost btn-sm" onclick="catMgmtClose()">取消</button></div></div></div><div class="panel" id="panel-nav"><h2>🔗 导航设置</h2><p style="color:var(--clr-text2);font-size:13px;margin-bottom:20px;"> 设置导航栏显示的两个链接，每个链接可以绑定一张图片，访客点击时以弹窗形式展示（适合价格表、联系方式等）。 </p><div class="nav-item-card" id="navCard0"><div class="nav-item-header"><span class="nav-item-index">导航 1</span></div><div class="form-group"><label>链接文字</label><input type="text" id="nav-text-0" placeholder="如：联系我" /></div><div class="form-group"><label>点击后弹出的图片</label><div class="nav-img-dropzone" id="navDropzone0" onclick="triggerNavFileInput(0)"><div class="nav-img-hint" id="navHint0"><div style="font-size:28px;opacity:0.4;margin-bottom:6px;">📤</div><div style="font-size:13px;">点击上传图片</div><div style="font-size:11px;color:var(--clr-text2);margin-top:3px;">支持 JPG/PNG/WebP，自动压缩</div></div><div class="nav-img-preview" id="navPreview0" style="display:none;"><img id="navPreviewImg0" src="" alt="" /><button class="nav-img-remove" onclick="removeNavImg(event,0)">✕</button></div><input type="file" id="navFile0" accept="image/*,.psd" style="display:none;" onchange="handleNavFileChange(0)" /></div><input type="hidden" id="nav-img-0" /></div></div><div class="nav-item-card" id="navCard1" style="margin-top:20px;"><div class="nav-item-header"><span class="nav-item-index">导航 2</span></div><div class="form-group"><label>链接文字</label><input type="text" id="nav-text-1" placeholder="如：预存福利" /></div><div class="form-group"><label>点击后弹出的图片</label><div class="nav-img-dropzone" id="navDropzone1" onclick="triggerNavFileInput(1)"><div class="nav-img-hint" id="navHint1"><div style="font-size:28px;opacity:0.4;margin-bottom:6px;">📤</div><div style="font-size:13px;">点击上传图片</div><div style="font-size:11px;color:var(--clr-text2);margin-top:3px;">支持 JPG/PNG/WebP，自动压缩</div></div><div class="nav-img-preview" id="navPreview1" style="display:none;"><img id="navPreviewImg1" src="" alt="" /><button class="nav-img-remove" onclick="removeNavImg(event,1)">✕</button></div><input type="file" id="navFile1" accept="image/*,.psd" style="display:none;" onchange="handleNavFileChange(1)" /></div><input type="hidden" id="nav-img-1" /></div></div><div class="btn-row"><button class="btn btn-primary" onclick="saveNavSettings()">💾 保存导航设置</button></div></div><div class="panel" id="panel-data"><h2>数据导出 / 备份</h2><p style="color:var(--clr-text2); margin-bottom:20px;"> 💡 修改内容已<b>实时同步到首页</b>（通过浏览器本地存储）。<br> 下载 data.json 用于上传 GitHub 或备份。 </p><div class="btn-row"><button class="btn btn-primary" onclick="downloadData()">📥 下载 data.json（GitHub 上传）</button><button class="btn btn-ghost" onclick="copyDataToClipboard()">📋 复制 JSON 到剪贴板</button></div><div class="btn-row" style="margin-top:16px;"><button class="btn btn-ghost" onclick="forceSync()">🔄 强制同步到首页</button><button class="btn btn-danger btn-sm" onclick="clearStorage()" style="margin-left:auto;">🧹 清除本地缓存（恢复 data.json）</button></div><div style="margin-top:30px;"><h3 style="font-size:16px;margin-bottom:12px;">当前数据预览</h3> <pre id="dataPreview" style="background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:16px; font-size:13px; max-height:400px; overflow:auto; color:var(--clr-text2); white-space:pre-wrap;"></pre> </div></div><div class="panel" id="panel-ledger"><h2>📒 账本工具</h2><div style="margin-bottom:12px;font-size:13px;color:var(--clr-text2);"> 内置潮汐账本工具，可直接在此记账、管理订单与客户。 </div><div style="width:100%;height:calc(100vh - 200px);border-radius:12px;overflow:hidden;border:1px solid var(--clr-border);"><iframe id="ledgerFrame" src="ledger.html" style="width:100%;height:100%;border:none;"></iframe></div></div></div></div><div class="modal-overlay" id="viewModal"><div class="modal modal-view"><button class="modal-close" onclick="closeViewModal()">✕</button><div class="view-img-wrap"><img id="viewImg" src="" alt="" draggable="false" /></div><div class="view-info" style="display:none;"><span id="viewImgInfo"></span></div><div class="view-img-caption" id="viewCaption"></div><div class="view-img-category" id="viewCategory"></div><div class="view-actions" id="viewActions"><button class="btn btn-primary" onclick="openEditFromView()">✏️ 编辑</button><button class="btn btn-danger" id="btnDeleteFromView" onclick="deleteFromView()">🗑 删除</button></div></div></div><div class="modal-overlay" id="workModal"><div class="modal"><h3 id="workFormTitle">🖼️ 新增作品</h3><div class="dropzone" id="dropzone"><div class="dropzone-icon">📤</div><div class="dropzone-text">拖拽文件到此处，或点击选择</div><div class="dropzone-hint">支持图片（JPG/PNG/GIF/WebP/PSD）和视频（MP4/MOV/AVI/MKV），自动转 WebP</div><input type="file" id="f-work-file" multiple accept="image/*,.psd,video/*,.mp4,.mov,.avi,.mkv,.webm,.m4v,.flv" /></div><div class="upload-preview" id="filePreview"><div class="preview-img-wrap"><img id="previewImg" src="" alt="" draggable="false" /></div><div class="preview-info" id="previewInfo"></div></div><div class="progress-bar-wrap" id="progressWrap"><div class="progress-bar-fill" id="progressFill"></div></div><div class="progress-text" id="progressText"></div><input type="hidden" id="f-work-src" /><div class="form-group" style="margin-top:16px;"><label>作品标题 / 描述</label><input type="text" id="f-work-caption" placeholder="零贰肆电竞小程序轮播图" /></div><div class="form-group"><label>所属分类</label><select id="f-work-cat" style="width:100%; background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:10px 14px; color:var(--clr-text); font-size:14px;"></select></div><div class="modal-actions"><button class="btn btn-primary" id="btnSaveWork" onclick="saveWork()">💾 保存</button><button class="btn btn-ghost" onclick="closeWorkModal()">取消</button></div></div></div><div class="toast" id="toast"></div><div class="modal-overlay" id="batchUploadModal" style="z-index:10001;"><div class="modal" style="max-width:520px;"><h3>📦 批量上传（<span id="batchCount">0</span> 个文件）</h3><div id="batchFileList" style="max-height:260px;overflow:auto;margin-bottom:16px;display:flex;flex-direction:column;gap:6px;"></div><div class="form-group"><label>所属分类</label><select id="f-batch-cat" style="width:100%;background:var(--clr-surface);border:1px solid var(--clr-border);border-radius:8px;padding:10px 14px;color:var(--clr-text);font-size:14px;"></select></div><div class="modal-actions"><button class="btn btn-primary" id="btnBatchUpload" onclick="doBatchUpload()">⬆️ 全部上传</button><button class="btn btn-ghost" onclick="closeBatchModal()">取消</button></div><div class="progress-bar-wrap" id="batchProgressWrap" style="display:none;margin-top:12px;"><div class="progress-bar-fill" id="batchProgressFill"></div></div><div class="progress-text" id="batchProgressText" style="display:none;"></div></div></div><div class="global-drag-overlay" id="globalDragOverlay"><div class="global-drag-inner"><div class="global-drag-icon">⬆️</div><div class="global-drag-text">松开上传</div><div class="global-drag-hint">支持 JPG / PNG / GIF / WebP，自动压缩</div></div></div> <script>
+    // ══════════════════════════════════════
+    // 认证模块：统一 fetch 包装 + 登录检查
+    // ══════════════════════════════════════
+    (function () {
+      var STORE_KEY = 'tidal_admin_token';
+
+      /** 从 localStorage 读取 Token，自动去除多余前缀 */
+      function getToken() {
+        var t = localStorage.getItem(STORE_KEY) || '';
+        t = t.trim();
+        if (t.substring(0, 7) === 'Bearer ') t = t.substring(7);
+        if (t.substring(0, 6) === 'bearer ') t = t.substring(6);
+        return t;
+      }
+
+      /**
+       * authFetch —— 包装原生 fetch
+       * 1. 自动附加 Authorization Header（Token 存在时）
+       * 2. 遇到 401 自动跳转到 login.html
+       */
+      window.authFetch = function (url, opts) {
+        opts = opts || {};
+        var token = getToken();
+        if (token) {
+          opts.headers = opts.headers || {};
+          if (!(opts.headers instanceof Headers)) {
+            opts.headers = Object.assign({}, opts.headers);
+          }
+          opts.headers['Authorization'] = 'Bearer ' + token;
+        }
+        return fetch(url, opts).then(function (res) {
+          if (res.status === 401) {
+            localStorage.removeItem(STORE_KEY);
+            // 必须用 top.location 跳转，避免在 iframe 内跳转
+            var next = location.pathname.replace(/^.*\//, '');
+            window.top.location.href = 'login.html?next=' + encodeURIComponent(next);
+            return new Promise(function () {});
+          }
+          return res;
+        });
+      };
+
+      // 页面加载时检查登录状态（仅 admin/ledger 页面需要）
+      var page = location.pathname.split('/').pop();
+      if (['admin.html', 'ledger.html'].indexOf(page) !== -1) {
+        var token = getToken();
+        if (!token) {
+          // 无 Token，跳登录页
+          location.href = 'login.html?next=' + encodeURIComponent(page);
+        }
+        // 有 Token：在第一个 authFetch 调用时服务端会返回 401（如果 Token 无效），
+        // 那时会自动跳转，无需额外验证请求
+      }
+    })();
+
     // ============ 数据 ============
     let DATA = {};
     let editingWorkId = null;
@@ -1066,7 +1125,7 @@
       // 1. 始终先从 data.json 加载完整数据作为基准
       let serverData = null;
       try {
-        const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-cache' });
+        const res = await authFetch('data.json?t=' + Date.now(), { cache: 'no-cache' });
         if (res.ok) {
           serverData = await res.json();
         } else {
@@ -1227,7 +1286,7 @@
       // 压缩上传
       var formData = new FormData();
       formData.append('file', file);
-      fetch('/compress-image', { method:'POST', body: formData })
+      authFetch('/compress-image', { method:'POST', body: formData })
         .then(function(res) {
           if (!res.ok) throw new Error('压缩失败');
           return res.json();
@@ -1248,7 +1307,7 @@
           // 压缩失败，直接上传原图
           var fd = new FormData();
           fd.append('file', file);
-          return fetch('/upload', { method:'POST', body: fd })
+          return authFetch('/upload', { method:'POST', body: fd })
             .then(function(res) { return res.json(); })
             .then(function(result) {
               heroBgCompressedPath = result.path;
@@ -1315,7 +1374,7 @@
       }
 
       // 同时持久化到服务端 data.json（防止 localStorage 丢失导致数据回退）
-      fetch('/save-data', {
+      authFetch('/save-data', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(DATA)
@@ -1939,7 +1998,6 @@
       document.getElementById('f-work-caption').value = w.caption || '';
       renderCatSelect(w.category || '');
       resetFileInput();
-      document.getElementById('f-work-src').value = w.src || '';
       if (w.src) showExistingPreview(w.src);
       document.body.style.overflow = 'hidden';
       viewWorkIdx = null;
@@ -2107,7 +2165,7 @@
       try {
         var formData = new FormData();
         formData.append('file', file);
-        var res = await fetch('/compress-image', { method: 'POST', body: formData });
+        var res = await authFetch('/compress-image', { method: 'POST', body: formData });
         if (!res.ok) {
           var err = await res.json().catch(function() { return { error: '压缩失败' }; });
           document.getElementById('previewInfo').innerHTML =
@@ -2183,6 +2241,7 @@
       var btn = document.getElementById('btnSaveWork');
       btn.disabled = true;
       btn.textContent = '⏳ 保存中...';
+      var renamedThumbnail = null;   // rename 返回的缩略图新路径
 
       try {
         var caption = document.getElementById('f-work-caption').value.trim();
@@ -2193,7 +2252,13 @@
           caption = nextNum + ' 作品';
         }
         var cat = document.getElementById('f-work-cat').value;
-        var src = document.getElementById('f-work-src').value.trim();
+        // 编辑模式且无新文件时，直接使用已有图片路径
+        var src = '';
+        if (editingWorkId !== null && !compressedPath && !selectedFile) {
+          src = (DATA.works[editingWorkId].src || '').trim();
+        } else {
+          src = document.getElementById('f-work-src').value.trim();
+        }
 
         // 压缩已完成：直接使用压缩后路径
         if (compressedPath) {
@@ -2277,7 +2342,7 @@
           if (caption !== oldCaption && oldSrc.indexOf('img/') === 0) {
             showToast('正在重命名图片文件...', 'info');
             try {
-              var _r = await fetch('/rename-image', {
+              var _r = await authFetch('/rename-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ old_src: oldSrc, new_name: caption })
@@ -2286,6 +2351,10 @@
               if (_d.ok) {
                 src = _d.new_src;
                 document.getElementById('f-work-src').value = src;
+                // 同步更新缩略图路径
+                if (_d.new_thumbnail) {
+                  renamedThumbnail = _d.new_thumbnail;
+                }
                 showToast('图片文件已重命名：' + _d.new_name, 'success');
               } else {
                 showToast('重命名失败：' + (_d.error || '未知错误'), 'error');
@@ -2298,7 +2367,7 @@
 
         if (editingWorkId !== null) {
           DATA.works[editingWorkId].src = src;
-          DATA.works[editingWorkId].thumbnail = (result && result.thumbnail) || '';
+          DATA.works[editingWorkId].thumbnail = renamedThumbnail || (result && result.thumbnail) || '';
           DATA.works[editingWorkId].caption = caption;
           DATA.works[editingWorkId].category = cat;
         } else {
@@ -2312,7 +2381,7 @@
           if (src && src.indexOf('img/') === 0) {
             showToast('正在自动命名文件...', 'info');
             try {
-              var _r = await fetch('/rename-image', {
+              var _r = await authFetch('/rename-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ old_src: src, new_name: autoCaption })
@@ -2320,8 +2389,12 @@
               var _d = await _r.json();
               if (_d.ok) {
                 src = _d.new_src;
-                // 同步更新 thumbnail 路径（rename 接口只改了原文件，thumbnail 需从 new_src 推算）
-                if (result && result.thumbnail) {
+                // 同步更新 thumbnail 路径（优先用服务端返回的 new_thumbnail）
+                if (_d.new_thumbnail) {
+                  renamedThumbnail = _d.new_thumbnail;
+                  // 同时更新 result.thumbnail，让下方 push 时能拿到正确路径
+                  if (result) result.thumbnail = _d.new_thumbnail;
+                } else if (result && result.thumbnail) {
                   var newThumbName = 'thumb_' + src.substring(src.lastIndexOf('/') + 1);
                   result.thumbnail = src.substring(0, src.lastIndexOf('/') + 1) + newThumbName;
                 }
@@ -2366,7 +2439,7 @@
       var src = w.src || '';
       if (src && src.indexOf('img/') === 0) {
         showToast('正在删除图片文件...', 'info');
-        fetch('/' + src, { method: 'DELETE' })
+        authFetch('/?path=' + encodeURIComponent(src), { method: 'DELETE' })
           .then(function(r) { return r.json(); })
           .then(function(resp) {
             if (!resp.ok) showToast('文件删除失败：' + (resp.error || '未知错误'), 'error');
@@ -2640,7 +2713,7 @@
       btn.textContent = '⏳ ' + label + '中...';
       showToast('🚀 正在' + label + '到线上，请稍候...', 'info');
 
-      fetch('/publish?mode=' + mode, { method: 'POST' })
+      authFetch('/publish?mode=' + mode, { method: 'POST' })
         .then(function(r) { return r.json(); })
         .then(function(data) {
           btn.disabled = false;
@@ -2720,7 +2793,7 @@
 
       showToast('正在压缩上传图片…', 'info');
 
-      fetch('/compress-image', { method: 'POST', body: formData })
+      authFetch('/compress-image', { method: 'POST', body: formData })
         .then(function(r) { return r.json(); })
         .then(function(data) {
           if (data.path) {
