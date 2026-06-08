@@ -444,7 +444,7 @@
   <script src="js/ui/back-to-top.js?v=2"></script>
   <!-- 业务模块 -->
   <script src="gallery.js?v=20"></script>
-  <script src="render.js?v=27"></script>
+  <script src="render.js?v=28"></script>
   <!-- 入口 -->
   <script src="js/main.js?v=10"></script>
   <!-- 预加载屏 UI（render.js 驱动） -->
@@ -624,7 +624,12 @@
 
         for (var i = 0; i < data.length; i += 4) {
           var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-          var brightness = (r * 0.299 + g * 0.587 + b * 0.114) * (a / 255);
+          // 透明像素直接跳过（保留透明）
+          if (a < 128) {
+            data[i + 3] = 0;
+            continue;
+          }
+          var brightness = r * 0.299 + g * 0.587 + b * 0.114;
 
           if (brightness < 120) {
             var px = (i / 4) % iw;
