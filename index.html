@@ -564,15 +564,13 @@
       document.body.style.overflow = '';
     };
 
-    // ── 方式1：直接显示图片（线上/本地通用，无 CORS 问题） ──
+    // ── 方式1：直接展示图片（线上/本地统一，预渲染透明底二维码） ──
     function showContactQRImage(dataUrl) {
       var img = document.getElementById('contactQrImg');
       var canvas = document.getElementById('contactQrCanvas');
       if (!img) return;
-
       img.style.display = 'none';
       if (canvas) canvas.style.display = 'none';
-
       img.onload = function() {
         img.style.display = 'block';
         if (canvas) canvas.style.display = 'none';
@@ -580,7 +578,6 @@
       img.onerror = function() {
         drawContactQRPlaceholder();
       };
-      // 线上通过 toCdnUrl 转 COS 地址，本地直读 img/xxx
       img.src = (typeof toCdnUrl === 'function') ? toCdnUrl(dataUrl) : dataUrl;
     }
 
