@@ -889,4 +889,7 @@
   // 延迟预加载动图（不阻塞首屏）
   setTimeout(preloadAnimatedImages, 1000);
   setTimeout(preloadAnimatedImages, 3000);
+
+  // 暴露 DATA 到全局，供联系弹窗等内联脚本读取
+  window.DATA = DATA;
 })();
