@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>潮汐视界 · 管理登录</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: #0A0A0A;
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #E8DCC8;
+  }
+  .box {
+    width: 380px;
+    background: #1E1E1E;
+    border: 1px solid #2A2A2A;
+    border-radius: 16px;
+    padding: 48px 36px 40px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  .logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .logo h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #D4A843;
+    letter-spacing: 2px;
+  }
+  .logo p {
+    font-size: 12px;
+    color: #8A8070;
+    margin-top: 6px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    color: #8A8070;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  input[type="password"] {
+    width: 100%;
+    padding: 12px 16px;
+    background: #111111;
+    border: 1px solid #2A2A2A;
+    border-radius: 8px;
+    color: #E8DCC8;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 1px;
+  }
+  input[type="password"]:focus {
+    border-color: #D4A843;
+    box-shadow: 0 0 0 3px rgba(212,168,67,0.12);
+  }
+  button {
+    width: 100%;
+    margin-top: 24px;
+    padding: 13px;
+    background: linear-gradient(135deg, #D4A843, #8B7340);
+    color: #0A0A0A;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.88; }
+  button:active { opacity: 0.75; }
+  .err {
+    margin-top: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: #E06060;
+    min-height: 20px;
+  }
+  .hint {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 11px;
+    color: #555;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="box">
+  <div class="logo">
+    <h1>潮 汐 视 界</h1>
+    <p>TIDAL VISION · ADMIN</p>
+  </div>
+
+  <label for="token-input">访问令牌（Bearer Token）</label>
+  <input type="password" id="token-input" placeholder="粘贴 Token 后回车或点击登录"
+         autocomplete="off" autofocus
+         onkeydown="if(event.key==='Enter') doLogin()" />
+
+  <button onclick="doLogin()">登 录</button>
+
+  <div class="err" id="err-msg"></div>
+
+  <div class="hint">
+    Token 由服务器启动时生成，请在服务器控制台查看<br>
+    Token 将保存在浏览器本地，下次自动登录<br>
+    <a href="#" onclick="localStorage.removeItem(STORE_KEY);document.getElementById('token-input').value='';showErr('已清除，请重新输入');return false;"
+       style="color:#8B7340;text-decoration:none;margin-top:6px;display:inline-block;">清除 Token 重新输入</a>
+  </div>
+</div>
+
+<script>
+  const STORE_KEY = 'tidal_admin_token';
+  const GUARD_KEY = 'tidal_redirect_guard';
+
+  // 重定向防抖：2 秒内不允许反复跳转
+  function canRedirect() {
+    var last = parseInt(sessionStorage.getItem(GUARD_KEY) || '0', 10);
+    return (Date.now() - last) > 2000;
+  }
+  function markRedirect() {
+    sessionStorage.setItem(GUARD_KEY, String(Date.now()));
+  }
+
+  // 页面加载时：已保存 Token 自动验证，有效则直达后台
+  window.addEventListener('DOMContentLoaded', function () {
+    var saved = localStorage.getItem(STORE_KEY);
+    if (saved && canRedirect()) {
+      saved = saved.trim();
+      if (saved.substring(0, 7) === 'Bearer ') saved = saved.substring(7);
+      if (saved.substring(0, 6) === 'bearer ') saved = saved.substring(6);
+      localStorage.setItem(STORE_KEY, saved);
+      // 尝试验证 Token 有效性，成功则自动跳转
+      verifyToken(saved).then(function(ok) {
+        if (ok) {
+          markRedirect();
+          redirectAdmin();
+          return;
+        }
+        // 无效则清除并让用户重新输入
+        localStorage.removeItem(STORE_KEY);
+        document.getElementById('token-input').value = '';
+        showErr('已保存的 Token 已失效，请重新输入');
+      });
+    } else if (saved) {
+      // 防抖触发：不清除输入框，让用户手动确认
+      document.getElementById('token-input').value = saved;
+      showErr('检测到登录跳转过快，请手动点击登录');
+    }
+  });
+
+  function doLogin() {
+    var token = document.getElementById('token-input').value.trim();
+    if (!token) {
+      showErr('请输入 Token');
+      return;
+    }
+    // 自动去除可能带上的 "Bearer " 前缀
+    if (token.substring(0, 7) === 'Bearer ') token = token.substring(7);
+    if (token.substring(0, 6) === 'bearer ') token = token.substring(6);
+
+    // 先存入 localStorage，再跳转（信任用户输入，延迟验证）
+    localStorage.setItem(STORE_KEY, token);
+    markRedirect();
+    redirectAdmin();
+  }
+
+  function verifyToken(token) {
+    // 用 /check-auth 验证 Token 有效性
+    return fetch('/check-auth', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    }).then(function (r) {
+      return r.ok;
+    }).catch(function () {
+      return false;
+    });
+  }
+
+  function redirectAdmin() {
+    var params = new URLSearchParams(location.search);
+    var next = params.get('next') || 'admin.html';
+    location.href = next;
+  }
+
+  function showErr(msg) {
+    document.getElementById('err-msg').textContent = msg;
+  }
+</script>
+
+</body>
+</html>
