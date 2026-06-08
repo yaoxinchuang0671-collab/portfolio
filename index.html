@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>潮汐视界-作品集</title>
+
+  <link rel="stylesheet" href="styles.css?v=30" />
+  <link rel="stylesheet" href="gallery.css?v=27" />
+  <style>
+    /* 禁止图片右键保存/拖拽保存 */
+    img {
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      user-drag: none;
+      -webkit-touch-callout: none;
+      pointer-events: auto;
+    }
+    /* 禁用整个页面的右键菜单（保留输入框等） */
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    /* 允许输入框/文本框选中文字 */
+    input, textarea {
+      -webkit-user-select: auto;
+      -moz-user-select: auto;
+      -ms-user-select: auto;
+      user-select: auto;
+    }
+    /* ===== 导航图片弹窗 ===== */
+    #navImgOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.82);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #navImgOverlay.active { display: flex; }
+    #navImgOverlay .nav-modal-inner {
+      position: relative;
+      max-width: min(90vw, 600px);
+      width: 100%;
+      background: #1a1a2e;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    }
+    #navImgOverlay .nav-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    #navImgTitle {
+      font-size: 15px;
+      font-weight: 600;
+      color: #e0e0e0;
+    }
+    #navImgOverlay .nav-modal-close {
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+      transition: color 0.2s;
+    }
+    #navImgOverlay .nav-modal-close:hover { color: #fff; }
+    #navImgModal {
+      display: block;
+      width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+      -webkit-user-drag: none;
+      user-drag: none;
+      -webkit-touch-callout: none;
+    }
+    /* ===== 联系合作弹窗 ===== */
+    .contact-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6,6,10,0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    .contact-modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+    .contact-modal {
+      position: relative;
+      width: min(400px, 92vw);
+      background: linear-gradient(145deg, #13131C 0%, #0A0A12 100%);
+      border: 1px solid rgba(157,141,245,0.15);
+      border-radius: 24px;
+      padding: 36px 32px 28px;
+      box-shadow:
+        0 20px 60px rgba(0,0,0,0.5),
+        0 0 0 1px rgba(0,240,255,0.05),
+        0 0 80px rgba(157,141,245,0.08);
+      transform: translateY(30px) scale(0.96);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+    .contact-modal-overlay.active .contact-modal {
+      transform: translateY(0) scale(1);
+    }
+    .contact-modal-glow {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(157,141,245,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .contact-modal-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #8A8AA0;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      z-index: 10;
+    }
+    .contact-modal-close:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border-color: rgba(157,141,245,0.3);
+      transform: rotate(90deg);
+    }
+    .contact-modal-header {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .contact-modal-header h3 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #F0F0F5;
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+    .contact-modal-header p {
+      font-size: 13px;
+      color: #8A8AA0;
+      line-height: 1.5;
+    }
+    .contact-modal-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .contact-qr-wrap {
+      position: relative;
+      padding: 8px;
+    }
+    .contact-qr-frame {
+      position: relative;
+      background: #0A0A12;
+      border-radius: 16px;
+      padding: 12px;
+      border: 1px solid rgba(157,141,245,0.2);
+      overflow: hidden;
+    }
+    .contact-qr-scanline {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0,240,255,0.6), transparent);
+      box-shadow: 0 0 8px rgba(0,240,255,0.4);
+      animation: qrScanline 2.5s ease-in-out infinite;
+      z-index: 5;
+      pointer-events: none;
+    }
+    @keyframes qrScanline {
+      0%, 100% { top: 12px; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      50% { top: calc(100% - 14px); }
+    }
+    .contact-qr-frame canvas {
+      display: block;
+      border-radius: 10px;
+      max-width: 100%;
+    }
+    .contact-qr-glow {
+      position: absolute;
+      inset: -10px;
+      border-radius: 24px;
+      background: radial-gradient(ellipse at center, rgba(157,141,245,0.1) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .contact-qr-hint {
+      font-size: 12px;
+      color: #505064;
+      text-align: center;
+      margin-top: 4px;
+    }
+    .contact-modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.04);
+    }
+    .contact-modal-footer span {
+      font-size: 11px;
+      color: #505064;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+    .contact-deco-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(157,141,245,0.2), transparent);
+      max-width: 60px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 预加载屏 -->
+  <div class="preloader" id="preloader">
+    <div class="preloader-logo">潮汐视界<span class="dot">.</span></div>
+    <div class="preloader-spin" id="preloaderSpin"></div>
+    <div class="preloader-bar-wrap"><div class="preloader-bar" id="preloaderBar"></div></div>
+    <p class="preloader-status" id="preloaderStatus">正在准备作品…</p>
+  </div>
+
+  <!-- 禁用右键菜单（图片/页面） -->
+  <script>
+    document.addEventListener('contextmenu', function(e) {
+      if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+        e.preventDefault();
+        return false;
+      }
+    });
+    // 禁用开发者工具常用快捷键
+    document.addEventListener('keydown', function(e) {
+      // Ctrl+Shift+I / F12 / Ctrl+Shift+J / Ctrl+U / Ctrl+S
+      if (
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+        e.key === 'F12' ||
+        (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S'))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  </script>
+
+  <!-- 滚动进度条 -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- ===== 导航栏 ===== -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#home" class="logo">潮汐视界<span class="dot">.</span></a>
+      <nav class="nav-links" style="display:flex;gap:36px">
+        <a href="login.html" class="nav-link nav-link-admin" id="adminEntry" style="margin-left:16px;font-size:0.9rem;font-weight:600;color:#7c6af5;text-decoration:none" onmouseover="this.style.color='#f5816a'" onmouseout="this.style.color='#7c6af5'">管理</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Hero 区域 ===== -->
+  <section class="hero" id="home">
+    <!-- 粒子背景 -->
+    <canvas class="hero-particles" id="heroParticles"></canvas>
+    <!-- 视频背景（可选，覆盖粒子） -->
+    <video class="hero-video" id="heroVideo" autoplay muted loop playsinline poster="" style="display:none;"></video>
+    <div class="hero-overlay" id="heroOverlay"></div>
+    <div class="hero-content">
+      <p class="hero-greeting" id="heroGreeting"></p>
+      <h1 class="hero-name" id="heroName" data-text="潮汐视界">潮汐视界</h1>
+      <p class="hero-title" id="heroTitle">
+        <span id="typedWrap"></span><span class="cursor">|</span>
+      </p>
+      <p class="hero-bio" id="heroBio"></p>
+      <div class="hero-actions">
+        <button class="btn-tech btn-tech-primary" onclick="document.getElementById('gallery').scrollIntoView({behavior:'smooth'})">
+          查看作品 ↓
+        </button>
+        <button class="btn-tech btn-tech-ghost" onclick="openContactModal()">
+          联系合作
+        </button>
+      </div>
+    </div>
+    <div class="scroll-indicator" id="scrollIndicator">
+      <div class="mouse"><div class="wheel"></div></div>
+      <span class="scroll-text">向下滚动</span>
+    </div>
+  </section>
+
+  <!-- ===== 分类筛选栏 ===== -->
+  <section class="filter-bar-section fade-up" id="filterBarSection">
+    <div class="container">
+      <div class="filter-panel" id="filterPanel">
+        <div class="filter-bar" id="filterBar">
+          <!-- 分类按钮由 render.js 动态生成 -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 瀑布流展示区（由 render.js 动态渲染）===== -->
+  <section class="gallery-section" id="gallery">
+    <div class="container gallery-layout" id="galleryLayout">
+      <div class="waterfall" id="waterfall">
+        <!-- 作品卡片由 render.js 动态生成 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 灯箱 -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">×</button>
+    <button class="lightbox-prev" id="lightboxPrev">‹</button>
+    <button class="lightbox-next" id="lightboxNext">›</button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+    <!-- 手机边框模式（小程序UI素材分类） -->
+    <div class="lightbox-phone-wrap" id="lightboxPhoneWrap">
+      <img id="lightboxPhoneImg" src="" alt="" />
+      <div class="phone-overlay lightbox-phone-overlay">
+        <div class="phone-island"></div>
+      </div>
+    </div>
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+    <a class="lightbox-h5-link" id="lightboxH5" href="#" target="_blank" rel="noopener" style="display:none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      打开小程序H5
+    </a>
+  </div>
+
+  <!-- ===== 导航图片弹窗 ===== -->
+  <div id="navImgOverlay" onclick="if(event.target===this)closeNavImgModal()">
+    <div class="nav-modal-inner">
+      <div class="nav-modal-header">
+        <span id="navImgTitle"></span>
+        <button class="nav-modal-close" onclick="closeNavImgModal()">&#x2715;</button>
+      </div>
+      <img id="navImgModal" src="" alt="" draggable="false"
+           oncontextmenu="return false;" />
+    </div>
+  </div>
+
+  <!-- ===== 联系合作弹窗 ===== -->
+  <div id="contactModal" class="contact-modal-overlay" onclick="if(event.target===this)closeContactModal()">
+    <div class="contact-modal">
+      <button class="contact-modal-close" onclick="closeContactModal()">&#x2715;</button>
+      <div class="contact-modal-header">
+        <div class="contact-modal-glow"></div>
+        <h3 id="contactModalTitle">联系合作</h3>
+        <p id="contactModalSubtitle">扫码添加微信，开启视觉合作之旅</p>
+      </div>
+      <div class="contact-modal-body">
+        <div class="contact-qr-wrap">
+          <div class="contact-qr-frame">
+            <div class="contact-qr-scanline"></div>
+            <canvas id="contactQrCanvas" width="240" height="280"></canvas>
+          </div>
+          <div class="contact-qr-glow"></div>
+        </div>
+        <p class="contact-qr-hint">使用微信扫一扫，快速添加好友</p>
+      </div>
+      <div class="contact-modal-footer">
+        <div class="contact-deco-line"></div>
+        <span>潮汐视界 · 专业视觉设计</span>
+        <div class="contact-deco-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 返回顶部按钮 ===== -->
+  <button class="back-to-top" id="backToTop" onclick="scrollToTop()" aria-label="返回顶部">
+    <svg class="back-to-top-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    <svg class="back-to-top-progress" viewBox="0 0 48 48" width="48" height="48">
+      <circle class="back-to-top-track" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.15"/>
+      <circle class="back-to-top-fill" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6" transform="rotate(-90 24 24)"/>
+    </svg>
+  </button>
+
+  <!-- 工具模块 -->
+  <script src="js/utils/escape.js?v=2"></script>
+  <script src="js/utils/dom.js?v=2"></script>
+  <!-- 数据模块 -->
+  <script src="js/data/portfolio.js?v=2"></script>
+  <!-- 效果模块 -->
+  <script src="js/effects/particles.js?v=2"></script>
+  <script src="js/effects/scroll-reveal.js?v=2"></script>
+  <!-- UI 模块 -->
+  <script src="js/ui/navbar.js?v=2"></script>
+  <script src="js/ui/back-to-top.js?v=2"></script>
+  <!-- 业务模块 -->
+  <script src="gallery.js?v=19"></script>
+  <script src="render.js?v=27"></script>
+  <!-- 入口 -->
+  <script src="js/main.js?v=10"></script>
+  <!-- 预加载屏 UI（render.js 驱动） -->
+  <script>
+  (function() {
+    var preloader = document.getElementById('preloader');
+    var bar       = document.getElementById('preloaderBar');
+    var statusEl  = document.getElementById('preloaderStatus');
+
+    window.updatePreloader = function(pct, text) {
+      bar.style.width = pct + '%';
+      if (text) statusEl.textContent = text;
+    };
+
+    window.hidePreloader = function() {
+      bar.style.width = '100%';
+      statusEl.textContent = '\u5B8C\u6210';
+      setTimeout(function() {
+        preloader.classList.add('preloader-hidden');
+        setTimeout(function() {
+          if (preloader.parentNode) preloader.remove();
+        }, 600);
+      }, 300);
+    };
+  })();
+  </script>
+  <!-- 管理入口：智能跳转（有 token 验证后直达后台，无 token 跳登录页） -->
+  <script>
+  document.getElementById('adminEntry').addEventListener('click', function(e) {
+    e.preventDefault();
+    var token = localStorage.getItem('tidal_admin_token');
+    if (token) {
+      // 快速验证 Token 有效性，通过则直达后台
+      fetch('/save-data', {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(r) {
+        location.href = (r.status === 405 || r.status === 200) ? 'admin.html' : 'login.html';
+      }).catch(function() {
+        location.href = 'login.html';
+      });
+    } else {
+      location.href = 'login.html';
+    }
+  });
+  </script>
+  <!-- 联系合作弹窗 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
+  (function() {
+    var _contactData = null;
+
+    // 从 portfolio_data 或 data.json 读取联系信息
+    function loadContactData() {
+      // 1. 尝试从独立的 contact 缓存读取（render.js 同步）
+      try {
+        var contactStored = localStorage.getItem('portfolio_data_contact');
+        if (contactStored) {
+          _contactData = JSON.parse(contactStored);
+          return;
+        }
+      } catch (e) {}
+      // 2. 尝试从完整的 portfolio_data 读取
+      try {
+        var stored = localStorage.getItem('portfolio_data');
+        if (stored) {
+          var data = JSON.parse(stored);
+          if (data.contact) {
+            _contactData = data.contact;
+            return;
+          }
+        }
+      } catch (e) {}
+      // 3. 如果没有本地缓存，尝试从全局 DATA 读取（render.js 加载后）
+      if (typeof DATA !== 'undefined' && DATA.contact) {
+        _contactData = DATA.contact;
+      }
+    }
+
+    window.openContactModal = function() {
+      loadContactData();
+      var overlay = document.getElementById('contactModal');
+      if (!overlay) return;
+
+      // 填充数据
+      if (_contactData) {
+        document.getElementById('contactModalTitle').textContent = _contactData.title || '联系合作';
+        document.getElementById('contactModalSubtitle').textContent = _contactData.subtitle || '扫码添加微信，开启视觉合作之旅';
+      }
+
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
+
+      // 生成二维码：优先使用上传的图片直接上色，其次用文本生成
+      var qrImage = (_contactData && _contactData.qrImage) ? _contactData.qrImage : '';
+      var qrText  = (_contactData && _contactData.qrText)  ? _contactData.qrText  : '';
+      if (qrImage) {
+        setTimeout(function() { drawContactQRFromImage(qrImage); }, 100);
+      } else if (qrText) {
+        setTimeout(function() { drawContactQR(qrText); }, 100);
+      } else {
+        drawContactQRPlaceholder();
+      }
+    };
+
+    window.closeContactModal = function() {
+      var overlay = document.getElementById('contactModal');
+      if (!overlay) return;
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    function drawContactQRPlaceholder() {
+      var canvas = document.getElementById('contactQrCanvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var w = 240, h = 280;
+      canvas.width = w;
+      canvas.height = h;
+      ctx.fillStyle = '#0A0A12';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#505064';
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('请在后台设置二维码', w / 2, h / 2);
+    }
+
+    // 基于上传的图片直接上色渲染
+    function drawContactQRFromImage(dataUrl) {
+      var canvas = document.getElementById('contactQrCanvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var size = 240;
+      canvas.width = size;
+      canvas.height = size + 40;
+
+      var img = new Image();
+      img.onload = function() {
+        ctx.clearRect(0, 0, size, size + 40);
+        ctx.fillStyle = '#0A0A12';
+        ctx.fillRect(0, 0, size, size + 40);
+
+        ctx.shadowColor = 'rgba(157,141,245,0.25)';
+        ctx.shadowBlur = 16;
+        ctx.strokeStyle = 'rgba(157,141,245,0.3)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(8, 8, size - 16, size - 16);
+        ctx.shadowBlur = 0;
+
+        colorizeQRImage(ctx, img, 12, 12, size - 24, size - 24);
+
+        ctx.fillStyle = '#8A8AA0';
+        ctx.font = '12px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('扫码添加 · 潮汐视界', size / 2, size + 24);
+      };
+      img.onerror = function() {
+        drawContactQRPlaceholder();
+      };
+      img.src = dataUrl;
+    }
+
+    // 对二维码图片进行渐变色上色（深色→渐变色，浅色→透明）
+    function colorizeQRImage(ctx, img, x, y, drawW, drawH) {
+      var iw = img.naturalWidth || img.width || 200;
+      var ih = img.naturalHeight || img.height || 200;
+      var oc = document.createElement('canvas');
+      oc.width = iw;
+      oc.height = ih;
+      var octx = oc.getContext('2d');
+      octx.drawImage(img, 0, 0);
+
+      try {
+        var imgData = octx.getImageData(0, 0, iw, ih);
+        var data = imgData.data;
+
+        for (var i = 0; i < data.length; i += 4) {
+          var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+          var brightness = (r * 0.299 + g * 0.587 + b * 0.114) * (a / 255);
+
+          if (brightness < 120) {
+            var px = (i / 4) % iw;
+            var py = Math.floor((i / 4) / iw);
+            var t = (px / iw + py / ih) / 2;
+            var color = interpolateGradient(t);
+            data[i] = color.r;
+            data[i + 1] = color.g;
+            data[i + 2] = color.b;
+            data[i + 3] = 255;
+          } else {
+            data[i + 3] = 0;
+          }
+        }
+        octx.putImageData(imgData, 0, 0);
+      } catch (e) {
+        console.warn('[colorize] 像素处理失败:', e);
+      }
+
+      ctx.drawImage(oc, x, y, drawW, drawH);
+    }
+
+    function interpolateGradient(t) {
+      var c1 = {r:157, g:141, b:245};
+      var c2 = {r:0,   g:240, b:255};
+      var c3 = {r:255, g:45,  b:143};
+      var r, g, b;
+      if (t < 0.5) {
+        var lt = t * 2;
+        r = c1.r + (c2.r - c1.r) * lt;
+        g = c1.g + (c2.g - c1.g) * lt;
+        b = c1.b + (c2.b - c1.b) * lt;
+      } else {
+        var lt = (t - 0.5) * 2;
+        r = c2.r + (c3.r - c2.r) * lt;
+        g = c2.g + (c3.g - c2.g) * lt;
+        b = c2.b + (c3.b - c2.b) * lt;
+      }
+      return {r: Math.round(r), g: Math.round(g), b: Math.round(b)};
+    }
+
+    function drawContactQR(text) {
+      var canvas = document.getElementById('contactQrCanvas');
+      if (!canvas) return;
+      var ctx = canvas.getContext('2d');
+      var size = 240;
+      canvas.width = size;
+      canvas.height = size + 40;
+
+      // 使用 QRCode.js 生成基础二维码
+      var tempDiv = document.createElement('div');
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+
+      var qrcode = new QRCode(tempDiv, {
+        text: text,
+        width: size,
+        height: size,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      setTimeout(function() {
+        var qrImg = tempDiv.querySelector('img');
+        if (!qrImg) { document.body.removeChild(tempDiv); return; }
+
+        function doDraw() {
+          var w = size, h = size + 40;
+          ctx.clearRect(0, 0, w, h);
+          ctx.fillStyle = '#0A0A12';
+          ctx.fillRect(0, 0, w, h);
+
+          // 外发光边框
+          ctx.shadowColor = 'rgba(157,141,245,0.25)';
+          ctx.shadowBlur = 16;
+          ctx.strokeStyle = 'rgba(157,141,245,0.3)';
+          ctx.lineWidth = 1.5;
+          ctx.strokeRect(8, 8, w - 16, w - 16);
+          ctx.shadowBlur = 0;
+
+          // 绘制基础二维码
+          ctx.drawImage(qrImg, 12, 12, w - 24, w - 24);
+
+          // 获取像素数据并重新绘制渐变色
+          var qrCanvas = document.createElement('canvas');
+          qrCanvas.width = w - 24;
+          qrCanvas.height = w - 24;
+          var qctx = qrCanvas.getContext('2d');
+          qctx.drawImage(qrImg, 0, 0, w - 24, w - 24);
+          var imgData = qctx.getImageData(0, 0, w - 24, w - 24);
+          var data = imgData.data;
+
+          // 清空中心区域，重新绘制
+          ctx.fillStyle = '#0A0A12';
+          ctx.fillRect(12, 12, w - 24, w - 24);
+
+          var cellSize = Math.floor((w - 24) / 25);
+          var moduleCount = Math.floor((w - 24) / cellSize);
+
+          var grad = ctx.createLinearGradient(12, 12, w - 12, w - 12);
+          grad.addColorStop(0, '#9D8DF5');
+          grad.addColorStop(0.5, '#00F0FF');
+          grad.addColorStop(1, '#FF2D8F');
+
+          for (var row = 0; row < moduleCount; row++) {
+            for (var col = 0; col < moduleCount; col++) {
+              var px = Math.floor(col * cellSize + cellSize / 2);
+              var py = Math.floor(row * cellSize + cellSize / 2);
+              var idx = (py * (w - 24) + px) * 4;
+              if (idx < data.length && data[idx] < 128) {
+                var x = 12 + col * cellSize;
+                var y = 12 + row * cellSize;
+                var cs = cellSize - 1;
+                _roundRect(ctx, x, y, cs, cs, 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+              }
+            }
+          }
+
+          // 三个定位角
+          drawPosPattern(ctx, 16, 16, 38);
+          drawPosPattern(ctx, w - 54, 16, 38);
+          drawPosPattern(ctx, 16, w - 54, 38);
+
+          // 底部文字
+          ctx.fillStyle = '#8A8AA0';
+          ctx.font = '12px -apple-system, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('扫码添加 · 潮汐视界', w / 2, w + 24);
+
+          document.body.removeChild(tempDiv);
+        }
+
+        if (qrImg.complete) {
+          doDraw();
+        } else {
+          qrImg.onload = doDraw;
+        }
+      }, 100);
+    }
+
+    function _roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function drawPosPattern(ctx, x, y, size) {
+      ctx.strokeStyle = '#9D8DF5';
+      ctx.lineWidth = 2;
+      _roundRect(ctx, x, y, size, size, 3);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(157,141,245,0.12)';
+      _roundRect(ctx, x + 7, y + 7, size - 14, size - 14, 2);
+      ctx.fill();
+      ctx.fillStyle = '#00F0FF';
+      ctx.beginPath();
+      ctx.arc(x + size / 2, y + size / 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowColor = 'rgba(0,240,255,0.4)';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(x + size / 2, y + size / 2, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // ESC 关闭弹窗
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        var overlay = document.getElementById('contactModal');
+        if (overlay && overlay.classList.contains('active')) {
+          closeContactModal();
+        }
+      }
+    });
+  })();
+  </script>
+  <!-- Service Worker -->
+  <script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js?v=6').catch(function() {});
+    });
+  }
+  </script>
+</html>
