@@ -172,8 +172,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=DIRECTORY, **kwargs)
 
     def do_POST(self):
-        """处理 POST 请求（除 /save-ledger 外全部需要认证）"""
-        if self.path != '/save-ledger' and check_auth(self):
+        """处理 POST 请求（/save-ledger、/save-data 免认证）"""
+        if self.path not in ('/save-ledger', '/save-data') and check_auth(self):
             return
         if self.path == '/upload':
             self.handle_upload()
