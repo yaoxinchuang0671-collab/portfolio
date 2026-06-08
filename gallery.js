@@ -12,6 +12,7 @@
   const lightboxPhoneWrap = document.getElementById('lightboxPhoneWrap');
   const lightboxPhoneImg  = document.getElementById('lightboxPhoneImg');
   const lightboxH5        = document.getElementById('lightboxH5');
+  const lightboxWatermark = document.getElementById('lightboxWatermark');
 
   let currentOrder = -1;
 
@@ -37,6 +38,11 @@
       'translate(' + panX + 'px,' + panY + 'px) scale(' + scale + ')';
     lightboxImg.style.cursor = scale > 1.05 ? 'grab' : 'default';
     lightboxImg.style.willChange = scale > 1.05 ? 'transform' : 'auto';
+    // 同步水印层
+    if (lightboxWatermark) {
+      lightboxWatermark.style.transform =
+        'translate(calc(-50% + ' + panX + 'px), calc(-50% + ' + panY + 'px)) scale(' + scale + ')';
+    }
   }
 
   function resetZoom() {
@@ -44,6 +50,9 @@
     panX  = 0;
     panY  = 0;
     applyTransform();
+    if (lightboxWatermark) {
+      lightboxWatermark.style.transform = 'translate(-50%, -50%) scale(1)';
+    }
   }
 
   // 以鼠标位置为中心进行缩放
@@ -201,7 +210,7 @@
       lightboxImg.src = src;
       lightboxImg.alt = img.alt || caption;
       lightboxImg.draggable = false;
-      if (lightboxPhoneImg) lightboxPhoneImg.src = '';
+      if (lightboxPhoneImg) { lightboxPhoneImg.src = ''; lightboxPhoneImg.alt = ''; }
 
       // 动图：存储 URL 并添加控制按钮
       if (isGif) {
@@ -211,6 +220,12 @@
         ensureGifControls();
       } else {
         lightbox.classList.remove('gif-mode');
+      }
+
+      // 绘制水印
+      if (lightboxWatermark) {
+        lightboxWatermark.style.display = 'none';
+        drawLightboxWatermark(src, !usePhone);
       }
     }
   }
@@ -243,6 +258,7 @@
       resetZoom();
       removeGifControls();
       if (lightboxH5) lightboxH5.style.display = 'none';
+      if (lightboxWatermark) lightboxWatermark.style.display = 'none';
       lightboxImg.src = '';
       lightboxImg.removeAttribute('data-gif');
       lightboxImg.removeAttribute('data-static');
@@ -527,4 +543,224 @@
   // ═══════════════════════════════════════════════════
   // 灯箱水印绘制
   // ═══════════════════════════════════════════════════
+
+  var watermarkConfig = null;
+
+  function loadWatermarkConfig() {
+    try {
+      var raw = localStorage.getItem('portfolio_data');
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data.watermark) {
+          watermarkConfig = data.watermark;
+          return;
+        }
+      }
+    } catch (e) {}
+    // 默认配置
+    watermarkConfig = {
+      enabled: false,
+      preset: 'diagonal_stripes',
+      custom: {
+        text: '潮汐视界',
+        color: 'rgba(255,255,255,0.15)',
+        fontSize: 16,
+        rotation: -30,
+        spacing: 80,
+        opacity: 0.15
+      }
+    };
+  }
+
+  function drawLightboxWatermark(imgSrc, shouldDraw) {
+    loadWatermarkConfig();
+    if (!watermarkConfig || watermarkConfig.enabled === false || !shouldDraw) {
+      if (lightboxWatermark) lightboxWatermark.style.display = 'none';
+      return;
+    }
+
+    var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = function() {
+      if (!lightboxWatermark) return;
+      var canvas = lightboxWatermark;
+      var ctx = canvas.getContext('2d');
+
+      // 获取图片实际显示尺寸（在灯箱中的尺寸）
+      var maxW = window.innerWidth * 0.9;
+      var maxH = window.innerHeight * 0.85;
+      var ratio = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+      var drawW = Math.round(img.naturalWidth * ratio);
+      var drawH = Math.round(img.naturalHeight * ratio);
+
+      canvas.width = drawW;
+      canvas.height = drawH;
+      canvas.style.width = drawW + 'px';
+      canvas.style.height = drawH + 'px';
+
+      // 清空画布
+      ctx.clearRect(0, 0, drawW, drawH);
+
+      var preset = watermarkConfig.preset || 'diagonal_stripes';
+      var custom = watermarkConfig.custom || {};
+      var text = custom.text || '潮汐视界';
+      var fontSize = custom.fontSize || 16;
+      var rotation = custom.rotation !== undefined ? custom.rotation : -30;
+      var spacing = custom.spacing || 80;
+      var opacity = custom.opacity !== undefined ? custom.opacity : 0.15;
+      var color = custom.color || 'rgba(255,255,255,0.15)';
+
+      // 根据图片缩放比例调整水印参数
+      var scaleFactor = Math.max(drawW, drawH) / 800;
+      fontSize = Math.round(fontSize * scaleFactor);
+      spacing = Math.round(spacing * scaleFactor);
+
+      // 解析颜色并应用不透明度
+      var colorWithOpacity = color.replace(/[\d.]+\)$/, opacity + ')');
+
+      ctx.save();
+      ctx.fillStyle = colorWithOpacity;
+      ctx.strokeStyle = colorWithOpacity;
+      ctx.font = fontSize + 'px sans-serif';
+      ctx.globalAlpha = opacity;
+
+      switch (preset) {
+        case 'diagonal_stripes':
+          ctx.lineWidth = Math.max(1, scaleFactor);
+          var step = spacing || Math.round(80 * scaleFactor);
+          var diagLen = Math.sqrt(drawW * drawW + drawH * drawH);
+          for (var i = -diagLen; i < diagLen * 2; i += step) {
+            ctx.beginPath();
+            ctx.moveTo(i, -drawH);
+            ctx.lineTo(i + drawH * 2, drawH * 2);
+            ctx.stroke();
+          }
+          break;
+
+        case 'diagonal_text':
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          var fs = fontSize;
+          var diag = Math.sqrt(drawW * drawW + drawH * drawH);
+          var cols = Math.ceil(diag / (fs * 6));
+          var rows = Math.ceil(diag / (fs * 3.5));
+          ctx.save();
+          ctx.translate(drawW / 2, drawH / 2);
+          ctx.rotate((rotation * Math.PI) / 180);
+          for (var ry = -rows; ry <= rows; ry++) {
+            for (var cx = -cols; cx <= cols; cx++) {
+              ctx.fillText(text, cx * fs * 6, ry * fs * 3.5);
+            }
+          }
+          ctx.restore();
+          break;
+
+        case 'grid_dots':
+          var dotSpacing = spacing || Math.round(40 * scaleFactor);
+          var dotRadius = Math.max(1, fontSize / 8);
+          for (var gx = dotSpacing / 2; gx < drawW; gx += dotSpacing) {
+            for (var gy = dotSpacing / 2; gy < drawH; gy += dotSpacing) {
+              ctx.beginPath();
+              ctx.arc(gx, gy, dotRadius, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+          break;
+
+        case 'center_logo':
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          var centerSize = Math.min(drawW, drawH) * 0.35;
+          ctx.font = 'bold ' + centerSize + 'px sans-serif';
+          ctx.globalAlpha = Math.min(opacity, 0.1);
+          ctx.fillText(text, drawW / 2, drawH / 2);
+          break;
+
+        case 'border_frame':
+          ctx.lineWidth = Math.max(1, 2 * scaleFactor);
+          ctx.strokeRect(6 * scaleFactor, 6 * scaleFactor, drawW - 12 * scaleFactor, drawH - 12 * scaleFactor);
+          ctx.font = Math.max(10, fontSize * 0.7) + 'px sans-serif';
+          ctx.textAlign = 'left';
+          ctx.fillText(text, 10 * scaleFactor, drawH - 10 * scaleFactor);
+          break;
+
+        case 'bottom_bar':
+          var barHeight = Math.max(20, fontSize * 1.4);
+          ctx.fillStyle = colorWithOpacity;
+          ctx.globalAlpha = Math.min(opacity * 1.5, 0.25);
+          ctx.fillRect(0, drawH - barHeight, drawW, barHeight);
+          ctx.globalAlpha = opacity * 2;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = fontSize + 'px sans-serif';
+          ctx.fillText(text + ' \u00b7 \u7248\u6743\u6240\u6709', drawW / 2, drawH - barHeight / 2);
+          break;
+
+        case 'cross_text':
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.font = 'bold ' + fontSize + 'px sans-serif';
+          ctx.save();
+          ctx.translate(drawW / 2, drawH / 2);
+          ctx.rotate(-45 * Math.PI / 180);
+          ctx.fillText(text, 0, 0);
+          ctx.restore();
+          ctx.save();
+          ctx.translate(drawW / 2, drawH / 2);
+          ctx.rotate(45 * Math.PI / 180);
+          ctx.fillText(text, 0, 0);
+          ctx.restore();
+          break;
+
+        case 'checkerboard':
+          var cs = spacing || Math.round(30 * scaleFactor);
+          for (var cx = 0; cx < drawW; cx += cs) {
+            for (var cy = 0; cy < drawH; cy += cs) {
+              if (((cx / cs) + (cy / cs)) % 2 === 0) {
+                ctx.fillRect(cx, cy, cs, cs);
+              }
+            }
+          }
+          break;
+
+        case 'circle_rings':
+          ctx.lineWidth = Math.max(1, scaleFactor);
+          var maxR = Math.sqrt(drawW * drawW + drawH * drawH) / 2;
+          for (var r = Math.round(20 * scaleFactor); r < maxR; r += (spacing || Math.round(40 * scaleFactor))) {
+            ctx.beginPath();
+            ctx.arc(drawW / 2, drawH / 2, r, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+          break;
+
+        case 'scattered_text':
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          var seed = 42;
+          function rand() {
+            seed = (seed * 16807 + 0) % 2147483647;
+            return (seed - 1) / 2147483646;
+          }
+          var count = Math.max(8, Math.floor((drawW * drawH) / (spacing * spacing * 4)));
+          for (var si = 0; si < count; si++) {
+            var sx = rand() * drawW;
+            var sy = rand() * drawH;
+            var srot = (rand() - 0.5) * 60;
+            ctx.save();
+            ctx.translate(sx, sy);
+            ctx.rotate(srot * Math.PI / 180);
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
+          }
+          break;
+      }
+      ctx.restore();
+
+      lightboxWatermark.style.display = 'block';
+    };
+    img.onerror = function() {
+      if (lightboxWatermark) lightboxWatermark.style.display = 'none';
+    };
+    img.src = imgSrc;
+  }
 })();
