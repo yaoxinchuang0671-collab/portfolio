@@ -320,24 +320,6 @@ body {
 .page-btn:disabled { opacity:0.35; cursor:not-allowed; }
 .page-btn.active { background:var(--gold); color:#1A1A0A; border-color:var(--gold); font-weight:700; }
 
-/* ===== 柱状图 ===== */
-.bar-chart { display:flex; align-items:flex-end; gap:5px; height:130px; padding-top:10px; }
-.bar-item {
-  flex:1; background:linear-gradient(0deg, var(--gold), var(--gold-light));
-  border-radius:3px 3px 0 0; min-height:4px; position:relative;
-  cursor:pointer; transition: opacity 0.2s;
-}
-.bar-item:hover { opacity:0.8; }
-.bar-tip {
-  position:absolute; top:-26px; left:50%; transform:translateX(-50%);
-  font-size:10px; color:var(--gold-light); white-space:nowrap;
-  background:var(--bg-card); padding:2px 6px; border-radius:3px;
-  border:1px solid var(--border); opacity:0; transition:opacity 0.2s;
-}
-.bar-item:hover .bar-tip { opacity:1; }
-.bar-labels { display:flex; gap:5px; margin-top:6px; }
-.bar-label { flex:1; text-align:center; font-size:10px; color:var(--text-secondary); }
-
 /* ===== 单选组 ===== */
 .radio-group { display:flex; gap:10px; flex-wrap:wrap; }
 .radio-item {
@@ -726,20 +708,6 @@ body {
             </div>
           </div>
 
-          <!-- 趋势图 -->
-          <div class="panel">
-            <div class="panel-header"><div class="panel-title">📈 最近7天收入趋势</div></div>
-            <div class="panel-body">
-              <div class="bar-chart">
-                <div class="bar-item" v-for="d in weekData" :key="d.day" :style="{height:d.h+'px'}">
-                  <div class="bar-tip">¥{{ d.amt }}</div>
-                </div>
-              </div>
-              <div class="bar-labels">
-                <div class="bar-label" v-for="d in weekData" :key="d.day">{{ d.day }}</div>
-              </div>
-            </div>
-          </div>
         </template>
 
         <!-- ===== 订单管理 ===== -->
@@ -786,13 +754,11 @@ body {
                 </tbody>
               </table>
             </div>
-            <!-- 分页已取消：一页展示全部订单
             <div class="pagination">
               <button class="page-btn" :disabled="orderPage<=1" @click="orderPage--">上一页</button>
-              <span style="margin:0 8px">{{ orderPage }} / {{ orderTotalPages }}</span>
+              <span style="margin:0 8px">{{ orderPage }} / {{ orderTotalPages }} (共{{ filteredOrders.length }}条)</span>
               <button class="page-btn" :disabled="orderPage>=orderTotalPages" @click="orderPage++">下一页</button>
             </div>
-            -->
           </div>
 
           <!-- 订单弹窗（新建 / 编辑） -->
@@ -3846,9 +3812,6 @@ createApp({
         .map(c => ({...c, percent: Math.round(c.amount/total*100)}));
     });
 
-    // 趋势图（按现金收入）
-    const weekData = ref([]);
-
     // ===== 记账 =====
     const orderForm = ref({customer:'', amount:null, type:'电竞设计', detail:'', completed:true});
     const editingOrderId = ref(null);
@@ -3963,6 +3926,7 @@ createApp({
           detail: orderForm.value.detail, status: orderForm.value.completed ? 'completed' : 'pending',
           memberDeduct, cashPay
         });
+        orderPage.value = 1; // 新建订单后回到第一页，确保新订单可见
       }
       if (!allCustomers.value.includes(name)) {
         allCustomers.value.push(name);
@@ -3996,9 +3960,9 @@ createApp({
 
     // ===== 订单管理 =====
     const orderF = ref({status:'', type:'', search:''});
-    // 订单管理 — 不分页，一页展示全部
+    // 订单管理 — 分页展示，每页 50 条
     const filteredOrders = computed(() => {
-      let list = allOrders.value;
+      let list = [...allOrders.value]; // 复制数组，避免 mutate 响应式源数据
       if (orderF.value.status) list = list.filter(o => o.status === orderF.value.status);
       if (orderF.value.type) list = list.filter(o => o.type === orderF.value.type);
       if (orderF.value.search) list = list.filter(o => o.customer.includes(orderF.value.search));
@@ -4006,10 +3970,14 @@ createApp({
       list.sort((a,b) => (b.date||'').localeCompare(a.date||'') || (b.id||0)-(a.id||0));
       return list;
     });
-    // 不分页，直接返回全部
-    const pagedOrders = computed(() => filteredOrders.value);
+    // 分页：每页 20 条，避免 1600+ DOM 节点导致卡顿/闪退
+    var PAGE_SIZE = 20;
     const orderPage = ref(1);
-    const orderTotalPages = computed(() => 1);
+    const pagedOrders = computed(() => {
+      var start = (orderPage.value - 1) * PAGE_SIZE;
+      return filteredOrders.value.slice(start, start + PAGE_SIZE);
+    });
+    const orderTotalPages = computed(() => Math.max(1, Math.ceil(filteredOrders.value.length / PAGE_SIZE)));
 
     // ===== 客户管理 =====
     const custSearch = ref('');
@@ -4842,47 +4810,70 @@ createApp({
     }
 
     // ════════════════════════════════════════════
-    // 启动数据加载策略（统一：GitHub 优先，本地兜底）
+    // 启动数据加载策略
     // ════════════════════════════════════════════
-    // Step 1: 所有环境先尝试从 GitHub 拉取最新数据
-    // Step 2: GitHub 成功 → 应用数据，写入 localStorage，检测云端在线
-    // Step 3: GitHub 失败 → 本地环境回退到 /ledger_data.json，线上回退到 localStorage
+    // 本地环境：直接读取本地文件 ledger_data.json，跳过 GitHub 和 localStorage
+    // 线上环境：GitHub 优先，失败回退到 localStorage
 
     function initLoadData() {
-      loadFromCloud()
-        .then(function() {
-          cloudStatus.value = 'online';
-        })
-        .catch(function(e) {
-          console.warn('[账本] 云端拉取失败，使用本地数据:', e.message);
-          cloudStatus.value = 'offline';
-          if (isLocalhost) {
-            // 本地：回退到服务器文件
-            fetch('/ledger_data.json', { cache: 'no-store' })
-              .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-              .then(function(d) {
-                applyPayload(d);
-                saveToLocal();
-                lastSyncTime.value = '本地 (' + (d.syncedAt ? d.syncedAt.slice(11, 16) : '?') + ')';
-                console.log('[账本] 已从本地服务器加载 (syncedAt:', d.syncedAt || '?', ')');
-              })
-              .catch(function(e2) {
-                console.warn('[账本] 本地文件也失败，回退到 localStorage:', e2.message);
-                loadFromLocal();
-              });
-          } else {
-            // 线上：回退到 localStorage
+      if (isLocalhost) {
+        // 本地：先清除旧缓存，再清空内联硬编码数据，最后从文件加载
+        localStorage.removeItem(STORE_KEY);
+        console.log('[账本] 已清除 localStorage 旧缓存');
+        // 同步清空内联旧数据，防止 Vue 首次渲染时闪烁旧快照
+        allOrders.value = [];
+        allCustomers.value = [];
+        allMemberBalances.value = [];
+        memberList.value = [];
+        transactions.value = [];
+        productList.value = [];
+        fetch('/ledger_data.json', { cache: 'no-store' })
+          .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+          .then(function(d) {
+            applyPayload(d);
+            saveToLocal(); // 同步一份到 localStorage 作为备份
+            var ts = d.syncedAt ? d.syncedAt.slice(0, 16).replace('T', ' ') : '未知';
+            lastSyncTime.value = '本地文件 ' + ts;
+            console.log('[账本] 已从本地文件加载 (syncedAt:', d.syncedAt || '?', ')');
+          })
+          .catch(function(e) {
+            console.warn('[账本] 本地文件读取失败:', e.message);
+            toast('本地文件读取失败: ' + e.message, 'danger');
+          });
+      } else {
+        // 线上：GitHub 优先
+        loadFromCloud()
+          .then(function() {
+            cloudStatus.value = 'online';
+          })
+          .catch(function(e) {
+            console.warn('[账本] 云端拉取失败，使用本地数据:', e.message);
+            cloudStatus.value = 'offline';
             loadFromLocal();
-          }
-        });
+          });
+      }
     }
 
     initLoadData();
 
+    // 筛选条件变化时自动回到第1页
+    watch(function () { return orderF.value.status + '|' + orderF.value.type + '|' + orderF.value.search; }, function () {
+      orderPage.value = 1;
+    });
+
     // 实时自动保存：仅 localStorage（永不自动上传云端，防止误覆盖）
+    // 防抖 1200ms，避免大数据量 JSON.stringify + buildPayload 阻塞主线程
+    var _saveTimer = null;
     watchEffect(function () {
-      saveToLocal();
-      if (isLocalhost) syncToServer();
+      // 轻量依赖收集（避免每次触发都执行 buildPayload）
+      var _dep = allOrders.value.length + allCustomers.value.length + memberList.value.length +
+                 transactions.value.length + productList.value.length + rechargeTiers.value.length +
+                 (wechatOK.value ? 1 : 0) + (autoBackup.value ? 1 : 0);
+      clearTimeout(_saveTimer);
+      _saveTimer = setTimeout(function () {
+        saveToLocal();
+        if (isLocalhost) syncToServer();
+      }, 1200);
     });
 
     return {
@@ -4890,11 +4881,11 @@ createApp({
       allOrders, allCustomers, memberList,
       todayOrders, todayIncome, todayCount,
       monthIncome, monthAvg, pendingCount, totalBalance,
-      topCustomers, weekData,
+      topCustomers,
       orderForm, submitOrder, delOrder, editOrder, editingOrderId, showOrderModal, openOrderModal, closeOrderModal,
       custDropdownOpen, filteredCustOptions,
       isMember, getMemberBalance, orderDeductPreview,
-      orderF, pagedOrders, orderPage, orderTotalPages,
+      orderF, filteredOrders, pagedOrders, orderPage, orderTotalPages,
       custSearch, filteredCustomers, showCustDetail, showAddCust,
       newCustName, newCustRemark, detailCust,
       custOrders, custAvg, viewCust, addCust, delCust,
