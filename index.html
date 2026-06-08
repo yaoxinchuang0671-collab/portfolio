@@ -225,10 +225,16 @@
       90% { opacity: 1; }
       50% { top: calc(100% - 14px); }
     }
+    .contact-qr-frame img,
     .contact-qr-frame canvas {
       display: block;
       border-radius: 10px;
       max-width: 100%;
+    }
+    .contact-qr-frame img {
+      width: 240px;
+      height: auto;
+      object-fit: contain;
     }
     .contact-qr-glow {
       position: absolute;
@@ -408,7 +414,8 @@
         <div class="contact-qr-wrap">
           <div class="contact-qr-frame">
             <div class="contact-qr-scanline"></div>
-            <canvas id="contactQrCanvas" width="240" height="280"></canvas>
+            <img id="contactQrImg" src="" alt="联系二维码" style="display:none;" draggable="false" oncontextmenu="return false;" />
+            <canvas id="contactQrCanvas" width="240" height="280" style="display:none;"></canvas>
           </div>
           <div class="contact-qr-glow"></div>
         </div>
@@ -538,11 +545,11 @@
       overlay.classList.add('active');
       document.body.style.overflow = 'hidden';
 
-      // 生成二维码：优先使用上传的图片直接上色，其次用文本生成
+      // 渲染二维码：优先图片（灯箱式展示），其次文本生成，最后占位提示
       var qrImage = (_contactData && _contactData.qrImage) ? _contactData.qrImage : '';
       var qrText  = (_contactData && _contactData.qrText)  ? _contactData.qrText  : '';
       if (qrImage) {
-        setTimeout(function() { drawContactQRFromImage(qrImage); }, 100);
+        showContactQRImage(qrImage);
       } else if (qrText) {
         setTimeout(function() { drawContactQR(qrText); }, 100);
       } else {
@@ -557,9 +564,34 @@
       document.body.style.overflow = '';
     };
 
+    // ── 方式1：直接显示图片（线上/本地通用，无 CORS 问题） ──
+    function showContactQRImage(dataUrl) {
+      var img = document.getElementById('contactQrImg');
+      var canvas = document.getElementById('contactQrCanvas');
+      if (!img) return;
+
+      img.style.display = 'none';
+      if (canvas) canvas.style.display = 'none';
+
+      img.onload = function() {
+        img.style.display = 'block';
+        if (canvas) canvas.style.display = 'none';
+      };
+      img.onerror = function() {
+        drawContactQRPlaceholder();
+      };
+      // 线上通过 toCdnUrl 转 COS 地址，本地直读 img/xxx
+      img.src = (typeof toCdnUrl === 'function') ? toCdnUrl(dataUrl) : dataUrl;
+    }
+
+    // ── 方式2：文本生成二维码（无图片时 fallback） ──
     function drawContactQRPlaceholder() {
       var canvas = document.getElementById('contactQrCanvas');
+      var img = document.getElementById('contactQrImg');
       if (!canvas) return;
+      if (img) img.style.display = 'none';
+      canvas.style.display = 'block';
+
       var ctx = canvas.getContext('2d');
       var w = 240, h = 280;
       canvas.width = w;
@@ -572,122 +604,18 @@
       ctx.fillText('请在后台设置二维码', w / 2, h / 2);
     }
 
-    // 基于上传的图片直接上色渲染
-    function drawContactQRFromImage(dataUrl) {
-      var canvas = document.getElementById('contactQrCanvas');
-      if (!canvas) return;
-      var ctx = canvas.getContext('2d');
-      var size = 240;
-      canvas.width = size;
-      canvas.height = size + 40;
-
-      var img = new Image();
-      // 必须设置 crossOrigin 才能对跨域图片使用 canvas.getImageData
-      img.crossOrigin = 'anonymous';
-      img.onload = function() {
-        ctx.clearRect(0, 0, size, size + 40);
-        ctx.fillStyle = '#0A0A12';
-        ctx.fillRect(0, 0, size, size + 40);
-
-        ctx.shadowColor = 'rgba(157,141,245,0.25)';
-        ctx.shadowBlur = 16;
-        ctx.strokeStyle = 'rgba(157,141,245,0.3)';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(8, 8, size - 16, size - 16);
-        ctx.shadowBlur = 0;
-
-        var ok = colorizeQRImage(ctx, img, 12, 12, size - 24, size - 24);
-        // 像素处理失败（如 CORS）则直接绘制原图
-        if (!ok) {
-          ctx.drawImage(img, 12, 12, size - 24, size - 24);
-        }
-
-        ctx.fillStyle = '#8A8AA0';
-        ctx.font = '12px -apple-system, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('扫码添加 · 潮汐视界', size / 2, size + 24);
-      };
-      img.onerror = function() {
-        drawContactQRPlaceholder();
-      };
-      // 线上环境通过 toCdnUrl 转为 COS 地址
-      img.src = (typeof toCdnUrl === 'function') ? toCdnUrl(dataUrl) : dataUrl;
-    }
-
-    // 对二维码图片进行渐变色上色（深色→渐变色，浅色→透明）
-    // 返回 true/false 表示是否成功（失败通常是跨域 CORS 导致）
-    function colorizeQRImage(ctx, img, x, y, drawW, drawH) {
-      var iw = img.naturalWidth || img.width || 200;
-      var ih = img.naturalHeight || img.height || 200;
-      var oc = document.createElement('canvas');
-      oc.width = iw;
-      oc.height = ih;
-      var octx = oc.getContext('2d');
-      octx.drawImage(img, 0, 0);
-
-      try {
-        var imgData = octx.getImageData(0, 0, iw, ih);
-        var data = imgData.data;
-
-        for (var i = 0; i < data.length; i += 4) {
-          var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-          // 透明像素直接跳过（保留透明）
-          if (a < 128) {
-            data[i + 3] = 0;
-            continue;
-          }
-          var brightness = r * 0.299 + g * 0.587 + b * 0.114;
-
-          if (brightness < 120) {
-            var px = (i / 4) % iw;
-            var py = Math.floor((i / 4) / iw);
-            var t = (px / iw + py / ih) / 2;
-            var color = interpolateGradient(t);
-            data[i] = color.r;
-            data[i + 1] = color.g;
-            data[i + 2] = color.b;
-            data[i + 3] = 255;
-          } else {
-            data[i + 3] = 0;
-          }
-        }
-        octx.putImageData(imgData, 0, 0);
-        ctx.drawImage(oc, x, y, drawW, drawH);
-        return true;
-      } catch (e) {
-        console.warn('[colorize] 像素处理失败（可能跨域）:', e);
-        return false;
-      }
-    }
-
-    function interpolateGradient(t) {
-      var c1 = {r:157, g:141, b:245};
-      var c2 = {r:0,   g:240, b:255};
-      var c3 = {r:255, g:45,  b:143};
-      var r, g, b;
-      if (t < 0.5) {
-        var lt = t * 2;
-        r = c1.r + (c2.r - c1.r) * lt;
-        g = c1.g + (c2.g - c1.g) * lt;
-        b = c1.b + (c2.b - c1.b) * lt;
-      } else {
-        var lt = (t - 0.5) * 2;
-        r = c2.r + (c3.r - c2.r) * lt;
-        g = c2.g + (c3.g - c2.g) * lt;
-        b = c2.b + (c3.b - c2.b) * lt;
-      }
-      return {r: Math.round(r), g: Math.round(g), b: Math.round(b)};
-    }
-
     function drawContactQR(text) {
       var canvas = document.getElementById('contactQrCanvas');
+      var img = document.getElementById('contactQrImg');
       if (!canvas) return;
+      if (img) img.style.display = 'none';
+      canvas.style.display = 'block';
+
       var ctx = canvas.getContext('2d');
       var size = 240;
       canvas.width = size;
       canvas.height = size + 40;
 
-      // 使用 QRCode.js 生成基础二维码
       var tempDiv = document.createElement('div');
       tempDiv.style.position = 'fixed';
       tempDiv.style.left = '-9999px';
@@ -712,7 +640,6 @@
           ctx.fillStyle = '#0A0A12';
           ctx.fillRect(0, 0, w, h);
 
-          // 外发光边框
           ctx.shadowColor = 'rgba(157,141,245,0.25)';
           ctx.shadowBlur = 16;
           ctx.strokeStyle = 'rgba(157,141,245,0.3)';
@@ -720,52 +647,8 @@
           ctx.strokeRect(8, 8, w - 16, w - 16);
           ctx.shadowBlur = 0;
 
-          // 绘制基础二维码
           ctx.drawImage(qrImg, 12, 12, w - 24, w - 24);
 
-          // 获取像素数据并重新绘制渐变色
-          var qrCanvas = document.createElement('canvas');
-          qrCanvas.width = w - 24;
-          qrCanvas.height = w - 24;
-          var qctx = qrCanvas.getContext('2d');
-          qctx.drawImage(qrImg, 0, 0, w - 24, w - 24);
-          var imgData = qctx.getImageData(0, 0, w - 24, w - 24);
-          var data = imgData.data;
-
-          // 清空中心区域，重新绘制
-          ctx.fillStyle = '#0A0A12';
-          ctx.fillRect(12, 12, w - 24, w - 24);
-
-          var cellSize = Math.floor((w - 24) / 25);
-          var moduleCount = Math.floor((w - 24) / cellSize);
-
-          var grad = ctx.createLinearGradient(12, 12, w - 12, w - 12);
-          grad.addColorStop(0, '#9D8DF5');
-          grad.addColorStop(0.5, '#00F0FF');
-          grad.addColorStop(1, '#FF2D8F');
-
-          for (var row = 0; row < moduleCount; row++) {
-            for (var col = 0; col < moduleCount; col++) {
-              var px = Math.floor(col * cellSize + cellSize / 2);
-              var py = Math.floor(row * cellSize + cellSize / 2);
-              var idx = (py * (w - 24) + px) * 4;
-              if (idx < data.length && data[idx] < 128) {
-                var x = 12 + col * cellSize;
-                var y = 12 + row * cellSize;
-                var cs = cellSize - 1;
-                _roundRect(ctx, x, y, cs, cs, 2);
-                ctx.fillStyle = grad;
-                ctx.fill();
-              }
-            }
-          }
-
-          // 三个定位角
-          drawPosPattern(ctx, 16, 16, 38);
-          drawPosPattern(ctx, w - 54, 16, 38);
-          drawPosPattern(ctx, 16, w - 54, 38);
-
-          // 底部文字
           ctx.fillStyle = '#8A8AA0';
           ctx.font = '12px -apple-system, sans-serif';
           ctx.textAlign = 'center';
@@ -780,40 +663,6 @@
           qrImg.onload = doDraw;
         }
       }, 100);
-    }
-
-    function _roundRect(ctx, x, y, w, h, r) {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
-    }
-
-    function drawPosPattern(ctx, x, y, size) {
-      ctx.strokeStyle = '#9D8DF5';
-      ctx.lineWidth = 2;
-      _roundRect(ctx, x, y, size, size, 3);
-      ctx.stroke();
-      ctx.fillStyle = 'rgba(157,141,245,0.12)';
-      _roundRect(ctx, x + 7, y + 7, size - 14, size - 14, 2);
-      ctx.fill();
-      ctx.fillStyle = '#00F0FF';
-      ctx.beginPath();
-      ctx.arc(x + size / 2, y + size / 2, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowColor = 'rgba(0,240,255,0.4)';
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.arc(x + size / 2, y + size / 2, 4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
     }
 
     // ESC 关闭弹窗
