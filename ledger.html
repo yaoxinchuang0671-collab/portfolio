@@ -97,6 +97,25 @@ body {
 .btn-save-local:disabled {
   opacity: 0.5; cursor: not-allowed;
 }
+.btn-save-cloud {
+  background: rgba(100,149,237,0.12);
+  border-color: rgba(100,149,237,0.3);
+  color: #6495ED;
+}
+.btn-save-cloud:hover {
+  background: rgba(100,149,237,0.2);
+  border-color: rgba(100,149,237,0.5);
+}
+.btn-save-refresh {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+.btn-save-refresh:hover {
+  border-color: var(--gold-dim);
+  color: var(--gold-light);
+}
 .btn-save-local .spin {
   display: inline-block; animation: spin 0.8s linear infinite;
 }
@@ -587,12 +606,34 @@ body {
         </div>
       </div>
       <div class="sidebar-footer">
-        <button class="btn-save-local" :disabled="savingLocal" @click="saveToLocalServer">
-          <span v-if="savingLocal" class="spin">⏳</span>
-          <span v-else>💾</span>
-          {{ savingLocal ? '保存中...' : '保存到本地' }}
+        <!-- 本地环境：保存到本地文件 + 上传云端 -->
+        <template v-if="isLocalhost">
+          <button class="btn-save-local" :disabled="savingLocal" @click="saveToLocalServer">
+            <span v-if="savingLocal" class="spin">⏳</span>
+            <span v-else>💾</span>
+            {{ savingLocal ? '保存中...' : '保存到本地文件' }}
+          </button>
+          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToGitHub">
+            <span v-if="savingCloud" class="spin">⏳</span>
+            <span v-else>☁️</span>
+            {{ savingCloud ? '上传中...' : '上传到 GitHub' }}
+          </button>
+        </template>
+        <!-- 线上环境：直接保存到云端 -->
+        <template v-else>
+          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToGitHub">
+            <span v-if="savingCloud" class="spin">⏳</span>
+            <span v-else>☁️</span>
+            {{ savingCloud ? '保存中...' : '保存到云端' }}
+          </button>
+        </template>
+        <button class="btn-save-local btn-save-refresh" @click="forceRefreshFromCloud">
+          🔄 强制刷新数据
         </button>
         <div class="sync-time" v-if="lastSyncTime">{{ lastSyncTime }}</div>
+        <div class="sync-time" v-if="cloudStatus" :style="{color: cloudStatus==='online'?'#6B8E23':cloudStatus==='error'?'#8B3A3A':'var(--text-secondary)'}">
+          {{ cloudStatusText }}
+        </div>
       </div>
     </div>
 
@@ -4622,14 +4663,100 @@ createApp({
       });
     }
 
-    // 同步到云端 GitHub（前端直连 GitHub API）—— 备案完成后启用
-    // function syncToGithub() { ... }
+    // ════════════════════════════════════════════
+    // 云端同步：前端直连 GitHub API
+    // ════════════════════════════════════════════
+    const savingCloud = ref(false);
+    const cloudStatus = ref(''); // 'online' | 'offline' | 'error' | ''
+    const cloudStatusText = computed(function() {
+      if (cloudStatus.value === 'online') return '✓ 云端已连接';
+      if (cloudStatus.value === 'synced') return '✓ 已同步到云端';
+      if (cloudStatus.value === 'syncing') return '⟳ 正在同步...';
+      if (cloudStatus.value === 'error') return '✗ 云端同步失败';
+      return '';
+    });
+
+    // 获取 GitHub 上 ledger_data.json 的当前 sha（用于更新）
+    function getGithubFileSha() {
+      return fetch(GITHUB_API + '?ref=' + 'main', {
+        headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+      })
+      .then(function(r) {
+        if (!r.ok) throw new Error('获取文件信息失败 HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function(data) { return data.sha; });
+    }
+
+    // 保存到云端 GitHub（前端直连 API）
+    function saveToGitHub() {
+      if (savingCloud.value) return;
+      savingCloud.value = true;
+      cloudStatus.value = 'syncing';
+
+      var payload = buildPayload();
+      payload.syncedAt = new Date().toISOString();
+      var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
+
+      getGithubFileSha()
+        .then(function(sha) {
+          return fetch(GITHUB_API, {
+            method: 'PUT',
+            headers: {
+              'Authorization': 'token ' + GITHUB_TOKEN,
+              'Accept': 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              message: '更新账本数据 @ ' + new Date().toLocaleString('zh-CN'),
+              content: content,
+              sha: sha,
+              branch: 'main'
+            })
+          });
+        })
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(res) {
+          var now = new Date();
+          lastSyncTime.value = '云端 ' + now.getHours().toString().padStart(2,'0') + ':' +
+                               now.getMinutes().toString().padStart(2,'0');
+          cloudStatus.value = 'synced';
+          toast(isLocalhost ? '已上传到 GitHub！' : '已保存到云端！', 'gold');
+          console.log('[账本] 已同步到 GitHub:', res.content.html_url);
+        })
+        .catch(function(e) {
+          cloudStatus.value = 'error';
+          toast('云端保存失败: ' + (e.message || '网络错误'), 'danger');
+          console.error('[账本] GitHub 同步失败:', e);
+        })
+        .finally(function() {
+          savingCloud.value = false;
+        });
+    }
+
+    // 强制从云端刷新数据（覆盖本地）
+    function forceRefreshFromCloud() {
+      toast('正在从云端拉取最新数据...', 'gold');
+      loadFromCloud()
+        .then(function() {
+          toast('数据已刷新！', 'gold');
+        })
+        .catch(function(e) {
+          toast('刷新失败: ' + e.message, 'danger');
+        });
+    }
 
     // ===== 系统设置 =====
     const wechatOK = ref(false);
     const autoBackup = ref(true);
     const syncing = ref(false);
     const lastSyncTime = ref('');
+
+    // 环境标识（暴露给模板）
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
     // ===== Toast =====
     const toastShow = ref(false);
@@ -4646,7 +4773,7 @@ createApp({
     }
 
     // ════════════════════════════════════════════
-    // 数据持久化：实时保存 + 服务器同步
+    // 数据持久化：localStorage 实时缓存 + 手动云端同步
     // ════════════════════════════════════════════
     var STORE_KEY = 'tidal_ledger_data';
 
@@ -4670,67 +4797,67 @@ createApp({
       } catch (e) { console.warn('[账本] localStorage 写入失败', e); }
     }
 
-    // 防抖同步到服务器
+    // 本地服务器防抖同步（仅本地环境有效）
     var _syncTimer = null;
     function syncToServer() {
+      if (!isLocalhost) return; // 线上环境无本地服务器，跳过
       clearTimeout(_syncTimer);
       _syncTimer = setTimeout(function () {
-        var payload = {
-          allCustomers:      allCustomers.value,
-          allOrders:         allOrders.value,
-          allMemberBalances: allMemberBalances.value,
-          memberList:        memberList.value,
-          rechargeTiers:     rechargeTiers.value,
-          productList:       productList.value,
-          transactions:      transactions.value,
-          settings: {
-            wechatOK:  wechatOK.value,
-            autoBackup: autoBackup.value,
-          },
-        };
+        var payload = buildPayload();
         fetch('/save-ledger', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         }).then(function (r) { return r.json(); })
           .then(function (res) {
-            if (res.ok) console.log('[账本] 已同步到服务器');
+            if (res.ok) console.log('[账本] 已同步到本地服务器');
           })
-          .catch(function (e) { console.warn('[账本] 服务器同步失败', e); });
+          .catch(function (e) { console.warn('[账本] 本地服务器同步失败', e); });
       }, 4000);
     }
 
-    // 启动数据加载策略
-    // localhost / 127.0.0.1：优先加载本地 ledger_data.json（服务器文件），不走 GitHub 覆盖
-    // 其他环境：云端 GitHub 优先，localStorage 兜底
-    var isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    // ════════════════════════════════════════════
+    // 启动数据加载策略（统一：GitHub 优先，本地兜底）
+    // ════════════════════════════════════════════
+    // Step 1: 所有环境先尝试从 GitHub 拉取最新数据
+    // Step 2: GitHub 成功 → 应用数据，写入 localStorage，检测云端在线
+    // Step 3: GitHub 失败 → 本地环境回退到 /ledger_data.json，线上回退到 localStorage
 
-    if (isLocalhost) {
-      // 本地环境：先尝试从服务器加载 ledger_data.json（我直接写入的文件）
-      fetch('/ledger_data.json', { cache: 'no-store' })
-        .then(function (r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
+    function initLoadData() {
+      loadFromCloud()
+        .then(function() {
+          cloudStatus.value = 'online';
         })
-        .then(function (d) {
-          applyPayload(d);
-          console.log('[账本] 已从本地服务器加载 ledger_data.json (syncedAt:', d.syncedAt || '?', ')');
-          // 同步到 localStorage，保持两份一致
-          saveToLocal();
-          lastSyncTime.value = '本地 (' + (d.syncedAt ? d.syncedAt.slice(11, 16) : '?') + ')';
-        })
-        .catch(function (e) {
-          console.warn('[账本] 本地文件加载失败，回退到 localStorage:', e.message);
-          loadFromLocal();
+        .catch(function(e) {
+          console.warn('[账本] 云端拉取失败，使用本地数据:', e.message);
+          cloudStatus.value = 'offline';
+          if (isLocalhost) {
+            // 本地：回退到服务器文件
+            fetch('/ledger_data.json', { cache: 'no-store' })
+              .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+              .then(function(d) {
+                applyPayload(d);
+                saveToLocal();
+                lastSyncTime.value = '本地 (' + (d.syncedAt ? d.syncedAt.slice(11, 16) : '?') + ')';
+                console.log('[账本] 已从本地服务器加载 (syncedAt:', d.syncedAt || '?', ')');
+              })
+              .catch(function(e2) {
+                console.warn('[账本] 本地文件也失败，回退到 localStorage:', e2.message);
+                loadFromLocal();
+              });
+          } else {
+            // 线上：回退到 localStorage
+            loadFromLocal();
+          }
         });
-    } else {
-      // 线上环境：云端优先
-      loadFromCloud().finally(function () { loadFromLocal(); });
     }
 
+    initLoadData();
+
+    // 实时自动保存：仅 localStorage（永不自动上传云端，防止误覆盖）
     watchEffect(function () {
       saveToLocal();
-      syncToServer();
+      if (isLocalhost) syncToServer();
     });
 
     return {
@@ -4764,7 +4891,9 @@ createApp({
       viewDayDetail,
       saveTiers, resetTiers,
       wechatOK, autoBackup,
+      isLocalhost,
       savingLocal, lastSyncTime, saveToLocalServer,
+      savingCloud, cloudStatus, cloudStatusText, saveToGitHub, forceRefreshFromCloud,
       toastShow, toastMsg, toastType, toast
     };
   }
