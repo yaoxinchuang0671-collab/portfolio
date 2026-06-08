@@ -511,6 +511,18 @@
   ],
   "allOrders": [
     {
+      "id": 1780946588567,
+      "date": "2026-06-09",
+      "customer": "晨启电竞",
+      "customerId": 59,
+      "amount": 40,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 40
+    },
+    {
       "id": 1780896967191,
       "date": "2026-06-08",
       "customer": "CXO电竞",
@@ -20773,5 +20785,6 @@
   "settings": {
     "wechatOK": false,
     "autoBackup": true
-  }
+  },
+  "syncedAt": "2026-06-08T19:24:10.982Z"
 }
