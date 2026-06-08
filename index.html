@@ -6,7 +6,7 @@
   <title>潮汐视界-作品集</title>
 
   <link rel="stylesheet" href="styles.css?v=30" />
-  <link rel="stylesheet" href="gallery.css?v=27" />
+  <link rel="stylesheet" href="gallery.css?v=29" />
   <style>
     /* 禁止图片右键保存/拖拽保存 */
     img {
@@ -83,6 +83,23 @@
       -webkit-user-drag: none;
       user-drag: none;
       -webkit-touch-callout: none;
+    }
+    /* 水印层 */
+    .lightbox-watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .lightbox.active .lightbox-watermark {
+      opacity: 1;
+    }
+    .lightbox.phone-mode .lightbox-watermark {
+      display: none;
     }
     /* ===== 联系合作弹窗 ===== */
     .contact-modal-overlay {
@@ -350,6 +367,8 @@
     <button class="lightbox-prev" id="lightboxPrev">‹</button>
     <button class="lightbox-next" id="lightboxNext">›</button>
     <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+    <!-- 水印层 -->
+    <canvas class="lightbox-watermark" id="lightboxWatermark"></canvas>
     <!-- 手机边框模式（小程序UI素材分类） -->
     <div class="lightbox-phone-wrap" id="lightboxPhoneWrap">
       <img id="lightboxPhoneImg" src="" alt="" />
@@ -424,7 +443,7 @@
   <script src="js/ui/navbar.js?v=2"></script>
   <script src="js/ui/back-to-top.js?v=2"></script>
   <!-- 业务模块 -->
-  <script src="gallery.js?v=19"></script>
+  <script src="gallery.js?v=20"></script>
   <script src="render.js?v=27"></script>
   <!-- 入口 -->
   <script src="js/main.js?v=10"></script>
