@@ -303,6 +303,14 @@
         }, 600);
       }, 300);
     };
+
+    // 兜底：8 秒后若 render.js 仍未隐藏加载屏，强制关闭（防止 JS 异常导致永久卡住）
+    setTimeout(function() {
+      if (preloader && preloader.parentNode && !preloader.classList.contains('preloader-hidden')) {
+        console.warn('[preloader] 超时兜底：强制关闭加载屏');
+        window.hidePreloader();
+      }
+    }, 8000);
   })();
   </script> <script>
   document.getElementById('adminEntry').addEventListener('click', function(e) {
