@@ -604,7 +604,8 @@
       img.onerror = function() {
         drawContactQRPlaceholder();
       };
-      img.src = dataUrl;
+      // 线上环境通过 toCdnUrl 转为 COS 地址
+      img.src = (typeof toCdnUrl === 'function') ? toCdnUrl(dataUrl) : dataUrl;
     }
 
     // 对二维码图片进行渐变色上色（深色→渐变色，浅色→透明）
