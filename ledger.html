@@ -4737,12 +4737,37 @@ createApp({
         });
     }
 
-    // 强制从云端刷新数据（覆盖本地）
+    // 强制从云端刷新数据（覆盖本地 + 本地环境同步写入文件）
     function forceRefreshFromCloud() {
       toast('正在从云端拉取最新数据...', 'gold');
       loadFromCloud()
         .then(function() {
-          toast('数据已刷新！', 'gold');
+          // 本地环境：拉取成功后同步写入 ledger_data.json 文件
+          var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+          if (isLocal) {
+            var payload = buildPayload();
+            payload.syncedAt = new Date().toISOString();
+            fetch('/save-ledger', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }).then(function(r) { return r.json(); })
+              .then(function(res) {
+                if (res.ok) {
+                  console.log('[账本] 云端数据已同步到本地文件');
+                  toast('数据已刷新，本地文件已同步！', 'gold');
+                } else {
+                  console.warn('[账本] 本地文件同步失败:', res.error);
+                  toast('数据已刷新，但本地文件同步失败', 'danger');
+                }
+              })
+              .catch(function(e) {
+                console.warn('[账本] 本地文件写入失败:', e.message);
+                toast('数据已刷新，本地文件写入失败', 'danger');
+              });
+          } else {
+            toast('数据已刷新！', 'gold');
+          }
         })
         .catch(function(e) {
           toast('刷新失败: ' + e.message, 'danger');
