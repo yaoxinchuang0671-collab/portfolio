@@ -289,6 +289,7 @@
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   opacity: 0;
@@ -322,7 +323,7 @@
   max-height: min(78vh, 900px);
   object-fit: contain;
   border-radius: 16px;
-  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5);
   background: var(--clr-surface);
 }
 
@@ -355,7 +356,7 @@
 }
 
 /* 手机框模式：限制尺寸，避免竖屏长图撑满视口 */
-.lightbox-phone-wrap {
+.lightbox.phone-mode .lightbox-phone-wrap {
   position: relative;
   z-index: 1;
   max-width: min(380px, 42vw);
@@ -364,7 +365,7 @@
   align-items: center;
   justify-content: center;
 }
-.lightbox-phone-wrap img {
+.lightbox.phone-mode .lightbox-phone-wrap img {
   max-width: 100%;
   max-height: 82vh;
   object-fit: contain;
