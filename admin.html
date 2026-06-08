@@ -945,25 +945,6 @@
     }
 
     /* ============ 联系合作面板 ============ */
-    .styled-qr-preview {
-      display: flex;
-      justify-content: center;
-      padding: 24px;
-      background: var(--clr-bg);
-      border: 1px solid var(--clr-border);
-      border-radius: 16px;
-      margin-top: 12px;
-    }
-    .styled-qr-preview canvas {
-      border-radius: 12px;
-      max-width: 100%;
-    }
-    .styled-qr-hint {
-      text-align: center;
-      font-size: 12px;
-      color: var(--clr-text2);
-      margin-top: 8px;
-    }
     /* 水印设置面板 */
     .switch-label {
       display: flex;
@@ -1185,18 +1166,8 @@
           </div>
         </div>
 
-        <!-- 美化版二维码预览 -->
-        <div class="form-group" id="styledQrWrap" style="display:none;margin-top:24px;">
-          <label>✨ 美化版二维码预览（前台显示效果）</label>
-          <div class="styled-qr-preview">
-            <canvas id="styledQrCanvas" width="280" height="320"></canvas>
-          </div>
-          <p class="styled-qr-hint">前台弹窗将使用此美化样式展示</p>
-        </div>
-
         <div class="btn-row">
           <button class="btn btn-primary" onclick="saveContact()">💾 保存联系设置</button>
-          <button class="btn btn-ghost" onclick="regenerateStyledQR()">🎨 重新生成美化二维码</button>
         </div>
       </div>
 
@@ -1652,7 +1623,6 @@
       document.getElementById('f-contact-qrText').value = c.qrText || '';
       _contactQrImage = c.qrImage || null;
 
-      // 如果有已保存的二维码图片，显示预览并直接上色
       var preview = document.getElementById('qrPreview');
       var previewImg = document.getElementById('qrPreviewImg');
       if (_contactQrImage) {
@@ -1660,18 +1630,9 @@
         previewImg.src = _contactQrImage;
         document.getElementById('qrPreviewInfo').innerHTML =
           '<span style="color:var(--clr-text2)">已保存的二维码</span>';
-        document.getElementById('styledQrWrap').style.display = 'block';
-        setTimeout(function() { generateStyledQRFromImage(_contactQrImage); }, 50);
       } else {
         preview.classList.remove('show');
         previewImg.src = '';
-        // 无图片但有文本时，用文本生成
-        if (c.qrText) {
-          document.getElementById('styledQrWrap').style.display = 'block';
-          setTimeout(function() { generateStyledQR(c.qrText); }, 50);
-        } else {
-          document.getElementById('styledQrWrap').style.display = 'none';
-        }
       }
     }
 
@@ -1787,12 +1748,9 @@
         document.getElementById('qrPreview').classList.add('show');
         document.getElementById('qrPreviewImg').src = dataUrl;
         document.getElementById('qrPreviewInfo').innerHTML =
-          '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;大小：<b>' + formatSize(file.size) + '</b><br><span style="color:var(--clr-text2)">已上传，正在生成美化版...</span>';
+          '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;大小：<b>' + formatSize(file.size) + '</b><br><span style="color:var(--clr-text2)">已上传，保存后即可在首页展示</span>';
 
-        // 直接上色生成美化版预览
-        document.getElementById('styledQrWrap').style.display = 'block';
-        setTimeout(function() { generateStyledQRFromImage(dataUrl); }, 50);
-        showToast('二维码已上传，美化版预览已生成', 'success');
+        showToast('二维码已上传', 'success');
       };
       reader.readAsDataURL(file);
     }
@@ -1817,9 +1775,7 @@
               '<div class="detect-label">✅ 识别成功</div>' +
               '<div class="detect-text">' + escapeHtml(result.data) + '</div>' +
             '</div>';
-          document.getElementById('styledQrWrap').style.display = 'block';
           document.getElementById('qrRetryRow').style.display = 'none';
-          setTimeout(function() { generateStyledQR(result.data); }, 50);
           showToast('二维码识别成功：' + result.data.substring(0, 40) + (result.data.length > 40 ? '...' : ''), 'success');
         } else {
           infoEl.innerHTML +=
@@ -1923,271 +1879,6 @@
     }
 
     // ---------- 美化版二维码生成（基于上传图片上色） ----------
-    function generateStyledQRFromImage(dataUrl) {
-      var canvas = document.getElementById('styledQrCanvas');
-      if (!canvas) return;
-      var ctx = canvas.getContext('2d');
-      var size = 280;
-      canvas.width = size;
-      canvas.height = size + 40;
-
-      var img = new Image();
-      img.onload = function() {
-        // 清空，深色背景
-        ctx.clearRect(0, 0, size, size + 40);
-        ctx.fillStyle = '#0A0A12';
-        ctx.fillRect(0, 0, size, size + 40);
-
-        // 外发光边框
-        ctx.shadowColor = 'rgba(157,141,245,0.25)';
-        ctx.shadowBlur = 16;
-        ctx.strokeStyle = 'rgba(157,141,245,0.3)';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(8, 8, size - 16, size - 16);
-        ctx.shadowBlur = 0;
-
-        // 上色绘制二维码
-        colorizeQRImage(ctx, img, 16, 16, size - 32, size - 32);
-
-        // 底部文字
-        ctx.fillStyle = '#8A8AA0';
-        ctx.font = '13px -apple-system, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('扫码添加 · 潮汐视界', size / 2, size + 24);
-      };
-      img.onerror = function() {
-        showToast('二维码图片加载失败', 'error');
-      };
-      img.src = dataUrl;
-    }
-
-    // 对二维码图片进行渐变色上色（深色→渐变色，浅色→透明）
-    function colorizeQRImage(ctx, img, x, y, drawW, drawH) {
-      var iw = img.naturalWidth || img.width || 200;
-      var ih = img.naturalHeight || img.height || 200;
-      var oc = document.createElement('canvas');
-      oc.width = iw;
-      oc.height = ih;
-      var octx = oc.getContext('2d');
-      octx.drawImage(img, 0, 0);
-
-      try {
-        var imgData = octx.getImageData(0, 0, iw, ih);
-        var data = imgData.data;
-
-        for (var i = 0; i < data.length; i += 4) {
-          var r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
-          var brightness = (r * 0.299 + g * 0.587 + b * 0.114) * (a / 255);
-
-          if (brightness < 120) {
-            // 深色像素 → 渐变色
-            var px = (i / 4) % iw;
-            var py = Math.floor((i / 4) / iw);
-            var t = (px / iw + py / ih) / 2;
-            var color = interpolateGradient(t);
-            data[i] = color.r;
-            data[i + 1] = color.g;
-            data[i + 2] = color.b;
-            data[i + 3] = 255;
-          } else {
-            // 浅色像素 → 透明（透出背景）
-            data[i + 3] = 0;
-          }
-        }
-        octx.putImageData(imgData, 0, 0);
-      } catch (e) {
-        console.warn('[colorize] 像素处理失败:', e);
-      }
-
-      ctx.drawImage(oc, x, y, drawW, drawH);
-    }
-
-    function interpolateGradient(t) {
-      var c1 = {r:157, g:141, b:245}; // 紫 #9D8DF5
-      var c2 = {r:0,   g:240, b:255}; // 青 #00F0FF
-      var c3 = {r:255, g:45,  b:143}; // 粉 #FF2D8F
-      var r, g, b;
-      if (t < 0.5) {
-        var lt = t * 2;
-        r = c1.r + (c2.r - c1.r) * lt;
-        g = c1.g + (c2.g - c1.g) * lt;
-        b = c1.b + (c2.b - c1.b) * lt;
-      } else {
-        var lt = (t - 0.5) * 2;
-        r = c2.r + (c3.r - c2.r) * lt;
-        g = c2.g + (c3.g - c2.g) * lt;
-        b = c2.b + (c3.b - c2.b) * lt;
-      }
-      return {r: Math.round(r), g: Math.round(g), b: Math.round(b)};
-    }
-
-    // ---------- 美化版二维码生成（基于文本） ----------
-    function generateStyledQR(text) {
-      if (!text) return;
-      var canvas = document.getElementById('styledQrCanvas');
-      if (!canvas) return;
-      var ctx = canvas.getContext('2d');
-      var size = 280;
-      canvas.width = size;
-      canvas.height = size + 40; // 底部留文字空间
-
-      // 1. 使用 QRCode.js 生成基础二维码到临时 canvas
-      var tempDiv = document.createElement('div');
-      tempDiv.style.position = 'fixed';
-      tempDiv.style.left = '-9999px';
-      document.body.appendChild(tempDiv);
-
-      var qrcode = new QRCode(tempDiv, {
-        text: text,
-        width: size,
-        height: size,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
-      });
-
-      // 等待 QRCode.js 生成（它使用图片）
-      setTimeout(function() {
-        var qrImg = tempDiv.querySelector('img');
-        if (!qrImg) { document.body.removeChild(tempDiv); return; }
-
-        qrImg.onload = function() {
-          drawStyledQR(ctx, qrImg, size, text);
-          document.body.removeChild(tempDiv);
-        };
-        // 如果已经加载完成
-        if (qrImg.complete) {
-          drawStyledQR(ctx, qrImg, size, text);
-          document.body.removeChild(tempDiv);
-        }
-      }, 100);
-    }
-
-    function regenerateStyledQR() {
-      // 优先使用上传的图片直接上色
-      if (_contactQrImage) {
-        document.getElementById('styledQrWrap').style.display = 'block';
-        generateStyledQRFromImage(_contactQrImage);
-        showToast('美化版二维码已重新上色', 'success');
-        return;
-      }
-      // 无图片时，使用文本生成
-      var text = document.getElementById('f-contact-qrText').value.trim();
-      if (!text) { showToast('请先上传二维码图片或输入二维码内容', 'info'); return; }
-      document.getElementById('styledQrWrap').style.display = 'block';
-      generateStyledQR(text);
-      showToast('美化版二维码已重新生成', 'success');
-    }
-
-    function drawStyledQR(ctx, qrImg, size, text) {
-      var w = size, h = size + 40;
-      // 清空
-      ctx.clearRect(0, 0, w, h);
-
-      // 背景
-      ctx.fillStyle = '#0A0A12';
-      ctx.fillRect(0, 0, w, h);
-
-      // 外发光边框
-      ctx.shadowColor = 'rgba(157,141,245,0.3)';
-      ctx.shadowBlur = 20;
-      ctx.strokeStyle = 'rgba(157,141,245,0.4)';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(10, 10, w - 20, w - 20);
-      ctx.shadowBlur = 0;
-
-      // 绘制基础二维码
-      ctx.drawImage(qrImg, 16, 16, w - 32, w - 32);
-
-      // 获取二维码像素数据，重新绘制渐变色模块
-      var qrCanvas = document.createElement('canvas');
-      qrCanvas.width = w - 32;
-      qrCanvas.height = w - 32;
-      var qctx = qrCanvas.getContext('2d');
-      qctx.drawImage(qrImg, 0, 0, w - 32, w - 32);
-      var imgData = qctx.getImageData(0, 0, w - 32, w - 32);
-      var data = imgData.data;
-
-      // 重新绘制带渐变色的二维码
-      ctx.fillStyle = '#0A0A12';
-      ctx.fillRect(16, 16, w - 32, w - 32);
-
-      var cellSize = Math.floor((w - 32) / 25); // 近似单元格大小
-      var moduleCount = Math.floor((w - 32) / cellSize);
-
-      // 创建渐变色
-      var grad = ctx.createLinearGradient(16, 16, w - 16, w - 16);
-      grad.addColorStop(0, '#9D8DF5');
-      grad.addColorStop(0.5, '#00F0FF');
-      grad.addColorStop(1, '#FF2D8F');
-
-      for (var row = 0; row < moduleCount; row++) {
-        for (var col = 0; col < moduleCount; col++) {
-          var px = Math.floor(col * cellSize + cellSize / 2);
-          var py = Math.floor(row * cellSize + cellSize / 2);
-          var idx = (py * (w - 32) + px) * 4;
-          if (idx < data.length && data[idx] < 128) {
-            var x = 16 + col * cellSize;
-            var y = 16 + row * cellSize;
-            var cs = cellSize - 1;
-            // 圆角矩形模块
-                _roundRect(ctx, x, y, cs, cs, 2);
-                ctx.fillStyle = grad;
-                ctx.fill();
-          }
-        }
-      }
-
-      // 三个定位角装饰
-      drawPositionPattern(ctx, 20, 20, 44);
-      drawPositionPattern(ctx, w - 64, 20, 44);
-      drawPositionPattern(ctx, 20, w - 64, 44);
-
-      // 底部文字
-      ctx.fillStyle = '#8A8AA0';
-      ctx.font = '13px -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('扫码添加 · 潮汐视界', w / 2, w + 24);
-    }
-
-    function _roundRect(ctx, x, y, w, h, r) {
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + w - r, y);
-      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-      ctx.lineTo(x + w, y + h - r);
-      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-      ctx.lineTo(x + r, y + h);
-      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
-    }
-
-    function drawPositionPattern(ctx, x, y, size) {
-      // 外框
-      ctx.strokeStyle = '#9D8DF5';
-      ctx.lineWidth = 2;
-      _roundRect(ctx, x, y, size, size, 4);
-      ctx.stroke();
-      // 内框
-      ctx.fillStyle = 'rgba(157,141,245,0.15)';
-      _roundRect(ctx, x + 8, y + 8, size - 16, size - 16, 3);
-      ctx.fill();
-      // 中心点
-      ctx.fillStyle = '#00F0FF';
-      ctx.beginPath();
-      ctx.arc(x + size / 2, y + size / 2, 5, 0, Math.PI * 2);
-      ctx.fill();
-      // 发光效果
-      ctx.shadowColor = 'rgba(0,240,255,0.5)';
-      ctx.shadowBlur = 10;
-      ctx.beginPath();
-      ctx.arc(x + size / 2, y + size / 2, 5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-    }
-
     // ============ 作品列数控制 ============
     var adminCols = localStorage.getItem('adminCols') || 'auto';
 
@@ -3780,7 +3471,6 @@
   <!-- 二维码识别库 -->
   <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
   <!-- 二维码生成库 -->
-  <script src="https://unpkg.com/qrcodejs@1.0.0/qrcode.min.js"></script>
 </body>
 </html>
 
