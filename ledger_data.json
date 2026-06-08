@@ -511,30 +511,6 @@
   ],
   "allOrders": [
     {
-      "id": 1780941007801,
-      "date": "2026-06-09",
-      "customer": "雾霾俱乐部",
-      "customerId": 17,
-      "amount": 120,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 90,
-      "cashPay": 30
-    },
-    {
-      "id": 1780939786618,
-      "date": "2026-06-09",
-      "customer": "罗森电竞",
-      "customerId": 40,
-      "amount": 330,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 330,
-      "cashPay": 0
-    },
-    {
       "id": 1780896967191,
       "date": "2026-06-08",
       "customer": "CXO电竞",
@@ -542,7 +518,7 @@
       "amount": 80,
       "type": "电竞设计",
       "detail": "",
-      "status": "completed",
+      "status": "pending",
       "memberDeduct": 0,
       "cashPay": 80
     },
@@ -20648,17 +20624,17 @@
       "id": 1780745926818,
       "name": "雾霾俱乐部",
       "customer": "雾霾俱乐部",
-      "balance": 0,
+      "balance": 90,
       "totalRecharge": 588,
-      "totalConsume": 640
+      "totalConsume": 550
     },
     {
       "id": 1780847452213,
       "name": "罗森电竞",
       "customer": "罗森电竞",
-      "balance": 83,
+      "balance": 413,
       "totalRecharge": 388,
-      "totalConsume": 330
+      "totalConsume": 0
     }
   ],
   "rechargeTiers": [
@@ -20797,6 +20773,5 @@
   "settings": {
     "wechatOK": false,
     "autoBackup": true
-  },
-  "syncedAt": "2026-06-08T17:50:26.893Z"
+  }
 }
