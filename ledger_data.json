@@ -511,6 +511,18 @@
   ],
   "allOrders": [
     {
+      "id": 1780949739843,
+      "date": "2026-06-09",
+      "customer": "雾霾俱乐部",
+      "customerId": 42,
+      "amount": 120,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 90,
+      "cashPay": 30
+    },
+    {
       "id": 1780946588567,
       "date": "2026-06-09",
       "customer": "晨启电竞",
@@ -20636,9 +20648,9 @@
       "id": 1780745926818,
       "name": "雾霾俱乐部",
       "customer": "雾霾俱乐部",
-      "balance": 90,
+      "balance": 0,
       "totalRecharge": 588,
-      "totalConsume": 550
+      "totalConsume": 640
     },
     {
       "id": 1780847452213,
@@ -20786,5 +20798,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-08T19:24:10.982Z"
+  "syncedAt": "2026-06-08T20:15:54.913Z"
 }
