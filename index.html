@@ -582,6 +582,8 @@
       canvas.height = size + 40;
 
       var img = new Image();
+      // 必须设置 crossOrigin 才能对跨域图片使用 canvas.getImageData
+      img.crossOrigin = 'anonymous';
       img.onload = function() {
         ctx.clearRect(0, 0, size, size + 40);
         ctx.fillStyle = '#0A0A12';
@@ -594,7 +596,11 @@
         ctx.strokeRect(8, 8, size - 16, size - 16);
         ctx.shadowBlur = 0;
 
-        colorizeQRImage(ctx, img, 12, 12, size - 24, size - 24);
+        var ok = colorizeQRImage(ctx, img, 12, 12, size - 24, size - 24);
+        // 像素处理失败（如 CORS）则直接绘制原图
+        if (!ok) {
+          ctx.drawImage(img, 12, 12, size - 24, size - 24);
+        }
 
         ctx.fillStyle = '#8A8AA0';
         ctx.font = '12px -apple-system, sans-serif';
@@ -609,6 +615,7 @@
     }
 
     // 对二维码图片进行渐变色上色（深色→渐变色，浅色→透明）
+    // 返回 true/false 表示是否成功（失败通常是跨域 CORS 导致）
     function colorizeQRImage(ctx, img, x, y, drawW, drawH) {
       var iw = img.naturalWidth || img.width || 200;
       var ih = img.naturalHeight || img.height || 200;
@@ -645,11 +652,12 @@
           }
         }
         octx.putImageData(imgData, 0, 0);
+        ctx.drawImage(oc, x, y, drawW, drawH);
+        return true;
       } catch (e) {
-        console.warn('[colorize] 像素处理失败:', e);
+        console.warn('[colorize] 像素处理失败（可能跨域）:', e);
+        return false;
       }
-
-      ctx.drawImage(oc, x, y, drawW, drawH);
     }
 
     function interpolateGradient(t) {
