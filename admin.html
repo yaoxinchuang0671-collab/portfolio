@@ -1026,7 +1026,38 @@
       font-size: 13px;
     }
 
+    /* 云端同步按钮 */
+    .btn-cloud-sync {
+      background: rgba(100,149,237,0.15);
+      border: 1px solid rgba(100,149,237,0.35);
+      color: #6495ED;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 8px;
+      transition: all 0.2s;
+    }
+    .btn-cloud-sync:hover {
+      background: rgba(100,149,237,0.25);
+      border-color: rgba(100,149,237,0.55);
+    }
+    .btn-cloud-sync:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .cloud-status {
+      font-size: 12px;
+      color: var(--clr-text2);
+      margin-left: 12px;
+    }
+    .cloud-status.online { color: #6B8E23; }
+    .cloud-status.error { color: var(--clr-danger); }
+    .cloud-status.syncing { color: var(--clr-accent); }
   </style>
+  <!-- COS JavaScript SDK -->
+  <script src="https://unpkg.com/cos-js-sdk-v5/dist/cos-js-sdk-v5.min.js"></script>
 </head>
 <body>
 
@@ -1036,6 +1067,9 @@
     <div class="links">
       <button class="btn-publish" id="btnPublish" onclick="publishSite('code')" title="发布代码到线上">🚀 发布代码</button>
       <button class="btn-publish btn-publish-all" id="btnPublishAll" onclick="publishSite('all')" title="发布代码+有变化的图片">📦 全部发布</button>
+      <button class="btn-cloud-sync" id="btnCloudSync" onclick="syncToCloud()" title="保存数据到 GitHub + 图片到 COS">☁️ 同步到云端</button>
+      <button class="btn-cloud-sync" id="btnCloudSettings" onclick="openCloudSettings()" title="配置 GitHub / COS 凭证">⚙️ 云端设置</button>
+      <span class="cloud-status" id="cloudStatus"></span>
       <a href="index.html" target="_blank">📱 预览前台</a>
       <a href="ledger.html" target="_blank">📒 潮汐账本</a>
       <a href="admin.html">🔧 管理后台</a>
@@ -1346,6 +1380,32 @@
     </div>
   </div>
 
+  <!-- 云端设置弹窗 -->
+  <div class="modal-overlay" id="cloudSettingsModal">
+    <div class="modal" style="max-width:480px;">
+      <h3>☁️ 云端凭证设置</h3>
+      <p style="font-size:12px;color:var(--clr-text2);margin-bottom:16px;">配置后可在任意设备通过线上后台直接上传作品到 COS 并同步 data.json 到 GitHub。凭证仅保存在本机浏览器中。</p>
+
+      <div class="form-group">
+        <label>GitHub Personal Access Token</label>
+        <input type="password" id="cfg-gh-token" placeholder="ghp_xxxxxxxx" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>腾讯云 COS SecretId</label>
+        <input type="password" id="cfg-cos-id" placeholder="AKIDxxxxxxxx" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label>腾讯云 COS SecretKey</label>
+        <input type="password" id="cfg-cos-key" placeholder="xxxxxxxx" autocomplete="off" />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="saveCloudSettings()">💾 保存凭证</button>
+        <button class="btn btn-ghost" onclick="closeCloudSettings()">取消</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 全局拖入覆盖层 -->
   <div class="global-drag-overlay" id="globalDragOverlay">
     <div class="global-drag-inner">
@@ -1356,6 +1416,136 @@
   </div>
 
   <script>
+    // ══════════════════════════════════════
+    // 云端配置 & 工具函数（支持线上直连 GitHub + COS）
+    // ══════════════════════════════════════
+    const IS_LOCAL_ADMIN = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    // 默认配置（不含敏感凭证，凭证从 localStorage 读取）
+    var CLOUD_CFG = {
+      cosRegion: 'ap-guangzhou', cosBucket: 'portfolio-images-1438664071', cosPrefix: 'portfolio/',
+      ghOwner: 'yaoxinchuang0671-collab', ghRepo: 'portfolio', ghBranch: 'main',
+      cosId: '', cosKey: '', ghToken: ''
+    };
+
+    // 从 localStorage 加载凭证（用户首次需在「云端设置」中填写）
+    function loadCloudCredentials() {
+      try {
+        var saved = localStorage.getItem('portfolio_cloud_cfg');
+        if (saved) {
+          var cfg = JSON.parse(saved);
+          if (cfg.ghToken) CLOUD_CFG.ghToken = cfg.ghToken;
+          if (cfg.cosId) CLOUD_CFG.cosId = cfg.cosId;
+          if (cfg.cosKey) CLOUD_CFG.cosKey = cfg.cosKey;
+        }
+      } catch (e) { console.warn('[cloud] 凭证加载失败', e); }
+    }
+    loadCloudCredentials();
+
+    // 检查凭证是否完整
+    function hasCloudCredentials() {
+      return !!(CLOUD_CFG.ghToken && CLOUD_CFG.cosId && CLOUD_CFG.cosKey);
+    }
+
+    // ── COS 客户端（凭证有效时初始化） ──
+    var cosClient = null;
+    function initCosClient() {
+      if (typeof COS === 'undefined') return;
+      if (CLOUD_CFG.cosId && CLOUD_CFG.cosKey) {
+        cosClient = new COS({ SecretId: CLOUD_CFG.cosId, SecretKey: CLOUD_CFG.cosKey });
+      }
+    }
+    initCosClient();
+
+    // ── 获取 GitHub 文件 sha ──
+    function getGithubFileSha(path) {
+      if (!CLOUD_CFG.ghToken) throw new Error('GitHub Token 未设置');
+      return fetch('https://api.github.com/repos/' + CLOUD_CFG.ghOwner + '/' + CLOUD_CFG.ghRepo + '/contents/' + encodeURIComponent(path) + '?ref=' + CLOUD_CFG.ghBranch, {
+        headers: { 'Authorization': 'token ' + CLOUD_CFG.ghToken, 'Accept': 'application/vnd.github.v3+json' }
+      }).then(function(r) {
+        if (r.status === 404) return null;
+        if (!r.ok) throw new Error('GitHub HTTP ' + r.status);
+        return r.json();
+      }).then(function(d) { return d ? d.sha : null; });
+    }
+
+    // ── 保存内容到 GitHub ──
+    function saveDataToGitHub(path, contentObj, message) {
+      if (!CLOUD_CFG.ghToken) throw new Error('GitHub Token 未设置');
+      var content = btoa(unescape(encodeURIComponent(JSON.stringify(contentObj, null, 2))));
+      return getGithubFileSha(path).then(function(sha) {
+        var body = {
+          message: message || ('Update ' + path + ' @ ' + new Date().toLocaleString('zh-CN')),
+          content: content,
+          branch: CLOUD_CFG.ghBranch
+        };
+        if (sha) body.sha = sha;
+        return fetch('https://api.github.com/repos/' + CLOUD_CFG.ghOwner + '/' + CLOUD_CFG.ghRepo + '/contents/' + encodeURIComponent(path), {
+          method: 'PUT',
+          headers: { 'Authorization': 'token ' + CLOUD_CFG.ghToken, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+      }).then(function(r) {
+        if (!r.ok) throw new Error('GitHub HTTP ' + r.status);
+        return r.json();
+      });
+    }
+
+    // ── 上传文件到 COS（线上直传） ──
+    function uploadToCOS(file, cosKey, onProgress) {
+      if (!hasCloudCredentials()) {
+        openCloudSettings();
+        return Promise.reject(new Error('请先配置云端凭证'));
+      }
+      return new Promise(function(resolve, reject) {
+        if (!cosClient) { reject(new Error('COS 客户端未初始化')); return; }
+        cosClient.putObject({
+          Bucket: CLOUD_CFG.cosBucket,
+          Region: CLOUD_CFG.cosRegion,
+          Key: cosKey,
+          Body: file,
+          ACL: 'public-read',
+          onProgress: onProgress || function() {}
+        }, function(err, data) {
+          if (err) { reject(err); return; }
+          resolve(data);
+        });
+      });
+    }
+
+    // ── 更新云端状态显示 ──
+    function setCloudStatus(text, type) {
+      var el = document.getElementById('cloudStatus');
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'cloud-status ' + (type || '');
+    }
+
+    // ── 云端凭证设置弹窗 ──
+    function openCloudSettings() {
+      document.getElementById('cloudSettingsModal').classList.add('active');
+      document.getElementById('cfg-gh-token').value = CLOUD_CFG.ghToken || '';
+      document.getElementById('cfg-cos-id').value = CLOUD_CFG.cosId || '';
+      document.getElementById('cfg-cos-key').value = CLOUD_CFG.cosKey || '';
+    }
+    function closeCloudSettings() {
+      document.getElementById('cloudSettingsModal').classList.remove('active');
+    }
+    function saveCloudSettings() {
+      CLOUD_CFG.ghToken = document.getElementById('cfg-gh-token').value.trim();
+      CLOUD_CFG.cosId = document.getElementById('cfg-cos-id').value.trim();
+      CLOUD_CFG.cosKey = document.getElementById('cfg-cos-key').value.trim();
+      localStorage.setItem('portfolio_cloud_cfg', JSON.stringify({
+        ghToken: CLOUD_CFG.ghToken,
+        cosId: CLOUD_CFG.cosId,
+        cosKey: CLOUD_CFG.cosKey
+      }));
+      initCosClient();
+      showToast('云端凭证已保存', 'success');
+      closeCloudSettings();
+      setCloudStatus(hasCloudCredentials() ? '✓ 凭证已配置' : '⚠ 凭证未配置', hasCloudCredentials() ? 'online' : '');
+    }
+
     // ══════════════════════════════════════
     // 认证模块：统一 fetch 包装 + 登录检查
     // ══════════════════════════════════════
@@ -1588,19 +1778,54 @@
         showToast('localStorage 写入失败：' + e.message, 'error');
       }
 
-      // 同时持久化到服务端 data.json（防止 localStorage 丢失导致数据回退）
-      authFetch('/save-data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(DATA)
-      }).then(function (res) {
-        if (res.ok) {
-        } else {
-          console.warn('[admin] data.json 同步失败: HTTP ' + res.status);
-        }
-      }).catch(function (e) {
-        console.warn('[admin] data.json 同步失败（服务器可能未启动）:', e.message);
-      });
+      if (IS_LOCAL_ADMIN) {
+        // 本地环境：同时持久化到服务端 data.json
+        authFetch('/save-data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(DATA)
+        }).then(function (res) {
+          if (!res.ok) console.warn('[admin] data.json 同步失败: HTTP ' + res.status);
+        }).catch(function (e) {
+          console.warn('[admin] data.json 同步失败（服务器可能未启动）:', e.message);
+        });
+      }
+      // 线上环境：只保存到 localStorage，云端同步由 syncToCloud 手动触发
+      // （避免频繁调用 GitHub API 触发速率限制）
+    }
+
+    // ── 手动同步到云端（GitHub + COS） ──
+    var _syncingCloud = false;
+    function syncToCloud() {
+      if (_syncingCloud) return;
+
+      // 检查凭证
+      if (!hasCloudCredentials()) {
+        showToast('请先配置云端凭证', 'warning');
+        openCloudSettings();
+        return;
+      }
+
+      _syncingCloud = true;
+      var btn = document.getElementById('btnCloudSync');
+      if (btn) { btn.disabled = true; btn.textContent = '⏳ 同步中...'; }
+      setCloudStatus('⟳ 正在保存 data.json...', 'syncing');
+
+      saveDataToGitHub('data.json', DATA, '更新作品集数据')
+        .then(function(res) {
+          setCloudStatus('✓ 已同步到云端 ' + new Date().toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'}), 'online');
+          showToast('✅ 已同步到云端！GitHub Pages 约 1-3 分钟后生效', 'success');
+          console.log('[admin] 云端同步成功:', res.content.html_url);
+        })
+        .catch(function(e) {
+          setCloudStatus('✗ 同步失败', 'error');
+          showToast('❌ 云端同步失败: ' + (e.message || '网络错误'), 'error');
+          console.error('[admin] 云端同步失败:', e);
+        })
+        .finally(function() {
+          _syncingCloud = false;
+          if (btn) { btn.disabled = false; btn.textContent = '☁️ 同步到云端'; }
+        });
     }
 
     function saveHero() {
@@ -1739,17 +1964,33 @@
     }
 
     function handleQrFile(file) {
+      if (!IS_LOCAL_ADMIN) {
+        // ── 线上环境：直传 COS（固定文件名 qr_code.png） ──
+        showToast('正在上传二维码到 COS...', 'info');
+        uploadToCOS(file, CLOUD_CFG.cosPrefix + 'qr_code.png')
+          .then(function() {
+            _contactQrImage = 'img/qr_code.png';
+            document.getElementById('qrPreview').classList.add('show');
+            document.getElementById('qrPreviewImg').src = URL.createObjectURL(file);
+            document.getElementById('qrPreviewInfo').innerHTML =
+              '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;大小：<b>' + formatSize(file.size) + '</b><br><span style="color:var(--clr-text2)">已上传至 COS，保存后即可展示</span>';
+            showToast('二维码已上传到 COS', 'success');
+          })
+          .catch(function(e) {
+            showToast('二维码上传失败: ' + (e.message || '网络错误'), 'error');
+          });
+        return;
+      }
+
+      // ── 本地环境：读成 DataURL（兼容现有逻辑） ──
       var reader = new FileReader();
       reader.onload = function(e) {
         var dataUrl = e.target.result;
         _contactQrImage = dataUrl;
-
-        // 显示预览
         document.getElementById('qrPreview').classList.add('show');
         document.getElementById('qrPreviewImg').src = dataUrl;
         document.getElementById('qrPreviewInfo').innerHTML =
           '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;大小：<b>' + formatSize(file.size) + '</b><br><span style="color:var(--clr-text2)">已上传，保存后即可在首页展示</span>';
-
         showToast('二维码已上传', 'success');
       };
       reader.readAsDataURL(file);
@@ -2634,30 +2875,57 @@
 
     async function compressImage(file) {
       var originalBytes = file.size;
-      console.log('[upload] 开始压缩上传:', file.name, formatSize(originalBytes));
-      try {
-        var formData = new FormData();
-        formData.append('file', file);
-        console.log('[upload] FormData 已创建，准备 fetch /compress-image');
+      console.log('[upload] 开始压缩上传:', file.name, formatSize(originalBytes), '本地:', IS_LOCAL_ADMIN);
 
-        var token = getToken();
-        console.log('[upload] Token 存在:', !!token);
+      if (!IS_LOCAL_ADMIN) {
+        // ── 线上环境：直传 COS ──
+        showProgress(30, '正在上传 COS...');
+        try {
+          var ext = file.name.split('.').pop().toLowerCase();
+          var safeName = file.name.replace(/[^a-zA-Z0-9_.\-]/g, '_');
+          var cosKey = CLOUD_CFG.cosPrefix + Date.now() + '_' + safeName;
+          var localPath = 'img/' + Date.now() + '_' + safeName;
 
-        var res = await authFetch('/compress-image', { method: 'POST', body: formData });
-        console.log('[upload] fetch 返回, status:', res.status, 'ok:', res.ok);
+          await uploadToCOS(file, cosKey, function(p) {
+            showProgress(30 + Math.round(p.percent * 0.6), '上传 ' + Math.round(p.percent) + '%');
+          });
 
-        if (!res.ok) {
-          var err = await res.json().catch(function() { return { error: '压缩失败' }; });
-          console.error('[upload] 服务器返回错误:', err);
+          compressedPath = localPath; // 存储本地相对路径（toCdnUrl 会转换）
+          document.getElementById('f-work-src').value = localPath;
+          compressResult = { originalSize: originalBytes, compressedSize: originalBytes, savedPct: 0 };
+
+          document.getElementById('previewInfo').innerHTML =
+            '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
+            '大小：<b>' + formatSize(originalBytes) + '</b><br>' +
+            '<span style="color:var(--clr-text2);">已上传至 COS：</span><code>' + cosKey + '</code>';
+          showProgress(100, '上传完成 ✓');
+          setTimeout(hideProgress, 1500);
+        } catch (e) {
+          console.error('[upload] COS 上传失败:', e);
           document.getElementById('previewInfo').innerHTML =
             '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
             '原始：<b>' + formatSize(originalBytes) + '</b><br>' +
-            '<span class="warn">⚠️ ' + (err.error || '压缩失败，将使用原图') + '</span>';
+            '<span class="warn">⚠️ COS 上传失败: ' + (e.message || '网络错误') + '</span>';
+          hideProgress();
+        }
+        return;
+      }
+
+      // ── 本地环境：走服务器压缩 ──
+      try {
+        var formData = new FormData();
+        formData.append('file', file);
+        var res = await authFetch('/compress-image', { method: 'POST', body: formData });
+        if (!res.ok) {
+          var err = await res.json().catch(function() { return { error: '压缩失败' }; });
+          document.getElementById('previewInfo').innerHTML =
+            '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
+            '原始：<b>' + formatSize(originalBytes) + '</b><br>' +
+            '<span class="warn">⚠️ ' + (err.error || '压缩失败') + '</span>';
           hideProgress();
           return;
         }
         var result = await res.json();
-        console.log('[upload] 压缩成功:', result);
         compressResult = {
           originalSize: result.originalSize,
           compressedSize: result.compressedSize,
@@ -2678,7 +2946,7 @@
         showProgress(100, '压缩完成 ✓');
         setTimeout(hideProgress, 1500);
       } catch (e) {
-        console.error('[upload] fetch 异常:', e.name, e.message, e);
+        console.error('[upload] fetch 异常:', e.name, e.message);
         document.getElementById('previewInfo').innerHTML =
           '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
           '原始：<b>' + formatSize(originalBytes) + '</b><br>' +
@@ -2750,76 +3018,89 @@
           compressedPath = null;
           compressResult = null;
         }
-        // 未走压缩（兼容旧逻辑）：原始上传（视频也走这里）
+        // 未走压缩（视频等）：本地走 /upload，线上走 COS 直传
         else if (selectedFile) {
           showToast('正在上传文件...', 'info');
           showProgress(0, '上传中 0%...');
 
-          var formData = new FormData();
-          formData.append('file', selectedFile);
+          if (!IS_LOCAL_ADMIN) {
+            // ── 线上环境：直传 COS ──
+            try {
+              var safeName = selectedFile.name.replace(/[^a-zA-Z0-9_.\-]/g, '_');
+              var cosKey = CLOUD_CFG.cosPrefix + Date.now() + '_' + safeName;
+              src = 'img/' + Date.now() + '_' + safeName;
+              await uploadToCOS(selectedFile, cosKey, function(p) {
+                showProgress(Math.round(p.percent), '上传 ' + Math.round(p.percent) + '%');
+              });
+              document.getElementById('f-work-src').value = src;
+              showProgress(100, '上传完成 ✓');
+              setTimeout(hideProgress, 1500);
+            } catch (e) {
+              showToast('COS 上传失败: ' + (e.message || '网络错误'), 'error');
+              hideProgress();
+              btn.disabled = false;
+              btn.textContent = '💾 保存';
+              return;
+            }
+          } else {
+            // ── 本地环境：走服务器 /upload ──
+            var formData = new FormData();
+            formData.append('file', selectedFile);
 
-          var res = await new Promise(function(resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload');
-            xhr.timeout = 300000;  // 5分钟超时（视频处理较慢）
-
-            var transferDone = false;
-            xhr.upload.onprogress = function(e) {
-              if (e.lengthComputable) {
-                var pct = Math.round((e.loaded / e.total) * 100);
-                var msg = '上传中 ' + pct + '%';
-                if (pct >= 100 && !transferDone) {
-                  transferDone = true;
-                  msg = '⏳ 服务器转换处理中，视频较大请耐心等待...';
+            var res = await new Promise(function(resolve, reject) {
+              var xhr = new XMLHttpRequest();
+              xhr.open('POST', '/upload');
+              xhr.timeout = 300000;
+              var transferDone = false;
+              xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                  var pct = Math.round((e.loaded / e.total) * 100);
+                  var msg = '上传中 ' + pct + '%';
+                  if (pct >= 100 && !transferDone) { transferDone = true; msg = '⏳ 服务器转换处理中...'; }
+                  showProgress(pct, msg);
                 }
-                showProgress(pct, msg);
-              }
-            };
+              };
+              xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  resolve({ ok: true, json: function() { return JSON.parse(xhr.responseText); } });
+                } else {
+                  try { var err = JSON.parse(xhr.responseText); resolve({ ok: false, json: function() { return err; } }); }
+                  catch(e2) { resolve({ ok: false, json: function() { return { error: '上传失败: HTTP ' + xhr.status }; } }); }
+                }
+              };
+              xhr.onerror = function() { reject(new Error('网络错误')); };
+              xhr.ontimeout = function() { reject(new Error('处理超时')); };
+              xhr.send(formData);
+            });
 
-            xhr.onload = function() {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                resolve({ ok: true, json: function() { return JSON.parse(xhr.responseText); } });
-              } else {
-                try { var err = JSON.parse(xhr.responseText); resolve({ ok: false, json: function() { return err; } }); }
-                catch(e2) { resolve({ ok: false, json: function() { return { error: '上传失败: HTTP ' + xhr.status }; } }); }
-              }
-            };
+            if (!res.ok) {
+              var err = res.json();
+              showToast(err.error || '上传失败', 'error');
+              hideProgress();
+              btn.disabled = false;
+              btn.textContent = '💾 保存';
+              return;
+            }
 
-            xhr.onerror = function() { reject(new Error('网络错误')); };
-            xhr.ontimeout = function() { reject(new Error('处理超时，文件可能过大，请压缩后再试')); };
-            xhr.send(formData);
-          });
-
-          if (!res.ok) {
-            var err = res.json();
-            showToast(err.error || '上传失败', 'error');
-            hideProgress();
-            btn.disabled = false;
-            btn.textContent = '💾 保存';
-            return;
+            var result = res.json();
+            src = result.path;
+            document.getElementById('f-work-src').value = src;
+            if (result.originalSize && result.savedPct > 0) {
+              document.getElementById('previewInfo').innerHTML =
+                '<span>📄 ' + selectedFile.name + '</span><br>' +
+                '原始：<b>' + formatSize(result.originalSize) + '</b> → 转 WebP：<b>' +
+                formatSize(result.size) + '</b> <span class="saved">(-' + result.savedPct + '%)</span><br>' +
+                '<span style="color:var(--clr-text2);">已保存至：</span><code>' + result.path + '</code>';
+            }
+            showProgress(100, '上传完成 ✓');
+            setTimeout(hideProgress, 1500);
           }
-
-          var result = res.json();
-          src = result.path;
-          document.getElementById('f-work-src').value = src;
-
-          // 显示视频压缩对比（如果服务端返回了原始大小）
-          if (result.originalSize && result.savedPct > 0) {
-            document.getElementById('previewInfo').innerHTML =
-              '<span>📄 ' + selectedFile.name + '</span><br>' +
-              '原始：<b>' + formatSize(result.originalSize) + '</b> → 转 WebP：<b>' +
-              formatSize(result.size) + '</b> <span class="saved">(-' + result.savedPct + '%)</span><br>' +
-              '<span style="color:var(--clr-text2);">已保存至：</span><code>' + result.path + '</code>';
-          }
-
-          showProgress(100, '上传完成 ✓');
-          setTimeout(hideProgress, 1500);
         }
 
         if (!src) { showToast('请选择或拖拽一个文件', 'error'); btn.disabled = false; btn.textContent = '💾 保存'; return; }
 
-        // ── 新增：caption 改变时重命名服务器上的图片文件 ──
-        if (editingWorkId !== null) {
+        // ── 本地环境：caption 改变时重命名服务器上的图片文件 ──
+        if (IS_LOCAL_ADMIN && editingWorkId !== null) {
           var oldCaption = (DATA.works[editingWorkId].caption || '').trim();
           var oldSrc     = (DATA.works[editingWorkId].src || '').trim();
           if (caption !== oldCaption && oldSrc.indexOf('img/') === 0) {
@@ -2834,10 +3115,7 @@
               if (_d.ok) {
                 src = _d.new_src;
                 document.getElementById('f-work-src').value = src;
-                // 同步更新缩略图路径
-                if (_d.new_thumbnail) {
-                  renamedThumbnail = _d.new_thumbnail;
-                }
+                if (_d.new_thumbnail) renamedThumbnail = _d.new_thumbnail;
                 showToast('图片文件已重命名：' + _d.new_name, 'success');
               } else {
                 showToast('重命名失败：' + (_d.error || '未知错误'), 'error');
@@ -2860,8 +3138,8 @@
             var nextNum = getMaxCaptionNumber() + 1;
             autoCaption = padNumber(nextNum, 4);
           }
-          // 自动重命名文件以匹配 caption
-          if (src && src.indexOf('img/') === 0) {
+          // 本地环境：自动重命名文件以匹配 caption
+          if (IS_LOCAL_ADMIN && src && src.indexOf('img/') === 0) {
             showToast('正在自动命名文件...', 'info');
             try {
               var _r = await authFetch('/rename-image', {
@@ -2872,10 +3150,8 @@
               var _d = await _r.json();
               if (_d.ok) {
                 src = _d.new_src;
-                // 同步更新 thumbnail 路径（优先用服务端返回的 new_thumbnail）
                 if (_d.new_thumbnail) {
                   renamedThumbnail = _d.new_thumbnail;
-                  // 同时更新 result.thumbnail，让下方 push 时能拿到正确路径
                   if (result) result.thumbnail = _d.new_thumbnail;
                 } else if (result && result.thumbnail) {
                   var newThumbName = 'thumb_' + src.substring(src.lastIndexOf('/') + 1);
@@ -2918,9 +3194,9 @@
       if (!w) return;
       if (!confirm('确定删除作品「' + (w.caption || '未命名') + '」？\n\n图片文件：' + (w.src || '无') + '\n\n提示：将同时删除服务器上的图片文件。')) return;
 
-      // 1. 删服务器图片文件
+      // 1. 本地环境：删除服务器图片文件
       var src = w.src || '';
-      if (src && src.indexOf('img/') === 0) {
+      if (IS_LOCAL_ADMIN && src && src.indexOf('img/') === 0) {
         showToast('正在删除图片文件...', 'info');
         authFetch('/?path=' + encodeURIComponent(src), { method: 'DELETE' })
           .then(function(r) { return r.json(); })
@@ -2929,6 +3205,7 @@
           })
           .catch(function() { showToast('文件删除请求失败：' + src, 'error'); });
       }
+      // 线上环境：暂不删除 COS 文件（COS 删除需额外签名，数据删除即可）
 
       // 2. 删数据
       DATA.works.splice(i, 1);
@@ -3345,49 +3622,51 @@
         fill.style.width = pct + '%';
         text.textContent = '上传中 ' + (i + 1) + '/' + batchFiles.length + '：' + f.name;
 
-        // 判断文件类型
         var ext = f.name.split('.').pop().toLowerCase();
         var videoExts = ['mp4','mov','avi','mkv','webm','m4v','flv'];
         var isVideo = videoExts.indexOf(ext) !== -1;
-        var uploadUrl = isVideo ? '/upload' : '/compress-image';
-
-        // 1. 上传
-        var formData = new FormData();
-        formData.append('file', f);
 
         try {
-          var res = await new Promise(function(resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', uploadUrl);
-            xhr.onload = function() {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                resolve({ ok: true, data: JSON.parse(xhr.responseText) });
-              } else {
-                try { resolve({ ok: false, error: JSON.parse(xhr.responseText).error || 'HTTP ' + xhr.status }); }
-                catch(e) { resolve({ ok: false, error: '上传失败: HTTP ' + xhr.status }); }
-              }
-            };
-            xhr.onerror = function() { reject(new Error('网络错误')); };
-            xhr.send(formData);
-          });
+          var src, thumbnail = '';
 
-          if (!res.ok) {
-            console.warn('[batch] 上传失败：' + f.name + '，原因：' + res.error);
-            continue;
+          if (!IS_LOCAL_ADMIN) {
+            // ── 线上环境：直传 COS ──
+            var safeName = f.name.replace(/[^a-zA-Z0-9_.\-]/g, '_');
+            var cosKey = CLOUD_CFG.cosPrefix + Date.now() + '_' + safeName;
+            src = 'img/' + Date.now() + '_' + safeName;
+            await uploadToCOS(f, cosKey);
+          } else {
+            // ── 本地环境：走服务器 ──
+            var uploadUrl = isVideo ? '/upload' : '/compress-image';
+            var formData = new FormData();
+            formData.append('file', f);
+            var res = await new Promise(function(resolve, reject) {
+              var xhr = new XMLHttpRequest();
+              xhr.open('POST', uploadUrl);
+              xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  resolve({ ok: true, data: JSON.parse(xhr.responseText) });
+                } else {
+                  try { resolve({ ok: false, error: JSON.parse(xhr.responseText).error || 'HTTP ' + xhr.status }); }
+                  catch(e) { resolve({ ok: false, error: '上传失败: HTTP ' + xhr.status }); }
+                }
+              };
+              xhr.onerror = function() { reject(new Error('网络错误')); };
+              xhr.send(formData);
+            });
+            if (!res.ok) {
+              console.warn('[batch] 上传失败：' + f.name + '，原因：' + res.error);
+              continue;
+            }
+            src = res.path || (res.data && res.data.path) || (res.data && res.data.files && res.data.files[0] && res.data.files[0].path);
+            thumbnail = res.thumbnail || (res.data && res.data.thumbnail) || '';
+            if (!src) {
+              showToast('上传成功但无 path 字段：' + f.name, 'warning');
+              continue;
+            }
           }
 
-          // 兼容 /upload 和 /compress-image 两种返回格式
-          // 服务器直接返回 {ok, path, thumbnail, ...}，无 data 包装
-          var src = res.path || (res.data && res.data.path) || (res.data && res.data.files && res.data.files[0] && res.data.files[0].path);
-          var thumbnail = res.thumbnail || (res.data && res.data.thumbnail) || '';
-          if (!src) {
-            showToast('上传成功但无 path 字段：' + f.name, 'warning');
-            continue;
-          }
           var caption = f.name.replace(/\.[^.]+$/, '');
-
-          // 2. 加入 DATA.works
-          // 用 Date.now() + i + 随机后缀保证 id 绝对唯一
           var wId = Date.now() + i + Math.floor(Math.random() * 10000);
           DATA.works.push({
             id: wId,
@@ -3400,7 +3679,7 @@
           successCount++;
 
         } catch (e) {
-          showToast('上传失败：' + f.name, 'error');
+          showToast('上传失败：' + f.name + (e.message ? ' (' + e.message + ')' : ''), 'error');
         }
       }
 
@@ -3408,7 +3687,6 @@
       text.textContent = '✅ 完成！成功 ' + successCount + '/' + batchFiles.length + ' 个';
 
       if (successCount > 0) {
-        // 重命名排序
         renumberWorks();
         syncToLocalStorage();
         renderFilterTabs();
