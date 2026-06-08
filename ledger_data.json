@@ -542,7 +542,7 @@
       "amount": 80,
       "type": "电竞设计",
       "detail": "",
-      "status": "pending",
+      "status": "completed",
       "memberDeduct": 0,
       "cashPay": 80
     },
@@ -20798,5 +20798,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-08T20:56:29.330Z"
+  "syncedAt": "2026-06-08T22:48:35.366Z"
 }
