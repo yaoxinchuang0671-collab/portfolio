@@ -638,7 +638,7 @@
       "customerId": 63,
       "amount": 550,
       "type": "电竞设计",
-      "detail": "",
+      "detail": "趣味单合集差3个单的价格",
       "status": "pending",
       "memberDeduct": 550,
       "cashPay": 0
@@ -20773,6 +20773,5 @@
   "settings": {
     "wechatOK": false,
     "autoBackup": true
-  },
-  "syncedAt": "2026-06-08T05:36:26.641Z"
+  }
 }
