@@ -1479,7 +1479,7 @@
         '>' +
         handleHtml +
         '<div class="card-checkbox" onclick="toggleWorkSelection(' + realIdx + ', \'' + w.id + '\', event)" title="选择">✓</div>' +
-        '<img class="thumb" src="' + toCdnUrl(w.thumbnail || w.src) + '" alt="" draggable="false" onerror="var self=this,origSrc=this.src;this.style.background=\'#333\';console.warn('[thumb] load failed:',origSrc);setTimeout(function(){if(self.src===origSrc){var fallback=self.getAttribute(\'data-fallback\');if(fallback&&fallback!==origSrc){console.log('[thumb] trying fallback:',fallback);self.src=fallback;}else{self.src=origSrc+(origSrc.indexOf(\'?\')>0?\'&\':\'?\')+\'_t=\'+Date.now();}}},300);" onload="this.style.background=\'\';" data-fallback="' + toCdnUrl(w.src || '') + '" />' +
+        '<img class="thumb" src="' + toCdnUrl(w.thumbnail || w.src) + '" alt="" draggable="false" onerror="this.style.background=\'#333\';this.src=this.src+(this.src.indexOf(\'?\')>0?\'&\':\'?\')+\'_t=\'+Date.now();" data-fallback="' + toCdnUrl(w.src || '') + '" />' +
         '<div class="info">' +
           '<h4 title="' + (w.caption || '无标题') + '">' + (w.caption || '（无标题）') + '</h4>' +
           '<select class="card-cat-select" onchange="changeWorkCategory(' + realIdx + ', this.value)" onclick="event.stopPropagation()">' + catOptions + '</select>' +
