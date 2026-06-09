@@ -588,13 +588,8 @@ body {
         </div>
       </div>
       <div class="sidebar-footer">
-        <!-- 本地环境：保存到本地文件 + 上传云端 -->
+        <!-- 本地环境：自动保存到文件，仅保留上传云端 -->
         <template v-if="isLocalhost">
-          <button class="btn-save-local" :disabled="savingLocal" @click="saveToLocalServer">
-            <span v-if="savingLocal" class="spin">⏳</span>
-            <span v-else>💾</span>
-            {{ savingLocal ? '保存中...' : '保存到本地文件' }}
-          </button>
           <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToGitHub">
             <span v-if="savingCloud" class="spin">⏳</span>
             <span v-else>☁️</span>
@@ -4549,6 +4544,31 @@ createApp({
     var GITHUB_API = 'https://api.github.com/repos/yaoxinchuang0671-collab/portfolio/contents/ledger_data.json';
     var GITHUB_RAW = 'https://raw.githubusercontent.com/yaoxinchuang0671-collab/portfolio/main/ledger_data.json';
 
+    // 北京时间 ISO 字符串（带 +08:00 偏移，文件可读性更好）
+    function getBeijingISOString() {
+      var now = new Date();
+      var y = now.getFullYear();
+      var m = String(now.getMonth() + 1).padStart(2, '0');
+      var d = String(now.getDate()).padStart(2, '0');
+      var h = String(now.getHours()).padStart(2, '0');
+      var min = String(now.getMinutes()).padStart(2, '0');
+      var s = String(now.getSeconds()).padStart(2, '0');
+      var ms = String(now.getMilliseconds()).padStart(3, '0');
+      return y + '-' + m + '-' + d + 'T' + h + ':' + min + ':' + s + '.' + ms + '+08:00';
+    }
+
+    // 将任何 ISO 时间字符串转为北京时间 YYYY-MM-DD HH:MM
+    function formatSyncTime(isoStr) {
+      if (!isoStr) return '?';
+      var d = new Date(isoStr);
+      var y = d.getFullYear();
+      var m = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      var h = String(d.getHours()).padStart(2, '0');
+      var min = String(d.getMinutes()).padStart(2, '0');
+      return y + '-' + m + '-' + day + ' ' + h + ':' + min;
+    }
+
     function buildPayload() {
       return {
         allCustomers:      allCustomers.value,
@@ -4559,7 +4579,7 @@ createApp({
         productList:       productList.value,
         transactions:      transactions.value,
         settings: { wechatOK: wechatOK.value, autoBackup: autoBackup.value },
-        syncedAt: new Date().toISOString(),
+        syncedAt: getBeijingISOString(),
       };
     }
 
@@ -4589,7 +4609,7 @@ createApp({
           console.log('[账本] 已从云端同步数据 (syncedAt:', d.syncedAt || '?', ')');
           // 云端数据同时写入 localStorage
           saveToLocal();
-          lastSyncTime.value = '云端 (' + (d.syncedAt ? d.syncedAt.slice(11, 16) : '?') + ')';
+          lastSyncTime.value = '云端 (' + formatSyncTime(d.syncedAt) + ')';
         })
         .catch(function (e) {
           console.warn('[账本] 云端拉取失败，使用本地数据:', e.message);
@@ -4603,7 +4623,7 @@ createApp({
       savingLocal.value = true;
 
       var payload = buildPayload();
-      payload.syncedAt = new Date().toISOString();
+      payload.syncedAt = getBeijingISOString();
 
       fetch('/save-ledger', {
         method: 'POST',
@@ -4613,9 +4633,7 @@ createApp({
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (res.ok) {
-          var now = new Date();
-          lastSyncTime.value = '已保存 ' + now.getHours().toString().padStart(2,'0') + ':' +
-                               now.getMinutes().toString().padStart(2,'0');
+          lastSyncTime.value = '已保存 ' + formatSyncTime(payload.syncedAt);
           toast('数据已保存到本地！', 'gold');
           console.log('[账本] 已保存到 ledger_data.json');
         } else {
@@ -4665,7 +4683,7 @@ createApp({
       cloudStatus.value = 'syncing';
 
       var payload = buildPayload();
-      payload.syncedAt = new Date().toISOString();
+      payload.syncedAt = getBeijingISOString();
       var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
 
       getGithubFileSha()
@@ -4691,9 +4709,7 @@ createApp({
           return r.json();
         })
         .then(function(res) {
-          var now = new Date();
-          lastSyncTime.value = '云端 ' + now.getHours().toString().padStart(2,'0') + ':' +
-                               now.getMinutes().toString().padStart(2,'0');
+          lastSyncTime.value = '云端 ' + formatSyncTime(payload.syncedAt);
           cloudStatus.value = 'synced';
           toast(isLocalhost ? '已上传到 GitHub！' : '已保存到云端！', 'gold');
           console.log('[账本] 已同步到 GitHub:', res.content.html_url);
@@ -4717,7 +4733,7 @@ createApp({
           var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
           if (isLocal) {
             var payload = buildPayload();
-            payload.syncedAt = new Date().toISOString();
+            payload.syncedAt = getBeijingISOString();
             fetch('/save-ledger', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -4806,10 +4822,15 @@ createApp({
           body: JSON.stringify(payload),
         }).then(function (r) { return r.json(); })
           .then(function (res) {
-            if (res.ok) console.log('[账本] 已同步到本地服务器');
+            if (res.ok) {
+              var now = new Date();
+              lastSyncTime.value = '已保存 ' + now.getHours().toString().padStart(2,'0') + ':' +
+                                   now.getMinutes().toString().padStart(2,'0');
+              console.log('[账本] 已同步到本地服务器');
+            }
           })
           .catch(function (e) { console.warn('[账本] 本地服务器同步失败', e); });
-      }, 4000);
+      }, 2000);
     }
 
     // ════════════════════════════════════════════
@@ -4820,28 +4841,18 @@ createApp({
 
     function initLoadData() {
       if (isLocalhost) {
-        // 本地：先清除旧缓存，再清空内联硬编码数据，最后从文件加载
-        localStorage.removeItem(STORE_KEY);
-        console.log('[账本] 已清除 localStorage 旧缓存');
-        // 同步清空内联旧数据，防止 Vue 首次渲染时闪烁旧快照
-        allOrders.value = [];
-        allCustomers.value = [];
-        allMemberBalances.value = [];
-        memberList.value = [];
-        transactions.value = [];
-        productList.value = [];
+        // 本地：直接从文件加载，不清空任何数据（避免server未启动时数据丢失）
         fetch('/ledger_data.json', { cache: 'no-store' })
           .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function(d) {
             applyPayload(d);
-            saveToLocal(); // 同步一份到 localStorage 作为备份
-            var ts = d.syncedAt ? d.syncedAt.slice(0, 16).replace('T', ' ') : '未知';
+            var ts = formatSyncTime(d.syncedAt);
             lastSyncTime.value = '本地文件 ' + ts;
             console.log('[账本] 已从本地文件加载 (syncedAt:', d.syncedAt || '?', ')');
           })
           .catch(function(e) {
-            console.warn('[账本] 本地文件读取失败:', e.message);
-            toast('本地文件读取失败: ' + e.message, 'danger');
+            console.warn('[账本] 本地文件读取失败，保留当前数据:', e.message);
+            toast('本地文件读取失败，请确认服务器已启动', 'warning');
           });
       } else {
         // 线上：GitHub 优先
@@ -4864,7 +4875,7 @@ createApp({
       orderPage.value = 1;
     });
 
-    // 实时自动保存：仅 localStorage（永不自动上传云端，防止误覆盖）
+    // 实时自动保存：本地环境直接写文件，线上环境只存 localStorage
     // 防抖 1200ms，避免大数据量 JSON.stringify + buildPayload 阻塞主线程
     var _saveTimer = null;
     watchEffect(function () {
@@ -4874,8 +4885,11 @@ createApp({
                  (wechatOK.value ? 1 : 0) + (autoBackup.value ? 1 : 0);
       clearTimeout(_saveTimer);
       _saveTimer = setTimeout(function () {
-        saveToLocal();
-        if (isLocalhost) syncToServer();
+        if (isLocalhost) {
+          syncToServer(); // 本地：直接保存到 ledger_data.json 文件
+        } else {
+          saveToLocal();  // 线上：存到 localStorage
+        }
       }, 1200);
     });
 
