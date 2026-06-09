@@ -1001,10 +1001,16 @@
 
     // CDN 配置（与 render.js 保持一致）
     const CDN_BASE = 'https://portfolio-images-1438664071.cos.ap-guangzhou.myqcloud.com/';
+    const IS_LOCAL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '119.91.147.180');
     function toCdnUrl(src) {
       if (!CDN_BASE || !src) return src;
-      if (src.startsWith('http://') || src.startsWith('https://')) return src;
-      var clean = src.replace(/^\.\/|^\//, '');
+      if (IS_LOCAL) return src;
+      if (src.substring(0, 7) === 'http://' || src.substring(0, 8) === 'https://') return src;
+      var clean = src;
+      if (clean.substring(0, 2) === './' || clean.substring(0, 2) === '.\\') clean = clean.substring(2);
+      if (clean.substring(0, 4) === 'img/' || clean.substring(0, 4) === 'img\\') {
+        clean = 'portfolio/' + clean.substring(4);
+      }
       return CDN_BASE + encodeURI(clean);
     }
     let editingWorkId = null;
