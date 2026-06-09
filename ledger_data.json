@@ -511,6 +511,18 @@
   ],
   "allOrders": [
     {
+      "id": 1780970564829,
+      "date": "2026-06-09",
+      "customer": "ᯤ",
+      "customerId": 36,
+      "amount": 40,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 40
+    },
+    {
       "id": 1780949739843,
       "date": "2026-06-09",
       "customer": "雾霾俱乐部",
@@ -20798,5 +20810,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-08T22:48:35.366Z"
+  "syncedAt": "2026-06-09T02:02:47.814Z"
 }
