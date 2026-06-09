@@ -629,168 +629,6 @@
       flex-shrink: 0;
     }
 
-    /* ============ 拖拽上传区 ============ */
-    .dropzone {
-      border: 2px dashed var(--clr-border);
-      border-radius: 12px;
-      padding: 40px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      background: var(--clr-surface);
-      position: relative;
-    }
-    .dropzone:hover,
-    .dropzone.dragover {
-      border-color: var(--clr-accent);
-      background: rgba(212,168,67,0.08);
-    }
-    .dropzone.dragover {
-      transform: scale(1.02);
-      box-shadow: 0 0 0 4px rgba(212,168,67,0.15);
-    }
-
-    /* ===== 全局拖入覆盖层 ===== */
-    .global-drag-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(10,10,15,0.82);
-      z-index: 500;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-      backdrop-filter: blur(6px);
-    }
-    .global-drag-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .global-drag-inner {
-      width: min(520px, 86vw);
-      height: min(340px, 56vh);
-      border: 2px dashed var(--clr-accent);
-      border-radius: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(26,26,46,0.7);
-      transition: transform 0.15s ease, background 0.2s ease;
-    }
-    .global-drag-overlay.active .global-drag-inner {
-      transform: scale(1.03);
-      background: rgba(212,168,67,0.12);
-      box-shadow: 0 0 40px rgba(212,168,67,0.2);
-    }
-    .global-drag-icon {
-      font-size: 56px;
-      margin-bottom: 16px;
-      opacity: 0.8;
-      transition: transform 0.2s ease;
-    }
-    .global-drag-overlay.active .global-drag-icon {
-      transform: translateY(-4px);
-    }
-    .global-drag-text {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--clr-accent2);
-      margin-bottom: 8px;
-    }
-    .global-drag-hint {
-      font-size: 14px;
-      color: var(--clr-text2);
-    }
-
-    .dropzone-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-      opacity: 0.6;
-    }
-    .dropzone-text {
-      font-size: 15px;
-      color: var(--clr-text);
-      margin-bottom: 6px;
-    }
-    .dropzone-hint {
-      font-size: 13px;
-      color: var(--clr-text2);
-    }
-    .dropzone input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    /* 上传预览 */
-    .upload-preview {
-      margin-top: 16px;
-      display: none;
-    }
-    .upload-preview.show { display: block; }
-    .upload-preview .preview-img-wrap {
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--clr-border);
-      background: #000;
-      max-height: 280px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .upload-preview .preview-img-wrap img {
-      max-width: 100%;
-      max-height: 280px;
-      object-fit: contain;
-    }
-    .upload-preview .preview-info {
-      margin-top: 10px;
-      font-size: 13px;
-      color: var(--clr-text2);
-      line-height: 1.6;
-    }
-    .upload-preview .preview-info b { color: var(--clr-accent2); }
-    .upload-preview .preview-info .saved { color: var(--clr-success); font-weight: 600; }
-    .upload-preview .preview-info .warn { color: var(--clr-danger); }
-    .upload-preview .preview-info code {
-      background: var(--clr-surface);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      color: var(--clr-accent2);
-    }
-
-    /* 上传进度条 */
-    .progress-bar-wrap {
-      margin-top: 12px;
-      background: var(--clr-surface);
-      border-radius: 6px;
-      height: 6px;
-      overflow: hidden;
-      display: none;
-    }
-    .progress-bar-wrap.show { display: block; }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--clr-accent), var(--clr-accent2));
-      border-radius: 6px;
-      transition: width 0.3s ease;
-      width: 0%;
-    }
-    .progress-text {
-      font-size: 12px;
-      color: var(--clr-text2);
-      margin-top: 4px;
-      text-align: right;
-      display: none;
-    }
-    .progress-text.show { display: block; }
-
     /* 模态底部按钮 */
     .modal-actions {
       display: flex;
@@ -939,7 +777,7 @@
     }
 
   </style>
-</head><body><div class="topbar"><h1>⚙️ 作品集管理后台</h1><div class="links"><button class="btn-publish" id="btnPublish" onclick="publishSite('code')" title="发布代码到线上">🚀 发布代码</button><button class="btn-publish btn-publish-all" id="btnPublishAll" onclick="publishSite('all')" title="发布代码+有变化的图片">📦 全部发布</button><a href="index.html" target="_blank">📱 预览前台</a><a href="ledger.html" target="_blank">📒 潮汐账本</a><a href="admin.html">🔧 管理后台</a></div></div><div class="layout"><div class="sidebar"><nav><button class="active" onclick="switchPanel('hero')">🏠 Hero 设置</button><button onclick="switchPanel('works')">🖼️ 作品管理</button><button onclick="switchPanel('contact')">📞 联系合作</button></nav></div><div class="content"><div class="panel active" id="panel-hero"><h2>Hero 区域设置</h2><div class="form-group"><label>问候语（如：👋 你好，这里是）</label><input type="text" id="f-greeting" placeholder="👋 你好，这里是" /></div><div class="form-group"><label>名字 / 品牌名</label><input type="text" id="f-name" placeholder="潮汐视界" /></div><div class="form-group"><label>打字机效果文字（每行一个，按 Enter 添加）</label><div class="tag-input" id="typedTags"><input type="text" id="typedInput" placeholder="输入后按 Enter 添加" onkeydown="addTypedText(event)" /></div></div><div class="form-group"><label>个人简介 / Bio</label> <textarea id="f-bio" placeholder="选择潮汐视界，搭建您的视觉殿堂"></textarea> </div><div class="btn-row"><button class="btn btn-primary" onclick="saveHero()">💾 保存 Hero 设置</button></div></div><div class="panel" id="panel-works"><div class="panel-header"><h2>作品管理<span id="sortHint" class="sort-hint"></span></h2><button class="btn btn-ghost btn-sm" onclick="openCatMgmt()">⚙️ 管理分类</button></div><div class="filter-tabs" id="filterTabs"></div><div class="btn-row" style="margin-bottom:20px;flex-wrap:wrap;"><button class="btn btn-primary" onclick="showWorkForm()">+ 新增作品</button><div class="cols-control" id="colsControl" style="margin-left:auto;"><span>每排</span><button data-cols="auto" onclick="setAdminCols('auto')">自动</button><button data-cols="1" onclick="setAdminCols(1)">1</button><button data-cols="2" onclick="setAdminCols(2)">2</button><button data-cols="3" onclick="setAdminCols(3)">3</button><button data-cols="4" onclick="setAdminCols(4)">4</button><button data-cols="5" onclick="setAdminCols(5)">5</button><button data-cols="6" onclick="setAdminCols(6)">6</button><button data-cols="7" onclick="setAdminCols(7)">7</button><button data-cols="8" onclick="setAdminCols(8)">8</button></div></div><div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn btn-sm" style="background:var(--clr-surface);color:var(--clr-text2);border:1px solid var(--clr-border);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;" onclick="renumberFiles()">💾 保存顺序</button></div><div class="batch-bar" id="batchBar" style="display:none;"><span class="batch-count" id="batchCountText">已选 0 件</span><select id="batchCatSelect"></select><button class="btn btn-sm btn-primary" onclick="applyBatchCategory()">应用分类</button><button class="btn btn-sm btn-ghost" onclick="selectAllVisible()">全选</button><button class="btn btn-sm btn-ghost" onclick="deselectAll()">取消选择</button><span class="kb-hint" id="kbHint" style="display:none;margin-left:auto;"> 💡 按 <kbd>1-7</kbd> 快捷归类 | 拖拽空白区域框选 </span></div><div id="workList" class="card-list"></div></div><div class="panel" id="panel-contact"><h2>📞 联系合作设置</h2><div class="form-group"><label>弹窗标题</label><input type="text" id="f-contact-title" placeholder="联系合作" /></div><div class="form-group"><label>副标题 / 提示文字</label><input type="text" id="f-contact-subtitle" placeholder="扫码添加微信，开启视觉合作之旅" /></div><div class="form-group"><label>二维码图片（1:1 PNG，建议 400×400 以上）</label><input type="file" id="f-contact-qrFile" accept="image/png,image/jpeg,image/webp" onchange="handleContactQRUpload(this)" /><div class="qr-upload-preview" id="contactQrPreview" style="margin-top:12px;display:none;"><img id="contactQrPreviewImg" src="" alt="二维码预览" style="max-width:200px;border-radius:8px;border:1px solid rgba(157,141,245,0.3);" /></div><p class="hint" style="color:var(--clr-text2);font-size:12px;margin-top:6px;">上传后会保存为 img/qr_code.png，前台直接展示原图</p></div><div class="btn-row"><button class="btn btn-primary" onclick="saveContact()">💾 保存联系设置</button></div></div><div id="catMgmtOverlay" style="display:none;" class="cat-mgmt-overlay"><div class="cat-mgmt-panel"><h3>⚙️ 管理分类</h3><div class="cat-mgmt-add"><input type="text" id="catMgmtNewInput" placeholder="新分类名称" /><button class="btn btn-primary btn-sm" onclick="catMgmtAdd()">+ 添加</button></div><div id="catMgmtList"></div><div class="btn-row" style="margin-top:20px;"><button class="btn btn-primary btn-sm" onclick="catMgmtSave()">💾 保存</button><button class="btn btn-ghost btn-sm" onclick="catMgmtClose()">取消</button></div></div></div></div></div><div class="modal-overlay" id="viewModal"><div class="modal modal-view"><button class="modal-close" onclick="closeViewModal()">✕</button><div class="view-img-wrap"><img id="viewImg" src="" alt="" draggable="false" /></div><div class="view-info" style="display:none;"><span id="viewImgInfo"></span></div><div class="view-img-caption" id="viewCaption"></div><div class="view-img-category" id="viewCategory"></div><div class="view-actions" id="viewActions"><button class="btn btn-primary" onclick="openEditFromView()">✏️ 编辑</button><button class="btn btn-danger" id="btnDeleteFromView" onclick="deleteFromView()">🗑 删除</button></div></div></div><div class="modal-overlay" id="workModal"><div class="modal"><h3 id="workFormTitle">🖼️ 新增作品</h3><div class="dropzone" id="dropzone"><div class="dropzone-icon">📤</div><div class="dropzone-text">拖拽文件到此处，或点击选择</div><div class="dropzone-hint">支持图片（JPG/PNG/GIF/WebP/PSD）和视频（MP4/MOV/AVI/MKV），自动转 WebP</div><input type="file" id="f-work-file" multiple accept="image/*,.psd,video/*,.mp4,.mov,.avi,.mkv,.webm,.m4v,.flv" /></div><div class="upload-preview" id="filePreview"><div class="preview-img-wrap"><img id="previewImg" src="" alt="" draggable="false" /></div><div class="preview-info" id="previewInfo"></div></div><div class="progress-bar-wrap" id="progressWrap"><div class="progress-bar-fill" id="progressFill"></div></div><div class="progress-text" id="progressText"></div><input type="hidden" id="f-work-src" /><div class="form-group" style="margin-top:16px;"><label>作品标题 / 描述</label><input type="text" id="f-work-caption" placeholder="零贰肆电竞小程序轮播图" /></div><div class="form-group"><label>所属分类</label><select id="f-work-cat" style="width:100%; background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:10px 14px; color:var(--clr-text); font-size:14px;"></select></div><div class="modal-actions"><button class="btn btn-primary" id="btnSaveWork" onclick="saveWork()">💾 保存</button><button class="btn btn-ghost" onclick="closeWorkModal()">取消</button></div></div></div><div class="toast" id="toast"></div><div class="modal-overlay" id="batchUploadModal" style="z-index:10001;"><div class="modal" style="max-width:520px;"><h3>📦 批量上传（<span id="batchCount">0</span> 个文件）</h3><div id="batchFileList" style="max-height:260px;overflow:auto;margin-bottom:16px;display:flex;flex-direction:column;gap:6px;"></div><div class="form-group"><label>所属分类</label><select id="f-batch-cat" style="width:100%;background:var(--clr-surface);border:1px solid var(--clr-border);border-radius:8px;padding:10px 14px;color:var(--clr-text);font-size:14px;"></select></div><div class="modal-actions"><button class="btn btn-primary" id="btnBatchUpload" onclick="doBatchUpload()">⬆️ 全部上传</button><button class="btn btn-ghost" onclick="closeBatchModal()">取消</button></div><div class="progress-bar-wrap" id="batchProgressWrap" style="display:none;margin-top:12px;"><div class="progress-bar-fill" id="batchProgressFill"></div></div><div class="progress-text" id="batchProgressText" style="display:none;"></div></div></div><div class="global-drag-overlay" id="globalDragOverlay"><div class="global-drag-inner"><div class="global-drag-icon">⬆️</div><div class="global-drag-text">松开上传</div><div class="global-drag-hint">支持 JPG / PNG / GIF / WebP，自动压缩</div></div></div> <script>
+</head><body><div class="topbar"><h1>⚙️ 作品集管理后台</h1><div class="links"><button class="btn-publish" id="btnPublish" onclick="publishSite('code')" title="发布代码到线上">🚀 发布代码</button><button class="btn-publish btn-publish-all" id="btnPublishAll" onclick="publishSite('all')" title="发布代码+有变化的图片">📦 全部发布</button><a href="index.html" target="_blank">📱 预览前台</a><a href="ledger.html" target="_blank">📒 潮汐账本</a><a href="admin.html">🔧 管理后台</a></div></div><div class="layout"><div class="sidebar"><nav><button class="active" onclick="switchPanel('hero')">🏠 Hero 设置</button><button onclick="switchPanel('works')">🖼️ 作品管理</button><button onclick="switchPanel('contact')">📞 联系合作</button></nav></div><div class="content"><div class="panel active" id="panel-hero"><h2>Hero 区域设置</h2><div class="form-group"><label>问候语（如：👋 你好，这里是）</label><input type="text" id="f-greeting" placeholder="👋 你好，这里是" /></div><div class="form-group"><label>名字 / 品牌名</label><input type="text" id="f-name" placeholder="潮汐视界" /></div><div class="form-group"><label>打字机效果文字（每行一个，按 Enter 添加）</label><div class="tag-input" id="typedTags"><input type="text" id="typedInput" placeholder="输入后按 Enter 添加" onkeydown="addTypedText(event)" /></div></div><div class="form-group"><label>个人简介 / Bio</label> <textarea id="f-bio" placeholder="选择潮汐视界，搭建您的视觉殿堂"></textarea> </div><div class="btn-row"><button class="btn btn-primary" onclick="saveHero()">💾 保存 Hero 设置</button></div></div><div class="panel" id="panel-works"><div class="panel-header"><h2>作品管理<span id="sortHint" class="sort-hint"></span></h2><button class="btn btn-ghost btn-sm" onclick="openCatMgmt()">⚙️ 管理分类</button></div><div class="filter-tabs" id="filterTabs"></div><div class="btn-row" style="margin-bottom:20px;flex-wrap:wrap;align-items:center;"><button class="btn btn-primary" onclick="showWorkForm()">+ 手动添加</button><span style="color:var(--clr-text2);font-size:13px;margin-left:12px;"> 批量新增请运行 <code style="background:var(--clr-surface);padding:2px 6px;border-radius:4px;">python auto_upload.py</code></span><div class="cols-control" id="colsControl" style="margin-left:auto;"><span>每排</span><button data-cols="auto" onclick="setAdminCols('auto')">自动</button><button data-cols="1" onclick="setAdminCols(1)">1</button><button data-cols="2" onclick="setAdminCols(2)">2</button><button data-cols="3" onclick="setAdminCols(3)">3</button><button data-cols="4" onclick="setAdminCols(4)">4</button><button data-cols="5" onclick="setAdminCols(5)">5</button><button data-cols="6" onclick="setAdminCols(6)">6</button><button data-cols="7" onclick="setAdminCols(7)">7</button><button data-cols="8" onclick="setAdminCols(8)">8</button></div></div><div style="display:flex;gap:8px;margin-bottom:12px;"><button class="btn btn-sm" style="background:var(--clr-surface);color:var(--clr-text2);border:1px solid var(--clr-border);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:12px;" onclick="renumberFiles()">💾 保存顺序</button></div><div class="batch-bar" id="batchBar" style="display:none;"><span class="batch-count" id="batchCountText">已选 0 件</span><select id="batchCatSelect"></select><button class="btn btn-sm btn-primary" onclick="applyBatchCategory()">应用分类</button><button class="btn btn-sm btn-ghost" onclick="selectAllVisible()">全选</button><button class="btn btn-sm btn-ghost" onclick="deselectAll()">取消选择</button><span class="kb-hint" id="kbHint" style="display:none;margin-left:auto;"> 💡 按 <kbd>1-7</kbd> 快捷归类 | 拖拽空白区域框选 </span></div><div id="workList" class="card-list"></div></div><div class="panel" id="panel-contact"><h2>📞 联系合作设置</h2><div class="form-group"><label>弹窗标题</label><input type="text" id="f-contact-title" placeholder="联系合作" /></div><div class="form-group"><label>副标题 / 提示文字</label><input type="text" id="f-contact-subtitle" placeholder="扫码添加微信，开启视觉合作之旅" /></div><div class="form-group"><label>二维码图片（1:1 PNG，建议 400×400 以上）</label><input type="file" id="f-contact-qrFile" accept="image/png,image/jpeg,image/webp" onchange="handleContactQRUpload(this)" /><div class="qr-upload-preview" id="contactQrPreview" style="margin-top:12px;display:none;"><img id="contactQrPreviewImg" src="" alt="二维码预览" style="max-width:200px;border-radius:8px;border:1px solid rgba(157,141,245,0.3);" /></div><p class="hint" style="color:var(--clr-text2);font-size:12px;margin-top:6px;">上传后会保存为 img/qr_code.png，前台直接展示原图</p></div><div class="btn-row"><button class="btn btn-primary" onclick="saveContact()">💾 保存联系设置</button></div></div><div id="catMgmtOverlay" style="display:none;" class="cat-mgmt-overlay"><div class="cat-mgmt-panel"><h3>⚙️ 管理分类</h3><div class="cat-mgmt-add"><input type="text" id="catMgmtNewInput" placeholder="新分类名称" /><button class="btn btn-primary btn-sm" onclick="catMgmtAdd()">+ 添加</button></div><div id="catMgmtList"></div><div class="btn-row" style="margin-top:20px;"><button class="btn btn-primary btn-sm" onclick="catMgmtSave()">💾 保存</button><button class="btn btn-ghost btn-sm" onclick="catMgmtClose()">取消</button></div></div></div></div></div><div class="modal-overlay" id="viewModal"><div class="modal modal-view"><button class="modal-close" onclick="closeViewModal()">✕</button><div class="view-img-wrap"><img id="viewImg" src="" alt="" draggable="false" /></div><div class="view-info" style="display:none;"><span id="viewImgInfo"></span></div><div class="view-img-caption" id="viewCaption"></div><div class="view-img-category" id="viewCategory"></div><div class="view-actions" id="viewActions"><button class="btn btn-primary" onclick="openEditFromView()">✏️ 编辑</button><button class="btn btn-danger" id="btnDeleteFromView" onclick="deleteFromView()">🗑 删除</button></div></div></div><div class="modal-overlay" id="workModal"><div class="modal"><h3 id="workFormTitle">🖼️ 新增作品</h3><div class="form-group"><label>图片路径 <span style="color:var(--clr-text2);font-size:12px;">（如 img/xxx.webp）</span></label><input type="text" id="f-work-src" placeholder="img/作品名称.webp" style="width:100%; background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:10px 14px; color:var(--clr-text); font-size:14px;" /></div><div class="form-group" style="margin-top:16px;"><label>作品标题 / 描述</label><input type="text" id="f-work-caption" placeholder="零贰肆电竞小程序轮播图" /></div><div class="form-group"><label>所属分类</label><select id="f-work-cat" style="width:100%; background:var(--clr-surface); border:1px solid var(--clr-border); border-radius:8px; padding:10px 14px; color:var(--clr-text); font-size:14px;"></select></div><div class="modal-actions"><button class="btn btn-primary" id="btnSaveWork" onclick="saveWork()">💾 保存</button><button class="btn btn-ghost" onclick="closeWorkModal()">取消</button></div></div></div><div class="toast" id="toast"></div> <script>
     // ══════════════════════════════════════
     // 认证模块：统一 fetch 包装 + 登录检查
     // ══════════════════════════════════════
@@ -1819,6 +1657,26 @@
     }
 
     // （原 padNumber、getMaxCaptionNumber、旧 renumberWorks 已移除）
+    // → 已恢复 padNumber 和 getMaxCaptionNumber（saveWork 中新增作品仍需用到）
+
+    function getMaxCaptionNumber() {
+      var works = DATA.works || [];
+      var max = 0;
+      for (var i = 0; i < works.length; i++) {
+        var cap = works[i].caption || '';
+        var m = cap.match(/^(\d{1,4})/);
+        if (m) {
+          var n = parseInt(m[1], 10);
+          if (n > max) max = n;
+        }
+      }
+      return max;
+    }
+    function padNumber(num, len) {
+      var s = String(num);
+      while (s.length < len) s = '0' + s;
+      return s;
+    }
 
     // 拖拽排序后自动重命名：001 xxx / 002 xxx ……
     function renumberWorks() {
@@ -1852,8 +1710,7 @@
       document.getElementById('workFormTitle').textContent = '🖼️ 新增作品';
       document.getElementById('f-work-src').value = '';
       document.getElementById('f-work-caption').value = '';
-      renderCatSelect(getLastUsedCategory()); // 自动选中上次使用的分类
-      resetFileInput();
+      renderCatSelect(getLastUsedCategory());
       editingWorkId = null;
       document.body.style.overflow = 'hidden';
     }
@@ -1885,16 +1742,14 @@
     function openEditFromView() {
       if (viewWorkIdx === null) return;
       closeViewModal();
-      // 打开原来的编辑表单
       var i = viewWorkIdx;
       editingWorkId = i;
       var w = DATA.works[i];
       document.getElementById('workModal').classList.add('active');
       document.getElementById('workFormTitle').textContent = '✏️ 编辑作品';
+      document.getElementById('f-work-src').value = w.src || '';
       document.getElementById('f-work-caption').value = w.caption || '';
       renderCatSelect(w.category || '');
-      resetFileInput();
-      if (w.src) showExistingPreview(toCdnUrl(w.src));
       document.body.style.overflow = 'hidden';
       viewWorkIdx = null;
     }
@@ -1918,242 +1773,10 @@
       document.getElementById('workModal').classList.remove('active');
       document.body.style.overflow = '';
       editingWorkId = null;
-      resetFileInput();
     }
 
     function cancelWorkForm() {
       closeWorkModal();
-    }
-
-    // ---------- 拖拽上传 ----------
-    let selectedFile = null;
-    let compressedPath = null;
-    let compressResult = null;
-
-    function formatSize(bytes) {
-      if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-      if (bytes >= 1024) return (bytes / 1024).toFixed(1) + ' KB';
-      return bytes + ' B';
-    }
-
-    function filterMediaFiles(files) {
-      var result = [];
-      for (var i = 0; i < files.length; i++) {
-        var f = files[i];
-        var ext = f.name.split('.').pop().toLowerCase();
-        var imgExts = ['jpg','jpeg','png','gif','webp','svg','bmp','ico','psd'];
-        var videoExts = ['mp4','mov','avi','mkv','webm','m4v','flv'];
-        if (imgExts.indexOf(ext) !== -1 || videoExts.indexOf(ext) !== -1) {
-          result.push(f);
-        }
-      }
-      return result;
-    }
-
-    function setupDropzone() {
-      const dz = document.getElementById('dropzone');
-      const fileInput = document.getElementById('f-work-file');
-
-      // 点击触发文件选择
-      dz.addEventListener('click', function(e) {
-        if (e.target !== fileInput) fileInput.click();
-      });
-
-      // 文件选择
-      fileInput.addEventListener('change', function() {
-        var files = fileInput.files;
-        if (files.length === 0) return;
-        if (files.length === 1) {
-          handleFile(files[0]);
-        } else {
-          // 多文件：统一走批量上传
-          var imgFiles = filterMediaFiles(files);
-          if (imgFiles.length > 0) {
-            closeWorkModal();
-            openBatchUpload(imgFiles);
-          } else {
-            showToast('不支持的文件格式，请选择图片或视频文件', 'error');
-          }
-        }
-      });
-
-      // 拖拽事件
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function(evt) {
-        dz.addEventListener(evt, function(e) { e.preventDefault(); e.stopPropagation(); });
-      });
-
-      dz.addEventListener('dragenter', function() { dz.classList.add('dragover'); });
-      dz.addEventListener('dragover', function() { dz.classList.add('dragover'); });
-      dz.addEventListener('dragleave', function() { dz.classList.remove('dragover'); });
-      dz.addEventListener('drop', function(e) {
-        dz.classList.remove('dragover');
-        var files = e.dataTransfer.files;
-        if (files.length === 0) return;
-        if (files.length === 1) {
-          // 防重复：如果已选文件且同名同大小，跳过
-          if (selectedFile && selectedFile.name === files[0].name && selectedFile.size === files[0].size) return;
-          handleFile(files[0]);
-          fileInput.files = files; // 同步到 file input
-        } else {
-          // 多文件：统一走批量上传
-          var imgFiles = filterMediaFiles(files);
-          if (imgFiles.length > 0) {
-            closeWorkModal();
-            openBatchUpload(imgFiles);
-          } else {
-            showToast('不支持的文件格式，请拖入图片或视频文件', 'error');
-          }
-        }
-      });
-    }
-
-    function handleFile(file) {
-      selectedFile = file;
-      compressedPath = null;
-      compressResult = null;
-
-      var ext = file.name.split('.').pop().toLowerCase();
-      var isVideo = ['mp4','mov','avi','mkv','webm','m4v','flv'].indexOf(ext) !== -1;
-
-      // 新增作品时自动填入文件名作为标题（去掉扩展名）
-      if (editingWorkId === null) {
-        var autoCaption = file.name.replace(/\.[^.]+$/, '');
-        document.getElementById('f-work-caption').value = autoCaption;
-      }
-
-      // 预览
-      if (isVideo) {
-        // 视频文件：无法本地预览第一帧（简单处理），只显示文件信息
-        document.getElementById('filePreview').classList.add('show');
-        document.getElementById('previewImg').src = '';
-        document.getElementById('previewImg').style.display = 'none';
-        document.getElementById('previewInfo').innerHTML =
-          '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
-          '原始：<b>' + formatSize(file.size) + '</b><br>' +
-          '<span style="color:var(--clr-text2);">⏳ 视频将自动转 WebP...</span>';
-        // 视频不预压缩，标记为未压缩（保存时走 /upload 转换）
-        hideProgress();
-        return;
-      }
-
-      // 预览图片
-      document.getElementById('previewImg').style.display = '';
-      var reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('filePreview').classList.add('show');
-        document.getElementById('previewImg').src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-
-      // 所有图片统一走压缩流程
-      var fmtLabel = { jpg: 'JPEG', jpeg: 'JPEG', png: 'PNG', gif: 'GIF', webp: 'WebP' }[ext] || ext.toUpperCase();
-      var statusMsg = ext === 'psd'
-        ? '⏳ PSD 正在合并图层并压缩，大文件可能需要 1~3 分钟...'
-        : '⏳ 正在压缩 ' + fmtLabel + '...';
-      document.getElementById('previewInfo').innerHTML =
-        '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
-        '原始：<b>' + formatSize(file.size) + '</b><br>' +
-        '<span style="color:var(--clr-text2);">' + statusMsg + '</span>';
-      showProgress(0, ext === 'psd' ? '合并图层中...' : '正在压缩...');
-
-      compressImage(file);
-    }
-
-    async function compressImage(file) {
-      var originalBytes = file.size;
-      console.log('[upload] 开始压缩上传:', file.name, formatSize(originalBytes));
-      try {
-        var formData = new FormData();
-        formData.append('file', file);
-        console.log('[upload] FormData 已创建，准备 fetch /compress-image');
-
-        var token = getToken();
-        console.log('[upload] Token 存在:', !!token);
-
-        // 设置 300 秒超时（大 PSD 合并图层可能很慢）
-        var ctrl = new AbortController();
-        var timeoutId = setTimeout(function() {
-          ctrl.abort();
-        }, 300000);
-
-        var res = await authFetch('/compress-image', { method: 'POST', body: formData, signal: ctrl.signal });
-        clearTimeout(timeoutId);
-        console.log('[upload] fetch 返回, status:', res.status, 'ok:', res.ok);
-
-        if (!res.ok) {
-          var err = await res.json().catch(function() { return { error: '压缩失败' }; });
-          console.error('[upload] 服务器返回错误:', err);
-          document.getElementById('previewInfo').innerHTML =
-            '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
-            '原始：<b>' + formatSize(originalBytes) + '</b><br>' +
-            '<span class="warn">⚠️ ' + (err.error || '压缩失败，将使用原图') + '</span>';
-          hideProgress();
-          return;
-        }
-        var result = await res.json();
-        console.log('[upload] 压缩成功:', result);
-        compressResult = {
-          path: result.path,
-          thumbnail: result.thumbnail || '',
-          originalSize: result.originalSize,
-          compressedSize: result.compressedSize,
-          savedPct: result.savedPct,
-        };
-        compressedPath = result.path;
-        document.getElementById('f-work-src').value = result.path;
-
-        var html = '<span>📄 ' + file.name + '</span><br>';
-        if (result.savedPct > 0) {
-          html += '原始：<b>' + formatSize(result.originalSize) + '</b> → 压缩后：<b>' +
-            formatSize(result.compressedSize) + '</b> <span class="saved">(-' + result.savedPct + '%)</span>';
-        } else {
-          html += '大小：<b>' + formatSize(result.originalSize) + '</b> <span style="color:var(--clr-text2);">（已是最优）</span>';
-        }
-        html += '<br><span style="color:var(--clr-text2);">已保存至：</span><code>' + result.path + '</code>';
-        document.getElementById('previewInfo').innerHTML = html;
-        showProgress(100, '压缩完成 ✓');
-        setTimeout(hideProgress, 1500);
-      } catch (e) {
-        console.error('[upload] fetch 异常:', e.name, e.message, e);
-        var msg = e.name === 'AbortError' ? '处理超时（>300秒），PSD 文件较大请稍后重试' : '压缩请求失败: ' + e.message;
-        document.getElementById('previewInfo').innerHTML =
-          '<span>📄 ' + file.name + '</span>&nbsp;&nbsp;' +
-          '原始：<b>' + formatSize(originalBytes) + '</b><br>' +
-          '<span class="warn">⚠️ ' + msg + '</span>';
-        hideProgress();
-      }
-    }
-
-    function showExistingPreview(src) {
-      document.getElementById('filePreview').classList.add('show');
-      document.getElementById('previewImg').src = src;
-      document.getElementById('previewInfo').innerHTML =
-        '已有图片：<code>' + src + '</code>';
-      hideProgress();
-    }
-
-    function showProgress(pct, text) {
-      document.getElementById('progressWrap').classList.add('show');
-      document.getElementById('progressFill').style.width = pct + '%';
-      var t = document.getElementById('progressText');
-      if (text) { t.classList.add('show'); t.textContent = text; }
-    }
-
-    function hideProgress() {
-      document.getElementById('progressWrap').classList.remove('show');
-      document.getElementById('progressText').classList.remove('show');
-    }
-
-    function resetFileInput() {
-      document.getElementById('f-work-file').value = '';
-      document.getElementById('filePreview').classList.remove('show');
-      document.getElementById('previewImg').src = '';
-      document.getElementById('previewInfo').innerHTML = '';
-      document.getElementById('f-work-src').value = '';
-      hideProgress();
-      selectedFile = null;
-      compressedPath = null;
-      compressResult = null;
     }
 
     // ---------- 保存作品 ----------
@@ -2161,196 +1784,38 @@
       var btn = document.getElementById('btnSaveWork');
       btn.disabled = true;
       btn.textContent = '⏳ 保存中...';
-      var renamedThumbnail = null;   // rename 返回的缩略图新路径
 
       try {
         var caption = document.getElementById('f-work-caption').value.trim();
-        // 标题为空时自动生成编号标题
-        if (!caption) {
-          var nextNum = String((DATA.works || []).length + 1);
-          while (nextNum.length < 3) nextNum = '0' + nextNum;
-          caption = nextNum + ' 作品';
-        }
         var cat = document.getElementById('f-work-cat').value;
-        // 编辑模式且无新文件时，直接使用已有图片路径
-        var src = '';
-        if (editingWorkId !== null && !compressedPath && !selectedFile) {
-          src = (DATA.works[editingWorkId].src || '').trim();
-        } else {
-          src = document.getElementById('f-work-src').value.trim();
-        }
+        var src = document.getElementById('f-work-src').value.trim();
 
-        // 压缩已完成：直接使用压缩后路径
-        if (compressedPath) {
-          src = compressedPath;
-          selectedFile = null;
-          compressedPath = null;
-          compressResult = null;
-        }
-        // 未走压缩（兼容旧逻辑）：原始上传（视频也走这里）
-        else if (selectedFile) {
-          showToast('正在上传文件...', 'info');
-          showProgress(0, '上传中 0%...');
-
-          var formData = new FormData();
-          formData.append('file', selectedFile);
-
-          var res = await new Promise(function(resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload');
-            xhr.timeout = 300000;  // 5分钟超时（视频处理较慢）
-
-            var transferDone = false;
-            xhr.upload.onprogress = function(e) {
-              if (e.lengthComputable) {
-                var pct = Math.round((e.loaded / e.total) * 100);
-                var msg = '上传中 ' + pct + '%';
-                if (pct >= 100 && !transferDone) {
-                  transferDone = true;
-                  msg = '⏳ 服务器转换处理中，视频较大请耐心等待...';
-                }
-                showProgress(pct, msg);
-              }
-            };
-
-            xhr.onload = function() {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                resolve({ ok: true, json: function() { return JSON.parse(xhr.responseText); } });
-              } else {
-                try { var err = JSON.parse(xhr.responseText); resolve({ ok: false, json: function() { return err; } }); }
-                catch(e2) { resolve({ ok: false, json: function() { return { error: '上传失败: HTTP ' + xhr.status }; } }); }
-              }
-            };
-
-            xhr.onerror = function() { reject(new Error('网络错误')); };
-            xhr.ontimeout = function() { reject(new Error('处理超时，文件可能过大，请压缩后再试')); };
-            xhr.send(formData);
-          });
-
-          if (!res.ok) {
-            var err = res.json();
-            showToast(err.error || '上传失败', 'error');
-            hideProgress();
-            btn.disabled = false;
-            btn.textContent = '💾 保存';
-            return;
-          }
-
-          var result = res.json();
-          src = result.path;
-          document.getElementById('f-work-src').value = src;
-
-          // 显示视频压缩对比（如果服务端返回了原始大小）
-          if (result.originalSize && result.savedPct > 0) {
-            document.getElementById('previewInfo').innerHTML =
-              '<span>📄 ' + selectedFile.name + '</span><br>' +
-              '原始：<b>' + formatSize(result.originalSize) + '</b> → 转 WebP：<b>' +
-              formatSize(result.size) + '</b> <span class="saved">(-' + result.savedPct + '%)</span><br>' +
-              '<span style="color:var(--clr-text2);">已保存至：</span><code>' + result.path + '</code>';
-          }
-
-          showProgress(100, '上传完成 ✓');
-          setTimeout(hideProgress, 1500);
-        }
-
-        if (!src) { showToast('请选择或拖拽一个文件', 'error'); btn.disabled = false; btn.textContent = '💾 保存'; return; }
-
-        // ── 新增：caption 改变时重命名服务器上的图片文件 ──
-        if (editingWorkId !== null) {
-          var oldCaption = (DATA.works[editingWorkId].caption || '').trim();
-          var oldSrc     = (DATA.works[editingWorkId].src || '').trim();
-          if (caption !== oldCaption && oldSrc.indexOf('img/') === 0) {
-            showToast('正在重命名图片文件...', 'info');
-            try {
-              var _r = await authFetch('/rename-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ old_src: oldSrc, new_name: caption })
-              });
-              var _d = await _r.json();
-              if (_d.ok) {
-                src = _d.new_src;
-                document.getElementById('f-work-src').value = src;
-                // 同步更新缩略图路径
-                if (_d.new_thumbnail) {
-                  renamedThumbnail = _d.new_thumbnail;
-                }
-                showToast('图片文件已重命名：' + _d.new_name, 'success');
-              } else {
-                showToast('重命名失败：' + (_d.error || '未知错误'), 'error');
-              }
-            } catch (_e) {
-              showToast('重命名请求失败：' + _e.message, 'error');
-            }
-          }
-        }
-
-        // 统一获取本次上传的缩略图路径（压缩完成 vs 原始上传）
-        var thumbFromUpload = (compressResult && compressResult.thumbnail) || (result && result.thumbnail) || '';
+        if (!src) { showToast('请填写图片路径', 'error'); btn.disabled = false; btn.textContent = '💾 保存'; return; }
 
         if (editingWorkId !== null) {
           DATA.works[editingWorkId].src = src;
-          DATA.works[editingWorkId].thumbnail = renamedThumbnail || thumbFromUpload || '';
           DATA.works[editingWorkId].caption = caption;
           DATA.works[editingWorkId].category = cat;
         } else {
-          // 新增作品：如果没有填写标题，自动取最大编号+1
           var autoCaption = caption;
           if (!autoCaption) {
             var nextNum = getMaxCaptionNumber() + 1;
             autoCaption = padNumber(nextNum, 4);
           }
-          // 自动重命名文件以匹配 caption
-          if (src && src.indexOf('img/') === 0) {
-            showToast('正在自动命名文件...', 'info');
-            try {
-              var _r = await authFetch('/rename-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ old_src: src, new_name: autoCaption })
-              });
-              var _d = await _r.json();
-              if (_d.ok) {
-                src = _d.new_src;
-                // 同步更新 thumbnail 路径（优先用服务端返回的 new_thumbnail）
-                if (_d.new_thumbnail) {
-                  renamedThumbnail = _d.new_thumbnail;
-                  // 同时更新 compressResult / result，让下方 push 时能拿到正确路径
-                  if (compressResult) compressResult.thumbnail = _d.new_thumbnail;
-                  else if (result) result.thumbnail = _d.new_thumbnail;
-                } else if ((compressResult && compressResult.thumbnail) || (result && result.thumbnail)) {
-                  var newThumbName = 'thumb_' + src.substring(src.lastIndexOf('/') + 1);
-                  var newThumbPath = src.substring(0, src.lastIndexOf('/') + 1) + newThumbName;
-                  if (compressResult) compressResult.thumbnail = newThumbPath;
-                  else if (result) result.thumbnail = newThumbPath;
-                }
-                showToast('文件已自动命名: ' + autoCaption, 'success');
-              } else {
-                showToast('自动命名失败: ' + (_d.error || ''), 'error');
-              }
-            } catch (_e) {
-              showToast('自动命名请求失败: ' + _e.message, 'error');
-            }
-          }
-          // 判断是否为视频文件（与批量上传逻辑一致）
-          var isVideo = selectedFile && ['mp4','mov','avi','mkv','webm','m4v','flv'].indexOf(selectedFile.name.split('.').pop().toLowerCase()) !== -1;
-          DATA.works.push({ id: Date.now(), src: src, thumbnail: thumbFromUpload || '', caption: autoCaption, category: cat, type: isVideo ? 'video' : 'image' });
+          DATA.works.push({ id: Date.now(), src: src, thumbnail: '', caption: autoCaption, category: cat, type: 'image' });
         }
 
-        // 先给视觉反馈，让用户明确看到成功状态
         btn.disabled = false;
         btn.textContent = '💾 保存';
-        setLastUsedCategory(cat); // 持久化记忆本次保存的分类
+        setLastUsedCategory(cat);
         renderFilterTabs();
         renderWorks();
         syncToLocalStorage();
-        showToast('✅ 作品已保存，首页实时生效！', 'success');
-        // 延迟关闭窗口，让用户看到反馈
+        showToast('✅ 作品已保存', 'success');
         await new Promise(r => setTimeout(r, 800));
         closeWorkModal();
       } catch (e) {
         showToast('保存失败: ' + e.message, 'error');
-        hideProgress();
         btn.disabled = false;
         btn.textContent = '💾 保存';
       }
@@ -2645,236 +2110,6 @@
       renderContactForm();
     }
 
-    // 初始化拖拽上传事件
-    setupDropzone();
-
-    // ============ 全局拖入上传 ============
-    let dragCounter = 0;
-    const dragOverlay = document.getElementById('globalDragOverlay');
-
-    function isFileDrag(e) {
-      // 正在卡片排序拖拽时，完全禁用全局文件拖入
-      if (isCardDragging) return false;
-      var dt = e.dataTransfer;
-      if (!dt) return false;
-      // 排除页面内拖拽（如选中文字拖选）
-      var hasFiles = false;
-      for (var i = 0; i < dt.types.length; i++) {
-        if (dt.types[i] === 'Files') { hasFiles = true; break; }
-      }
-      if (!hasFiles) return false;
-      // 排除纯文本拖拽
-      if (dt.types.length === 1 && dt.types[0] === 'text/plain') return false;
-      return true;
-    }
-
-    // 全局拖入上传（仅在非卡片拖拽时生效）
-    document.addEventListener('dragover', function(e) {
-      if (isCardDragging) return;
-      // 总是阻止默认行为，确保系统级文件拖拽能正确触发 drop
-      e.preventDefault();
-    });
-
-    document.addEventListener('dragenter', function(e) {
-      if (isCardDragging) return;
-      if (!isFileDrag(e)) return;
-      if (document.getElementById('workModal').classList.contains('active')) return;
-      e.preventDefault();
-      dragCounter++;
-      if (dragCounter === 1) {
-        dragOverlay.classList.add('active');
-      }
-    });
-
-    document.addEventListener('dragleave', function(e) {
-      if (isCardDragging) return;
-      if (!isFileDrag(e)) return;
-      dragCounter--;
-      if (dragCounter <= 0) {
-        dragCounter = 0;
-        dragOverlay.classList.remove('active');
-      }
-    });
-
-    document.addEventListener('drop', function(e) {
-      if (isCardDragging) return;
-      if (!isFileDrag(e)) return;
-      e.preventDefault();
-      e.stopPropagation();
-      dragCounter = 0;
-      dragOverlay.classList.remove('active');
-
-      var files = e.dataTransfer.files;
-      if (!files || files.length === 0) return;
-
-      var imgFiles = filterMediaFiles(files);
-      if (imgFiles.length === 0) {
-        showToast('不支持的文件格式，请拖入图片或视频文件', 'error');
-        return;
-      }
-
-      if (imgFiles.length === 1) {
-        // 单文件：走原来的逻辑
-        showWorkForm();
-        handleFile(imgFiles[0]);
-        var fileInput = document.getElementById('f-work-file');
-        var dataTransfer = new DataTransfer();
-        dataTransfer.items.add(imgFiles[0]);
-        fileInput.files = dataTransfer.files;
-      } else {
-        // 多文件：打开批量上传弹窗
-        openBatchUpload(imgFiles);
-      }
-    });
-
-    // ============ 批量上传 ============
-    let batchFiles = [];
-
-    function openBatchUpload(files) {
-      batchFiles = Array.from(files);
-      document.getElementById('batchCount').textContent = batchFiles.length;
-
-      // 渲染文件列表
-      var html = batchFiles.map(function(f, i) {
-        var name = f.name.replace(/\.[^.]+$/, '');
-        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--clr-surface);border-radius:6px;font-size:12px;">' +
-          '<span style="color:var(--clr-accent);">' + (i + 1) + '.</span>' +
-          '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + f.name + '">' + name + '</span>' +
-          '<span style="color:var(--clr-text2);font-size:11px;">' + (f.size > 1048576 ? (f.size / 1048576).toFixed(1) + ' MB' : (f.size / 1024).toFixed(0) + ' KB') + '</span>' +
-        '</div>';
-      }).join('');
-      document.getElementById('batchFileList').innerHTML = html;
-
-      // 分类下拉（复用 DATA.categories）
-      var sel = document.getElementById('f-batch-cat');
-      sel.innerHTML = '<option value="">（无分类）</option>' +
-        (DATA.categories || []).map(function(c) {
-          return '<option value="' + c.id + '">' + c.label + '</option>';
-        }).join('');
-
-      // 自动选中上次使用的分类
-      var lastCat = getLastUsedCategory();
-      if (lastCat) sel.value = lastCat;
-
-      document.getElementById('batchUploadModal').classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeBatchModal() {
-      document.getElementById('batchUploadModal').classList.remove('active');
-      document.body.style.overflow = '';
-      batchFiles = [];
-      document.getElementById('batchProgressWrap').style.display = 'none';
-      document.getElementById('batchProgressText').style.display = 'none';
-    }
-
-    async function doBatchUpload() {
-      var catId = document.getElementById('f-batch-cat').value;
-      setLastUsedCategory(catId);
-
-      var wrap = document.getElementById('batchProgressWrap');
-      var fill = document.getElementById('batchProgressFill');
-      var text = document.getElementById('batchProgressText');
-      wrap.style.display = 'block';
-      text.style.display = 'block';
-      document.getElementById('btnBatchUpload').disabled = true;
-
-      var successCount = 0;
-
-      for (var i = 0; i < batchFiles.length; i++) {
-        var f = batchFiles[i];
-        var pct = Math.round((i / batchFiles.length) * 100);
-        fill.style.width = pct + '%';
-        text.textContent = '上传中 ' + (i + 1) + '/' + batchFiles.length + '：' + f.name;
-
-        // 判断文件类型
-        var ext = f.name.split('.').pop().toLowerCase();
-        var videoExts = ['mp4','mov','avi','mkv','webm','m4v','flv'];
-        var isVideo = videoExts.indexOf(ext) !== -1;
-        var uploadUrl = isVideo ? '/upload' : '/compress-image';
-
-        // 1. 上传
-        var formData = new FormData();
-        formData.append('file', f);
-
-        try {
-          var res = await new Promise(function(resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', uploadUrl);
-            xhr.onload = function() {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                resolve({ ok: true, data: JSON.parse(xhr.responseText) });
-              } else {
-                try { resolve({ ok: false, error: JSON.parse(xhr.responseText).error || 'HTTP ' + xhr.status }); }
-                catch(e) { resolve({ ok: false, error: '上传失败: HTTP ' + xhr.status }); }
-              }
-            };
-            xhr.onerror = function() { reject(new Error('网络错误')); };
-            xhr.send(formData);
-          });
-
-          if (!res.ok) {
-            console.warn('[batch] 上传失败：' + f.name + '，原因：' + res.error);
-            continue;
-          }
-
-          // 兼容 /upload 和 /compress-image 两种返回格式
-          // 服务器直接返回 {ok, path, thumbnail, ...}，无 data 包装
-          var src = res.path || (res.data && res.data.path) || (res.data && res.data.files && res.data.files[0] && res.data.files[0].path);
-          var thumbnail = res.thumbnail || (res.data && res.data.thumbnail) || '';
-          if (!src) {
-            showToast('上传成功但无 path 字段：' + f.name, 'warning');
-            continue;
-          }
-          var caption = f.name.replace(/\.[^.]+$/, '');
-
-          // 2. 加入 DATA.works
-          // 用 Date.now() + i + 随机后缀保证 id 绝对唯一
-          var wId = Date.now() + i + Math.floor(Math.random() * 10000);
-          DATA.works.push({
-            id: wId,
-            src: src,
-            thumbnail: thumbnail || '',
-            caption: caption,
-            category: catId,
-            type: isVideo ? 'video' : 'image'
-          });
-          successCount++;
-
-        } catch (e) {
-          showToast('上传失败：' + f.name, 'error');
-        }
-      }
-
-      fill.style.width = '100%';
-      text.textContent = '✅ 完成！成功 ' + successCount + '/' + batchFiles.length + ' 个';
-
-      if (successCount > 0) {
-        // 重命名排序
-        renumberWorks();
-        syncToLocalStorage();
-        renderFilterTabs();
-        renderWorks();
-      }
-
-      await new Promise(function(r) { return setTimeout(r, 1200); });
-      closeBatchModal();
-      if (successCount > 0) {
-        showToast('✅ 批量上传完成，成功 ' + successCount + '/' + batchFiles.length + ' 个作品', 'success');
-      } else {
-        showToast('❌ 批量上传失败，0/' + batchFiles.length + ' 个作品', 'error');
-      }
-      document.getElementById('btnBatchUpload').disabled = false;
-    }
-
-    // 点击全局覆盖层外部取消拖入
-    dragOverlay.addEventListener('click', function(e) {
-      if (e.target === dragOverlay) {
-        dragOverlay.classList.remove('active');
-        dragCounter = 0;
-      }
-    });
-
     // 模态弹窗：点击遮罩关闭、ESC 关闭
     document.getElementById('workModal').addEventListener('click', function(e) {
       if (e.target === this) closeWorkModal();
@@ -2891,10 +2126,6 @@
         if (document.getElementById('workModal').classList.contains('active')) {
           closeWorkModal();
         }
-        if (dragOverlay.classList.contains('active')) {
-          dragOverlay.classList.remove('active');
-          dragCounter = 0;
-        }
         if (document.getElementById('catMgmtOverlay').style.display === 'flex') {
           catMgmtClose();
         }
@@ -2907,6 +2138,5 @@
     });
 
     loadData();
-    setupDropzone();
   </script>
 </body></html>
