@@ -998,6 +998,15 @@
 
     // ============ 数据 ============
     let DATA = {};
+
+    // CDN 配置（与 render.js 保持一致）
+    const CDN_BASE = 'https://portfolio-images-1438664071.cos.ap-guangzhou.myqcloud.com/';
+    function toCdnUrl(src) {
+      if (!CDN_BASE || !src) return src;
+      if (src.startsWith('http://') || src.startsWith('https://')) return src;
+      var clean = src.replace(/^\.\/|^\//, '');
+      return CDN_BASE + encodeURI(clean);
+    }
     let editingWorkId = null;
     let viewWorkIdx = null;  // 大图预览时记录索引
     let isCardDragging = false;
@@ -1464,7 +1473,7 @@
         '>' +
         handleHtml +
         '<div class="card-checkbox" onclick="toggleWorkSelection(' + realIdx + ', \'' + w.id + '\', event)" title="选择">✓</div>' +
-        '<img class="thumb" src="' + (w.thumbnail || w.src) + '" alt="" draggable="false" onerror="var self=this,src=this.src;this.style.background=\'#333\';setTimeout(function(){if(self.src===src){self.src=src+(src.indexOf(\'?\')>0?\'&\':\'?\')+\'_t=\'+Date.now();}},300);" data-fallback="' + (w.src || '') + '" />' +
+        '<img class="thumb" src="' + toCdnUrl(w.thumbnail || w.src) + '" alt="" draggable="false" onerror="var self=this,src=this.src;this.style.background=\'#333\';setTimeout(function(){if(self.src===src){self.src=src+(src.indexOf(\'?\')>0?\'&\':\'?\')+\'_t=\'+Date.now();}},300);" data-fallback="' + toCdnUrl(w.src || '') + '" />' +
         '<div class="info">' +
           '<h4 title="' + (w.caption || '无标题') + '">' + (w.caption || '（无标题）') + '</h4>' +
           '<select class="card-cat-select" onchange="changeWorkCategory(' + realIdx + ', this.value)" onclick="event.stopPropagation()">' + catOptions + '</select>' +
@@ -1849,7 +1858,7 @@
       if (!w) return;
 
       // 填充大图预览
-      document.getElementById('viewImg').src = w.src;
+      document.getElementById('viewImg').src = toCdnUrl(w.src);
       document.getElementById('viewCaption').textContent = w.caption || '（无标题）';
       var cat = (DATA.categories || []).filter(function(c) { return c.id === w.category; })[0];
       document.getElementById('viewCategory').textContent = cat ? cat.label : '未分类';
@@ -1879,7 +1888,7 @@
       document.getElementById('f-work-caption').value = w.caption || '';
       renderCatSelect(w.category || '');
       resetFileInput();
-      if (w.src) showExistingPreview(w.src);
+      if (w.src) showExistingPreview(toCdnUrl(w.src));
       document.body.style.overflow = 'hidden';
       viewWorkIdx = null;
     }
