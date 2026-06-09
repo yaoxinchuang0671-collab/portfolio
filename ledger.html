@@ -4645,15 +4645,17 @@ createApp({
     });
 
     // 获取 GitHub 上 ledger_data.json 的当前 sha（用于更新）
+    // 文件不存在时返回 null，供 saveToGitHub 创建新文件
     function getGithubFileSha() {
       return fetch(GITHUB_API + '?ref=' + 'main', {
         headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
       })
       .then(function(r) {
+        if (r.status === 404) return null; // 文件不存在，需要新建
         if (!r.ok) throw new Error('获取文件信息失败 HTTP ' + r.status);
         return r.json();
       })
-      .then(function(data) { return data.sha; });
+      .then(function(data) { return data ? data.sha : null; });
     }
 
     // 保存到云端 GitHub（前端直连 API）
@@ -4668,6 +4670,12 @@ createApp({
 
       getGithubFileSha()
         .then(function(sha) {
+          var body = {
+            message: '更新账本数据 @ ' + new Date().toLocaleString('zh-CN'),
+            content: content,
+            branch: 'main'
+          };
+          if (sha) body.sha = sha; // 文件存在才传 sha（更新），不传则创建
           return fetch(GITHUB_API, {
             method: 'PUT',
             headers: {
@@ -4675,12 +4683,7 @@ createApp({
               'Accept': 'application/vnd.github.v3+json',
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              message: '更新账本数据 @ ' + new Date().toLocaleString('zh-CN'),
-              content: content,
-              sha: sha,
-              branch: 'main'
-            })
+            body: JSON.stringify(body)
           });
         })
         .then(function(r) {
