@@ -507,9 +507,47 @@
     "IU电竞",
     "灰",
     "ᯤ",
-    "罗森电竞"
+    "罗森电竞",
+    "栖云轩电竞",
+    "陈先森。"
   ],
   "allOrders": [
+    {
+      "id": 1781008150982,
+      "date": "2026-06-09",
+      "customer": "陈先森。",
+      "customerId": 25,
+      "amount": 840,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 840
+    },
+    {
+      "id": 1781008121491,
+      "date": "2026-06-09",
+      "customer": "ZeE电竞",
+      "customerId": 48,
+      "amount": 50,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 50
+    },
+    {
+      "id": 1781008092356,
+      "date": "2026-06-09",
+      "customer": "栖云轩电竞",
+      "customerId": 4,
+      "amount": 60,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 60
+    },
     {
       "id": 1780970564829,
       "date": "2026-06-09",
@@ -20810,5 +20848,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-09T12:25:10.039Z"
+  "syncedAt": "2026-06-09T12:29:20.934Z"
 }
