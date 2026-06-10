@@ -513,6 +513,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781111143516,
+      "date": "2026-06-11",
+      "customer": "芝士电竞",
+      "customerId": 37,
+      "amount": 20,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 20,
+      "cashPay": 0
+    },
+    {
       "id": 1781104069761,
       "date": "2026-06-10",
       "customer": "当当跑刀俱乐部",
@@ -20730,9 +20742,9 @@
       "id": 100002,
       "name": "芝士电竞",
       "customer": "芝士电竞",
-      "balance": 85,
+      "balance": 65,
       "totalRecharge": 388,
-      "totalConsume": 1235
+      "totalConsume": 1255
     },
     {
       "id": 100003,
@@ -20904,5 +20916,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-11T01:00:35.809+08:00"
+  "syncedAt": "2026-06-11T01:05:58.529+08:00"
 }
