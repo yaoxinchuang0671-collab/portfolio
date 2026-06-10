@@ -513,6 +513,42 @@
   ],
   "allOrders": [
     {
+      "id": 1781104069761,
+      "date": "2026-06-10",
+      "customer": "当当跑刀俱乐部",
+      "customerId": 41,
+      "amount": 100,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 100
+    },
+    {
+      "id": 1781104059769,
+      "date": "2026-06-10",
+      "customer": "雾霾俱乐部",
+      "customerId": 11,
+      "amount": 70,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 70
+    },
+    {
+      "id": 1781104046300,
+      "date": "2026-06-10",
+      "customer": "铭心电竞",
+      "customerId": 67,
+      "amount": 60,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 60
+    },
+    {
       "id": 1781093976702,
       "date": "2026-06-10",
       "customer": "泓鑫电竞",
@@ -20860,5 +20896,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-10T23:06:27.828+08:00"
+  "syncedAt": "2026-06-10T23:12:26.517+08:00"
 }
