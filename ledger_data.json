@@ -532,7 +532,7 @@
       "amount": 70,
       "type": "电竞设计",
       "detail": "",
-      "status": "pending",
+      "status": "completed",
       "memberDeduct": 0,
       "cashPay": 70
     },
@@ -20788,14 +20788,6 @@
   "productList": [],
   "transactions": [
     {
-      "id": 1780847452213,
-      "date": "2026-06-07 23:50",
-      "type": "recharge",
-      "amount": 413,
-      "balance": 413,
-      "remark": "充值¥388（赠送¥25）"
-    },
-    {
       "id": 1,
       "date": "2026-01-06",
       "type": "consume",
@@ -20877,17 +20869,33 @@
     },
     {
       "id": 11,
-      "date": "2026-06-04 19:38",
-      "type": "recharge",
-      "amount": 588,
-      "balance": "-",
-      "remark": "充值（2026-06-04）"
-    },
-    {
-      "id": 12,
       "date": "2026-06-06",
       "type": "consume",
       "amount": -550,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 12,
+      "date": "2026-06-06 19:38",
+      "type": "recharge",
+      "amount": 588,
+      "balance": "-",
+      "remark": "充值（2026-06-06）"
+    },
+    {
+      "id": 13,
+      "date": "2026-06-09",
+      "type": "consume",
+      "amount": -120,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 14,
+      "date": "2026-06-10",
+      "type": "consume",
+      "amount": -70,
       "balance": "-",
       "remark": "电竞设计"
     }
@@ -20896,5 +20904,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-10T23:12:26.517+08:00"
+  "syncedAt": "2026-06-11T00:18:22.144+08:00"
 }
