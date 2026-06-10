@@ -513,6 +513,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781093841633,
+      "date": "2026-06-10",
+      "customer": "泓鑫电竞",
+      "customerId": 24,
+      "amount": 80,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 50,
+      "cashPay": 30
+    },
+    {
       "id": 1781008150982,
       "date": "2026-06-09",
       "customer": "陈先森。",
@@ -20674,9 +20686,9 @@
       "id": 100001,
       "name": "泓鑫电竞",
       "customer": "泓鑫电竞",
-      "balance": 50,
+      "balance": 0,
       "totalRecharge": 588,
-      "totalConsume": 1930
+      "totalConsume": 1980
     },
     {
       "id": 100002,
@@ -20848,5 +20860,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-10T20:16:30.998+08:00"
+  "syncedAt": "2026-06-10T20:17:25.424+08:00"
 }
