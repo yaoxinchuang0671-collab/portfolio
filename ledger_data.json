@@ -513,10 +513,10 @@
   ],
   "allOrders": [
     {
-      "id": 1781093841633,
+      "id": 1781093976702,
       "date": "2026-06-10",
       "customer": "泓鑫电竞",
-      "customerId": 24,
+      "customerId": 64,
       "amount": 80,
       "type": "电竞设计",
       "detail": "",
@@ -20860,5 +20860,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-10T20:17:25.424+08:00"
+  "syncedAt": "2026-06-10T20:19:48.898+08:00"
 }
