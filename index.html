@@ -283,13 +283,41 @@
     <p class="preloader-status" id="preloaderStatus">正在准备作品…</p>
   </div>
 
-  <!-- 禁用右键菜单（图片/页面） -->
+  <!-- 禁用右键菜单（图片/页面） + 移动端长按保存 -->
   <script>
+    // 桌面端：禁用图片右键菜单
     document.addEventListener('contextmenu', function(e) {
       if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
         e.preventDefault();
         return false;
       }
+    });
+    // 移动端：禁用长按保存图片（iOS + Android）
+    var _touchTimer = null;
+    var _touchTarget = null;
+    document.addEventListener('touchstart', function(e) {
+      if (e.target.tagName === 'IMG' && e.touches.length === 1) {
+        var t = e.touches[0];
+        _touchTarget = e.target;
+        clearTimeout(_touchTimer);
+        _touchTimer = setTimeout(function() {
+          // 长按超过 500ms → 阻止默认行为（系统保存/分享菜单）
+          _touchTarget = null;
+          e.preventDefault();
+        }, 500);
+      }
+    }, { passive: false, capture: true });
+    document.addEventListener('touchmove', function() {
+      clearTimeout(_touchTimer);
+      _touchTarget = null;
+    }, { passive: true, capture: true });
+    document.addEventListener('touchend', function() {
+      clearTimeout(_touchTimer);
+      _touchTarget = null;
+    });
+    document.addEventListener('touchcancel', function() {
+      clearTimeout(_touchTimer);
+      _touchTarget = null;
     });
     // 禁用开发者工具常用快捷键
     document.addEventListener('keydown', function(e) {
