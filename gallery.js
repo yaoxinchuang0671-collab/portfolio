@@ -224,6 +224,7 @@
         cImg.src = _toCdn(sliceSrc);
         cImg.alt = caption;
         cImg.draggable = false;
+        cImg.style.webkitTouchCallout = 'none';
         var stats = document.createElement('div');
         stats.className = 'triptych-stats';
         stats.innerHTML = '&#9654; ' + getPlayCount(seed, pidx);
