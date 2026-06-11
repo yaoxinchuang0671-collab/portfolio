@@ -531,11 +531,11 @@
       "date": "2026-06-12",
       "customer": "盾锋电竞",
       "customerId": 88,
-      "amount": 240,
+      "amount": 250,
       "type": "电竞设计",
       "detail": "",
       "status": "completed",
-      "memberDeduct": 240,
+      "memberDeduct": 250,
       "cashPay": 0
     },
     {
@@ -20861,9 +20861,9 @@
       "id": 100000,
       "name": "盾锋电竞",
       "customer": "盾锋电竞",
-      "balance": 60,
+      "balance": 50,
       "totalRecharge": 776,
-      "totalConsume": 2543
+      "totalConsume": 2553
     },
     {
       "id": 100001,
@@ -21051,5 +21051,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-12T06:30:15.763+08:00"
+  "syncedAt": "2026-06-12T07:01:24.206+08:00"
 }
