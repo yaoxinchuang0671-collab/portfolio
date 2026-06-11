@@ -1,0 +1,37 @@
+name: Sync ledger_data.json to COS
+
+on:
+  push:
+    paths:
+      - 'ledger_data.json'
+  workflow_dispatch:
+
+jobs:
+  sync-to-cos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install COS SDK
+        run: pip install cos-python-sdk-v5 -q
+
+      - name: Upload to COS
+        env:
+          COS_SECRET_ID: ${{ secrets.COS_SECRET_ID }}
+          COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
+        run: |
+          python -c "
+          import os
+          from qcloud_cos import CosConfig, CosS3Client
+          config = CosConfig(Region='ap-guangzhou', SecretId=os.environ['COS_SECRET_ID'], SecretKey=os.environ['COS_SECRET_KEY'])
+          client = CosS3Client(config)
+          with open('ledger_data.json', 'rb') as f:
+              client.put_object(Bucket='portfolio-images-1438664071', Region='ap-guangzhou', Key='ledger_data.json', Body=f.read(), CacheControl='no-cache')
+          print('✅ 已同步到 COS')
+          "
