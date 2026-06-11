@@ -21,17 +21,31 @@ jobs:
       - name: Install COS SDK
         run: pip install cos-python-sdk-v5 -q
 
-      - name: Upload to COS
+      - name: Upload ledger_data.json to COS
         env:
-          COS_SECRET_ID: ${{ secrets.COS_SECRET_ID }}
+          COS_SECRET_ID:  ${{ secrets.COS_SECRET_ID }}
           COS_SECRET_KEY: ${{ secrets.COS_SECRET_KEY }}
         run: |
           python -c "
           import os
           from qcloud_cos import CosConfig, CosS3Client
-          config = CosConfig(Region='ap-guangzhou', SecretId=os.environ['COS_SECRET_ID'], SecretKey=os.environ['COS_SECRET_KEY'])
+
+          secret_id  = os.environ['COS_SECRET_ID']
+          secret_key = os.environ['COS_SECRET_KEY']
+          region     = 'ap-guangzhou'
+          bucket     = 'portfolio-images-1438664071'
+
+          config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key)
           client = CosS3Client(config)
+
           with open('ledger_data.json', 'rb') as f:
-              client.put_object(Bucket='portfolio-images-1438664071', Region='ap-guangzhou', Key='ledger_data.json', Body=f.read(), CacheControl='no-cache')
+              body = f.read()
+
+          client.put_object(
+              Bucket=bucket,
+              Key='ledger_data.json',
+              Body=body,
+              CacheControl='no-cache'
+          )
           print('✅ 已同步到 COS')
           "
