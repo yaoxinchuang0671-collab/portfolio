@@ -514,18 +514,6 @@
   ],
   "allOrders": [
     {
-      "id": 1781206179567,
-      "date": "2026-06-12",
-      "customer": "测试客户",
-      "customerId": 11,
-      "amount": 100,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 100
-    },
-    {
       "id": 1781194589112,
       "date": "2026-06-12",
       "customer": "小怪电竞",
@@ -21014,5 +21002,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-12T03:31:29.621+08:00"
+  "syncedAt": "2026-06-12T03:46:41.745+08:00"
 }
