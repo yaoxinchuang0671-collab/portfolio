@@ -1,4 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>潮汐视界-作品集</title><link rel="stylesheet" href="styles.css?v=30" /><link rel="stylesheet" href="gallery.css?v=29" /> <style>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>潮汐视界-作品集</title>
+
+  <link rel="stylesheet" href="styles.css?v=30" />
+  <link rel="stylesheet" href="gallery.css?v=29" />
+  <style>
     /* 禁止图片右键保存/拖拽保存 */
     img {
       -webkit-user-drag: none;
@@ -263,7 +272,19 @@
       max-width: 60px;
     }
   </style>
-</head><body><div class="preloader" id="preloader"><div class="preloader-logo">潮汐视界<span class="dot">.</span></div><div class="preloader-spin" id="preloaderSpin"></div><div class="preloader-bar-wrap"><div class="preloader-bar" id="preloaderBar"></div></div><p class="preloader-status" id="preloaderStatus">正在准备作品…</p></div> <script>
+</head>
+<body>
+
+  <!-- 预加载屏 -->
+  <div class="preloader" id="preloader">
+    <div class="preloader-logo">潮汐视界<span class="dot">.</span></div>
+    <div class="preloader-spin" id="preloaderSpin"></div>
+    <div class="preloader-bar-wrap"><div class="preloader-bar" id="preloaderBar"></div></div>
+    <p class="preloader-status" id="preloaderStatus">正在准备作品…</p>
+  </div>
+
+  <!-- 禁用右键菜单（图片/页面） -->
+  <script>
     document.addEventListener('contextmenu', function(e) {
       if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
         e.preventDefault();
@@ -282,7 +303,157 @@
         return false;
       }
     });
-  </script> <div class="scroll-progress" id="scrollProgress"></div><header class="navbar" id="navbar"><div class="container nav-inner"><a href="#home" class="logo">潮汐视界<span class="dot">.</span></a><nav class="nav-links" style="display:flex;gap:36px"><a href="login.html" class="nav-link nav-link-admin" id="adminEntry" style="margin-left:16px;font-size:0.9rem;font-weight:600;color:#7c6af5;text-decoration:none" onmouseover="this.style.color='#f5816a'" onmouseout="this.style.color='#7c6af5'">管理</a></nav></div></header><section class="hero" id="home"><canvas class="hero-particles" id="heroParticles"></canvas><video class="hero-video" id="heroVideo" autoplay muted loop playsinline poster="" style="display:none;"></video><div class="hero-overlay" id="heroOverlay"></div><div class="hero-content"><p class="hero-title" id="heroTitle"><span id="typedWrap"></span><span class="cursor">|</span></p><p class="hero-bio" id="heroBio"></p><div class="hero-actions"><button class="btn-tech btn-tech-primary" onclick="document.getElementById('gallery').scrollIntoView({behavior:'smooth'})"> 查看作品 ↓ </button><button class="btn-tech btn-tech-ghost" onclick="openContactModal()"> 联系合作 </button></div></div><div class="scroll-indicator" id="scrollIndicator"><div class="mouse"><div class="wheel"></div></div><span class="scroll-text">向下滚动</span></div></section><section class="filter-bar-section fade-up" id="filterBarSection"><div class="container"><div class="filter-panel" id="filterPanel"><div class="filter-bar" id="filterBar"></div></div></div></section><section class="gallery-section" id="gallery"><div class="container gallery-layout" id="galleryLayout"><div class="waterfall" id="waterfall"></div></div></section><div class="lightbox" id="lightbox"><button class="lightbox-close" id="lightboxClose">×</button><button class="lightbox-prev" id="lightboxPrev">‹</button><button class="lightbox-next" id="lightboxNext">›</button><img class="lightbox-img" id="lightboxImg" src="" alt="" /><canvas class="lightbox-watermark" id="lightboxWatermark"></canvas><div class="lightbox-phone-wrap" id="lightboxPhoneWrap"><img id="lightboxPhoneImg" src="" alt="" /><div class="phone-overlay lightbox-phone-overlay"><div class="phone-island"></div></div></div><p class="lightbox-caption" id="lightboxCaption"></p><a class="lightbox-h5-link" id="lightboxH5" href="#" target="_blank" rel="noopener" style="display:none;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg> 打开小程序H5 </a></div><div id="navImgOverlay" onclick="if(event.target===this)closeNavImgModal()"><div class="nav-modal-inner"><div class="nav-modal-header"><span id="navImgTitle"></span><button class="nav-modal-close" onclick="closeNavImgModal()">&#x2715;</button></div><img id="navImgModal" src="" alt="" draggable="false" oncontextmenu="return false;" /></div></div><div id="contactModal" class="contact-modal-overlay" onclick="if(event.target===this)closeContactModal()"><div class="contact-modal"><button class="contact-modal-close" onclick="closeContactModal()">&#x2715;</button><div class="contact-modal-header"><div class="contact-modal-glow"></div><h3 id="contactModalTitle">联系合作</h3><p id="contactModalSubtitle">扫码添加微信，开启视觉合作之旅</p></div><div class="contact-modal-body"><div class="contact-qr-wrap"><div class="contact-qr-frame"><div class="contact-qr-scanline"></div><img id="contactQrImg" src="" alt="联系二维码" style="display:none;" draggable="false" oncontextmenu="return false;" /><canvas id="contactQrCanvas" width="240" height="280" style="display:none;"></canvas></div><div class="contact-qr-glow"></div></div><p class="contact-qr-hint">使用微信扫一扫，快速添加好友</p></div><div class="contact-modal-footer"><div class="contact-deco-line"></div><span>潮汐视界 · 专业视觉设计</span><div class="contact-deco-line"></div></div></div></div><button class="back-to-top" id="backToTop" onclick="scrollToTop()" aria-label="返回顶部"><svg class="back-to-top-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg><svg class="back-to-top-progress" viewBox="0 0 48 48" width="48" height="48"><circle class="back-to-top-track" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.15"/><circle class="back-to-top-fill" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6" transform="rotate(-90 24 24)"/></svg></button> <script src="js/utils/escape.js?v=2"></script> <script src="js/utils/dom.js?v=2"></script> <script src="js/data/portfolio.js?v=2"></script> <script src="js/effects/particles.js?v=2"></script> <script src="js/effects/scroll-reveal.js?v=2"></script> <script src="js/ui/navbar.js?v=2"></script> <script src="js/ui/back-to-top.js?v=2"></script> <script src="gallery.js?v=26"></script> <script src="render.js?v=36"></script> <script src="js/main.js?v=11"></script> <script>
+  </script>
+
+  <!-- 滚动进度条 -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- ===== 导航栏 ===== -->
+  <header class="navbar" id="navbar">
+    <div class="container nav-inner">
+      <a href="#home" class="logo">潮汐视界<span class="dot">.</span></a>
+      <nav class="nav-links" style="display:flex;gap:36px">
+        <a href="login.html" class="nav-link nav-link-admin" id="adminEntry" style="margin-left:16px;font-size:0.9rem;font-weight:600;color:#7c6af5;text-decoration:none" onmouseover="this.style.color='#f5816a'" onmouseout="this.style.color='#7c6af5'">管理</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===== Hero 区域 ===== -->
+  <section class="hero" id="home">
+    <!-- 粒子背景 -->
+    <canvas class="hero-particles" id="heroParticles"></canvas>
+    <!-- 视频背景（可选，覆盖粒子） -->
+    <video class="hero-video" id="heroVideo" autoplay muted loop playsinline poster="" style="display:none;"></video>
+    <div class="hero-overlay" id="heroOverlay"></div>
+    <div class="hero-content">
+      <p class="hero-title" id="heroTitle">
+        <span id="typedWrap"></span><span class="cursor">|</span>
+      </p>
+      <p class="hero-bio" id="heroBio"></p>
+      <div class="hero-actions">
+        <button class="btn-tech btn-tech-primary" onclick="document.getElementById('gallery').scrollIntoView({behavior:'smooth'})">
+          查看作品 ↓
+        </button>
+        <button class="btn-tech btn-tech-ghost" onclick="openContactModal()">
+          联系合作
+        </button>
+      </div>
+    </div>
+    <div class="scroll-indicator" id="scrollIndicator">
+      <div class="mouse"><div class="wheel"></div></div>
+      <span class="scroll-text">向下滚动</span>
+    </div>
+  </section>
+
+  <!-- ===== 分类筛选栏 ===== -->
+  <section class="filter-bar-section fade-up" id="filterBarSection">
+    <div class="container">
+      <div class="filter-panel" id="filterPanel">
+        <div class="filter-bar" id="filterBar">
+          <!-- 分类按钮由 render.js 动态生成 -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 瀑布流展示区（由 render.js 动态渲染）===== -->
+  <section class="gallery-section" id="gallery">
+    <div class="container gallery-layout" id="galleryLayout">
+      <div class="waterfall" id="waterfall">
+        <!-- 作品卡片由 render.js 动态生成 -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 灯箱 -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">×</button>
+    <button class="lightbox-prev" id="lightboxPrev">‹</button>
+    <button class="lightbox-next" id="lightboxNext">›</button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="" />
+    <!-- 水印层 -->
+    <canvas class="lightbox-watermark" id="lightboxWatermark"></canvas>
+    <!-- 手机边框模式（小程序UI素材分类） -->
+    <div class="lightbox-phone-wrap" id="lightboxPhoneWrap">
+      <img id="lightboxPhoneImg" src="" alt="" />
+      <div class="phone-overlay lightbox-phone-overlay">
+        <div class="phone-island"></div>
+      </div>
+    </div>
+    <p class="lightbox-caption" id="lightboxCaption"></p>
+    <a class="lightbox-h5-link" id="lightboxH5" href="#" target="_blank" rel="noopener" style="display:none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      打开小程序H5
+    </a>
+  </div>
+
+  <!-- ===== 导航图片弹窗 ===== -->
+  <div id="navImgOverlay" onclick="if(event.target===this)closeNavImgModal()">
+    <div class="nav-modal-inner">
+      <div class="nav-modal-header">
+        <span id="navImgTitle"></span>
+        <button class="nav-modal-close" onclick="closeNavImgModal()">&#x2715;</button>
+      </div>
+      <img id="navImgModal" src="" alt="" draggable="false"
+           oncontextmenu="return false;" />
+    </div>
+  </div>
+
+  <!-- ===== 联系合作弹窗 ===== -->
+  <div id="contactModal" class="contact-modal-overlay" onclick="if(event.target===this)closeContactModal()">
+    <div class="contact-modal">
+      <button class="contact-modal-close" onclick="closeContactModal()">&#x2715;</button>
+      <div class="contact-modal-header">
+        <div class="contact-modal-glow"></div>
+        <h3 id="contactModalTitle">联系合作</h3>
+        <p id="contactModalSubtitle">扫码添加微信，开启视觉合作之旅</p>
+      </div>
+      <div class="contact-modal-body">
+        <div class="contact-qr-wrap">
+          <div class="contact-qr-frame">
+            <div class="contact-qr-scanline"></div>
+            <img id="contactQrImg" src="" alt="联系二维码" style="display:none;" draggable="false" oncontextmenu="return false;" />
+            <canvas id="contactQrCanvas" width="240" height="280" style="display:none;"></canvas>
+          </div>
+          <div class="contact-qr-glow"></div>
+        </div>
+        <p class="contact-qr-hint">使用微信扫一扫，快速添加好友</p>
+      </div>
+      <div class="contact-modal-footer">
+        <div class="contact-deco-line"></div>
+        <span>潮汐视界 · 专业视觉设计</span>
+        <div class="contact-deco-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 返回顶部按钮 ===== -->
+  <button class="back-to-top" id="backToTop" onclick="scrollToTop()" aria-label="返回顶部">
+    <svg class="back-to-top-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    <svg class="back-to-top-progress" viewBox="0 0 48 48" width="48" height="48">
+      <circle class="back-to-top-track" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2" opacity="0.15"/>
+      <circle class="back-to-top-fill" cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6" transform="rotate(-90 24 24)"/>
+    </svg>
+  </button>
+
+  <!-- 工具模块 -->
+  <script src="js/utils/escape.js?v=2"></script>
+  <script src="js/utils/dom.js?v=2"></script>
+  <!-- 数据模块 -->
+  <script src="js/data/portfolio.js?v=2"></script>
+  <!-- 效果模块 -->
+  <script src="js/effects/particles.js?v=2"></script>
+  <script src="js/effects/scroll-reveal.js?v=2"></script>
+  <!-- UI 模块 -->
+  <script src="js/ui/navbar.js?v=2"></script>
+  <script src="js/ui/back-to-top.js?v=2"></script>
+  <!-- 业务模块 -->
+  <script src="gallery.js?v=26"></script>
+  <script src="render.js?v=36"></script>
+  <!-- 入口 -->
+  <script src="js/main.js?v=11"></script>
+  <!-- 预加载屏 UI（render.js 驱动） -->
+  <script>
   (function() {
     var preloader = document.getElementById('preloader');
     var bar       = document.getElementById('preloaderBar');
@@ -312,7 +483,9 @@
       }
     }, 8000);
   })();
-  </script> <script>
+  </script>
+  <!-- 管理入口：智能跳转（有 token 验证后直达后台，无 token 跳登录页） -->
+  <script>
   document.getElementById('adminEntry').addEventListener('click', function(e) {
     e.preventDefault();
     var token = localStorage.getItem('tidal_admin_token');
@@ -330,7 +503,10 @@
       location.href = 'login.html';
     }
   });
-  </script> <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script> <script>
+  </script>
+  <!-- 联系合作弹窗 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script>
   (function() {
     var _contactData = null;
 
@@ -438,7 +614,9 @@
       }
     });
   })();
-  </script> <script>
+  </script>
+  <!-- Service Worker -->
+  <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('/sw.js?v=6').catch(function() {});
