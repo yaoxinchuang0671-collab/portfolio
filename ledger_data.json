@@ -515,6 +515,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781211349860,
+      "date": "2026-06-12",
+      "customer": "测试客户",
+      "customerId": 4,
+      "amount": 10,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 10
+    },
+    {
       "id": 1781209759820,
       "date": "2026-06-12",
       "customer": "游龙鼠电竞",
@@ -21015,5 +21027,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-12T04:31:59.016+08:00"
+  "syncedAt": "2026-06-12T04:55:53.244+08:00"
 }
