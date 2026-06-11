@@ -515,6 +515,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781214745958,
+      "date": "2026-06-12",
+      "customer": "盾锋电竞",
+      "customerId": 9,
+      "amount": 18,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 18,
+      "cashPay": 0
+    },
+    {
       "id": 1781209759820,
       "date": "2026-06-12",
       "customer": "游龙鼠电竞",
@@ -20825,9 +20837,9 @@
       "id": 100000,
       "name": "盾锋电竞",
       "customer": "盾锋电竞",
-      "balance": 303,
+      "balance": 285,
       "totalRecharge": 776,
-      "totalConsume": 2300
+      "totalConsume": 2318
     },
     {
       "id": 100001,
@@ -21015,5 +21027,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-12T05:50:58.100+08:00"
+  "syncedAt": "2026-06-12T05:52:38.448+08:00"
 }
