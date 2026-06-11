@@ -551,11 +551,37 @@ body {
 .card-copy-btn .spin {
   display: inline-block; animation: spin 0.8s linear infinite;
 }
-</style>
+
+    /* 加载遮罩 */
+    #loading-overlay {
+      position: fixed; top:0; left:0; right:0; bottom:0;
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 9999;
+      gap: 16px;
+    }
+    #loading-overlay .spinner {
+      width: 44px; height: 44px;
+      border: 4px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    #loading-overlay p { color: var(--text-dim); font-size: 14px; margin:0; }
+
+  </style>
 </head>
 <body>
 
 <div id="app">
+  <!-- 加载遮罩：数据就绪前不渲染页面 -->
+  <div id="loading-overlay" v-if="!dataReady">
+    <div class="spinner"></div>
+    <p>数据加载中，请稍候…</p>
+  </div>
+
+
   <div class="app-layout">
     <!-- 侧边栏 -->
     <div class="sidebar">
@@ -4652,6 +4678,7 @@ createApp({
     // ════════════════════════════════════════════
     // 云端同步：前端直连 GitHub API
     // ════════════════════════════════════════════
+    const dataReady = ref(false);   // 数据是否加载完成（防止初始闪屏）
     const savingCloud = ref(false);
     const cloudStatus = ref(''); // 'online' | 'offline' | 'error' | ''
     const cloudStatusText = computed(function() {
@@ -4852,7 +4879,6 @@ createApp({
 
     function initLoadData() {
       if (isLocalhost) {
-        // 本地：直接从文件加载，不清空任何数据（避免server未启动时数据丢失）
         fetch('/ledger_data.json', { cache: 'no-store' })
           .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
           .then(function(d) {
@@ -4864,9 +4890,9 @@ createApp({
           .catch(function(e) {
             console.warn('[账本] 本地文件读取失败，保留当前数据:', e.message);
             toast('本地文件读取失败，请确认服务器已启动', 'warning');
-          });
+          })
+          .finally(function() { dataReady.value = true; });
       } else {
-        // 线上：GitHub 优先
         loadFromCloud()
           .then(function() {
             cloudStatus.value = 'online';
@@ -4875,7 +4901,8 @@ createApp({
             console.warn('[账本] 云端拉取失败，使用本地数据:', e.message);
             cloudStatus.value = 'offline';
             loadFromLocal();
-          });
+          })
+          .finally(function() { dataReady.value = true; });
       }
     }
 
@@ -4905,6 +4932,7 @@ createApp({
     });
 
     return {
+      dataReady,
       page, pageTitle, bizTypes,
       allOrders, allCustomers, memberList,
       todayOrders, todayIncome, todayCount,
