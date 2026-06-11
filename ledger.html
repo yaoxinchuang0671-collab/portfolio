@@ -3703,13 +3703,13 @@ createApp({
     allMemberBalances.value.forEach((mb, idx) => {
       const memberOrders = allOrders.value.filter(o => o.customer === mb.customer);
       // 累计充值 = 充值订单金额总和（type=recharge）
-      const recharge = memberOrders
+      const recharge = parseFloat(memberOrders
         .filter(o => o.type === 'recharge')
-        .reduce((s, o) => s + (o.amount || 0), 0);
+        .reduce((s, o) => s + (o.amount || 0), 0).toFixed(2));
       // 累计消费 = 非充值订单金额总和
-      const consume = memberOrders
+      const consume = parseFloat(memberOrders
         .filter(o => o.type !== 'recharge')
-        .reduce((s, o) => s + (o.amount || 0), 0);
+        .reduce((s, o) => s + (o.amount || 0), 0).toFixed(2));
       memberList.value.push({
         id: 100000 + idx,
         name: mb.customer,
@@ -3767,7 +3767,7 @@ createApp({
     }
     const today = getBeijingDateStr();
     const todayOrders = computed(() => allOrders.value.filter(o => o.date === today));
-    const todayIncome = computed(() => todayOrders.value.reduce((s,o) => s+o.cashPay, 0));
+    const todayIncome = computed(() => parseFloat(todayOrders.value.reduce((s,o) => s+o.cashPay, 0).toFixed(2)));
     const todayCount = computed(() => todayOrders.value.length);
 
     // 统计报表的年份和月份选择
@@ -3783,14 +3783,14 @@ createApp({
         return parts.length >= 2 && parts[1] === prefix;
       });
     });
-    const monthIncome = computed(() => monthOrders.value.reduce((s,o) => s+o.cashPay, 0));
+    const monthIncome = computed(() => parseFloat(monthOrders.value.reduce((s,o) => s+o.cashPay, 0).toFixed(2)));
     const monthAvg = computed(() => {
       const uniqueDays = new Set(monthOrders.value.map(o => o.date)).size;
       return uniqueDays > 0 ? (monthIncome.value / uniqueDays).toFixed(2) : '0.00';
     });
 
     const pendingCount = computed(() => allOrders.value.filter(o => o.status==='pending').length);
-    const totalBalance = computed(() => memberList.value.reduce((s,m) => s+m.balance, 0));
+    const totalBalance = computed(() => parseFloat(memberList.value.reduce((s,m) => s+m.balance, 0).toFixed(2)));
 
     // Top客户 ≥600（按消费总金额，不区分余额/现金）
     const topCustomers = computed(() => {
@@ -4399,7 +4399,7 @@ createApp({
     // ===== 统计报表 =====
     // reportYear/reportMonth/reportYears 已在上方定义
     // 统计报表：充值算现金收入，会员扣款不算收入
-    const reportTotal = computed(() => monthOrders.value.reduce((s,o) => s+o.cashPay, 0));
+    const reportTotal = computed(() => parseFloat(monthOrders.value.reduce((s,o) => s+o.cashPay, 0).toFixed(2)));
     const reportCount = computed(() => monthOrders.value.length);
     const reportAvg = computed(() => {
       if (reportCount.value === 0) return '0.00';
@@ -4445,14 +4445,14 @@ createApp({
     // ===== 月总表数据 =====
     const monthlyData = computed(() => {
       // 总收入 = 现金收入（含消费现金+充值），会员抵扣是余额转移不算收入
-      const cashIncome = monthOrders.value.reduce((s,o) => s+o.cashPay, 0);
-      const memberDeduct = monthOrders.value.reduce((s,o) => s+o.memberDeduct, 0);
+      const cashIncome = parseFloat(monthOrders.value.reduce((s,o) => s+o.cashPay, 0).toFixed(2));
+      const memberDeduct = parseFloat(monthOrders.value.reduce((s,o) => s+o.memberDeduct, 0).toFixed(2));
       const memberOrderCount = monthOrders.value.filter(o => o.memberDeduct > 0).length;
 
       // 会员充值总额（当月）
-      const rechargeTotal = monthOrders.value
+      const rechargeTotal = parseFloat(monthOrders.value
         .filter(o => o.type === 'recharge')
-        .reduce((s, o) => s + o.amount, 0);
+        .reduce((s, o) => s + o.amount, 0).toFixed(2));
       // 消费订单的现金部分（不含充值）
       const consumeCash = cashIncome - rechargeTotal;
       // 总收入 = 消费现金 + 充值
