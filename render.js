@@ -515,6 +515,7 @@
           var sImg = document.createElement('img');
           sImg.className = 'triptych-slice';
           sImg.alt = w.caption || '';
+          sImg.draggable = false;
           if (isKey) {
             sImg.src = toCdnUrl(w.slices[pos]);
             sImg.loading = 'eager';
@@ -532,6 +533,7 @@
         var img = document.createElement('img');
         img.alt = w.caption || '';
         img.className = 'waterfall-img';
+        img.draggable = false;
         if (isKey) {
           img.src = toCdnUrl(w.src);
           img.loading = 'eager';
