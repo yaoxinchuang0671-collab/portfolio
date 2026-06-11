@@ -4686,23 +4686,34 @@ createApp({
       payload.syncedAt = getBeijingISOString();
       var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
 
+      function doUpload(sha) {
+        var body = {
+          message: '更新账本数据 @ ' + new Date().toLocaleString('zh-CN'),
+          content: content,
+          branch: 'main'
+        };
+        if (sha) body.sha = sha; // 文件存在才传 sha（更新），不传则创建
+        return fetch(GITHUB_API, {
+          method: 'PUT',
+          headers: {
+            'Authorization': 'token ' + GITHUB_TOKEN,
+            'Accept': 'application/vnd.github.v3+json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(body)
+        });
+      }
+
       getGithubFileSha()
-        .then(function(sha) {
-          var body = {
-            message: '更新账本数据 @ ' + new Date().toLocaleString('zh-CN'),
-            content: content,
-            branch: 'main'
-          };
-          if (sha) body.sha = sha; // 文件存在才传 sha（更新），不传则创建
-          return fetch(GITHUB_API, {
-            method: 'PUT',
-            headers: {
-              'Authorization': 'token ' + GITHUB_TOKEN,
-              'Accept': 'application/vnd.github.v3+json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-          });
+        .then(function(sha) { return doUpload(sha); })
+        .then(function(r) {
+          if (r.status === 409) {
+            console.warn('[账本] 遇到 409 SHA 冲突，1 秒后重试...');
+            return new Promise(function(resolve) { setTimeout(resolve, 1000); })
+              .then(function() { return getGithubFileSha(); })
+              .then(function(freshSha) { return doUpload(freshSha); });
+          }
+          return r;
         })
         .then(function(r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
