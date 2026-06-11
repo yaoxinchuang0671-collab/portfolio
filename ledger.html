@@ -575,11 +575,11 @@ body {
 <body>
 
 <div id="app">
-  <!-- 加载遮罩：数据就绪前不渲染页面 -->
-  <div id="loading-overlay" v-if="!dataReady">
-    <div class="spinner"></div>
-    <p>数据加载中，请稍候…</p>
-  </div>
+    <!-- 加载遮罩：数据就绪前显示 -->
+    <div id="loading-overlay" v-if="!dataReady">
+      <div class="spinner"></div>
+      <p>数据加载中，请稍候…</p>
+    </div>
 
 
   <div class="app-layout">
@@ -616,15 +616,15 @@ body {
       <div class="sidebar-footer">
         <!-- 本地环境：自动保存到文件，仅保留上传云端 -->
         <template v-if="isLocalhost">
-          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToGitHub">
+          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToCloud">
             <span v-if="savingCloud" class="spin">⏳</span>
             <span v-else>☁️</span>
-            {{ savingCloud ? '上传中...' : '上传到 GitHub' }}
+            {{ savingCloud ? '保存中...' : '保存到云端' }}
           </button>
         </template>
         <!-- 线上环境：直接保存到云端 -->
         <template v-else>
-          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToGitHub">
+          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToCloud">
             <span v-if="savingCloud" class="spin">⏳</span>
             <span v-else>☁️</span>
             {{ savingCloud ? '保存中...' : '保存到云端' }}
@@ -4565,10 +4565,11 @@ createApp({
       toast('已恢复默认档位','gold');
     }
 
-    // ===== GitHub 云同步配置 =====
-    var GITHUB_TOKEN = 'ghp_' + 'FrOjl20U5gpwfPAtSKWfezJshrwIkR1jzNhI';
-    var GITHUB_API = 'https://api.github.com/repos/yaoxinchuang0671-collab/portfolio/contents/ledger_data.json';
-    var GITHUB_RAW = 'https://raw.githubusercontent.com/yaoxinchuang0671-collab/portfolio/main/ledger_data.json';
+    // ===== 云同步配置（COS） =====
+    // 本地环境走 /save-ledger，线上走 /api/ledger（由 server.py 代理到 COS）
+    // 注意：isLocalhost 在本文件更下方声明，这里只做占位，在 isLocalhost 声明后设置
+    var API_BASE = '';
+    var LEDGER_API = '/api/ledger';
 
     // 北京时间 ISO 字符串（带 +08:00 偏移，文件可读性更好）
     function getBeijingISOString() {
@@ -4625,7 +4626,9 @@ createApp({
 
     // 启动时：从云端拉取最新数据（cloud 优先，local 兜底）
     function loadFromCloud() {
-      return fetch(GITHUB_RAW, { cache: 'no-store' })
+      // 线上环境：直接从 COS 读取 ledger_data.json（静态托管公开文件）
+      var url = isLocalhost ? LEDGER_API : '/ledger_data.json';
+      return fetch(url + '?t=' + Date.now(), { cache: 'no-store' })
         .then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
@@ -4633,12 +4636,12 @@ createApp({
         .then(function (d) {
           applyPayload(d);
           console.log('[账本] 已从云端同步数据 (syncedAt:', d.syncedAt || '?', ')');
-          // 云端数据同时写入 localStorage
           saveToLocal();
           lastSyncTime.value = '云端 (' + formatSyncTime(d.syncedAt) + ')';
         })
         .catch(function (e) {
           console.warn('[账本] 云端拉取失败，使用本地数据:', e.message);
+          throw e;
         });
     }
 
@@ -4676,7 +4679,7 @@ createApp({
     }
 
     // ════════════════════════════════════════════
-    // 云端同步：前端直连 GitHub API
+    // 云端同步：通过后端接口
     // ════════════════════════════════════════════
     const dataReady = ref(false);   // 数据是否加载完成（防止初始闪屏）
     const savingCloud = ref(false);
@@ -4689,73 +4692,88 @@ createApp({
       return '';
     });
 
-    // 获取 GitHub 上 ledger_data.json 的当前 sha（用于更新）
-    // 文件不存在时返回 null，供 saveToGitHub 创建新文件
-    function getGithubFileSha() {
-      return fetch(GITHUB_API + '?ref=' + 'main', {
-        headers: { 'Authorization': 'token ' + GITHUB_TOKEN, 'Accept': 'application/vnd.github.v3+json' }
+
+
+    // ===== 云端保存：通过 SCF 代理（所有环境通用） =====
+    // 【重要】请在腾讯云 SCF 创建好后，将下面的 URL 替换为真实的 SCF 触发器 URL
+    const SCF_LEDGER_URL = 'https://1438664071-hdxye8mwfr.ap-guangzhou.tencentscf.com';
+
+    function saveToGitHub(payload) {
+      var now = getBeijingISOString();
+      payload.syncedAt = now;
+      var body = JSON.stringify(payload, null, 2);
+
+      return fetch(SCF_LEDGER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: body })
       })
-      .then(function(r) {
-        if (r.status === 404) return null; // 文件不存在，需要新建
-        if (!r.ok) throw new Error('获取文件信息失败 HTTP ' + r.status);
-        return r.json();
-      })
-      .then(function(data) { return data ? data.sha : null; });
+        .then(function(r) {
+          if (!r.ok) throw new Error('SCF HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(res) {
+          if (!res.ok) throw new Error(res.error || 'SCF 返回失败');
+          console.log('[账本] 已通过 SCF 保存到 GitHub (commit:', res.commit, ')');
+        })
+        .catch(function(e) {
+          console.error('[账本] SCF 保存失败:', e);
+          throw e;
+        });
     }
 
-    // 保存到云端 GitHub（前端直连 API）
-    function saveToGitHub() {
+    // 保存到云端（所有环境：本地走 /save-ledger，线上走 GitHub API）
+    function saveToCloud() {
       if (savingCloud.value) return;
       savingCloud.value = true;
       cloudStatus.value = 'syncing';
 
       var payload = buildPayload();
-      payload.syncedAt = getBeijingISOString();
-      var content = btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2))));
 
-      function doUpload(sha) {
-        var body = {
-          message: '更新账本数据 @ ' + new Date().toLocaleString('zh-CN'),
-          content: content,
-          branch: 'main'
-        };
-        if (sha) body.sha = sha; // 文件存在才传 sha（更新），不传则创建
-        return fetch(GITHUB_API, {
-          method: 'PUT',
-          headers: {
-            'Authorization': 'token ' + GITHUB_TOKEN,
-            'Accept': 'application/vnd.github.v3+json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
-        });
+      // 线上环境：保存到 GitHub（触发 Action 自动同步到 COS）
+      if (!isLocalhost) {
+        saveToGitHub(payload)
+          .then(function() {
+            cloudStatus.value = 'synced';
+            lastSyncTime.value = '云端 ' + formatSyncTime(payload.syncedAt);
+            toast('已保存到 GitHub，正在同步到 COS...', 'gold');
+            console.log('[账本] 已保存到 GitHub（将自动同步到 COS）');
+            // 同时存一份到 localStorage 作为备份
+            saveToLocal();
+          })
+          .catch(function(e) {
+            cloudStatus.value = 'error';
+            // 降级：存到 localStorage
+            saveToLocal();
+            toast('云端保存失败，已缓存到浏览器: ' + (e.message || '网络错误'), 'danger');
+            console.error('[账本] GitHub 保存失败:', e);
+          })
+          .finally(function() {
+            savingCloud.value = false;
+          });
+        return;
       }
 
-      getGithubFileSha()
-        .then(function(sha) { return doUpload(sha); })
-        .then(function(r) {
-          if (r.status === 409) {
-            console.warn('[账本] 遇到 409 SHA 冲突，1 秒后重试...');
-            return new Promise(function(resolve) { setTimeout(resolve, 1000); })
-              .then(function() { return getGithubFileSha(); })
-              .then(function(freshSha) { return doUpload(freshSha); });
-          }
-          return r;
-        })
+      // 本地环境：直接写文件
+      fetch('/save-ledger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
         .then(function(r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
         })
         .then(function(res) {
-          lastSyncTime.value = '云端 ' + formatSyncTime(payload.syncedAt);
+          lastSyncTime.value = '本地 ' + formatSyncTime(payload.syncedAt);
           cloudStatus.value = 'synced';
-          toast(isLocalhost ? '已上传到 GitHub！' : '已保存到云端！', 'gold');
-          console.log('[账本] 已同步到 GitHub:', res.content.html_url);
+          toast('已保存到本地文件！', 'gold');
+          console.log('[账本] 已保存到 ledger_data.json');
         })
         .catch(function(e) {
           cloudStatus.value = 'error';
-          toast('云端保存失败: ' + (e.message || '网络错误'), 'danger');
-          console.error('[账本] GitHub 同步失败:', e);
+          toast('保存失败: ' + (e.message || '网络错误'), 'gold');
+          console.error('[账本] 本地保存失败:', e);
         })
         .finally(function() {
           savingCloud.value = false;
@@ -4807,6 +4825,7 @@ createApp({
 
     // 环境标识（暴露给模板）
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    API_BASE = isLocalhost ? '' : '';
 
     // ===== Toast =====
     const toastShow = ref(false);
@@ -4874,8 +4893,8 @@ createApp({
     // ════════════════════════════════════════════
     // 启动数据加载策略
     // ════════════════════════════════════════════
-    // 本地环境：直接读取本地文件 ledger_data.json，跳过 GitHub 和 localStorage
-    // 线上环境：GitHub 优先，失败回退到 localStorage
+    // 本地环境：直接读取本地文件 ledger_data.json
+    // 线上环境：API 优先，失败回退到 localStorage
 
     function initLoadData() {
       if (isLocalhost) {
@@ -4965,7 +4984,7 @@ createApp({
       wechatOK, autoBackup,
       isLocalhost,
       savingLocal, lastSyncTime, saveToLocalServer,
-      savingCloud, cloudStatus, cloudStatusText, saveToGitHub, forceRefreshFromCloud,
+      savingCloud, cloudStatus, cloudStatusText, saveToCloud, forceRefreshFromCloud,
       toastShow, toastMsg, toastType, toast
     };
   }
