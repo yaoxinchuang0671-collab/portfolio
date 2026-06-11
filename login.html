@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>潮汐视界 · 管理登录</title>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>潮汐视界 · 管理登录</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -90,33 +85,7 @@
     line-height: 1.7;
   }
 </style>
-</head>
-<body>
-
-<div class="box">
-  <div class="logo">
-    <h1>潮 汐 视 界</h1>
-    <p>TIDAL VISION · ADMIN</p>
-  </div>
-
-  <label for="token-input">访问令牌（Bearer Token）</label>
-  <input type="password" id="token-input" placeholder="粘贴 Token 后回车或点击登录"
-         autocomplete="off" autofocus
-         onkeydown="if(event.key==='Enter') doLogin()" />
-
-  <button onclick="doLogin()">登 录</button>
-
-  <div class="err" id="err-msg"></div>
-
-  <div class="hint">
-    Token 由服务器启动时生成，请在服务器控制台查看<br>
-    Token 将保存在浏览器本地，下次自动登录<br>
-    <a href="#" onclick="localStorage.removeItem(STORE_KEY);document.getElementById('token-input').value='';showErr('已清除，请重新输入');return false;"
-       style="color:#8B7340;text-decoration:none;margin-top:6px;display:inline-block;">清除 Token 重新输入</a>
-  </div>
-</div>
-
-<script>
+</head><body><div class="box"><div class="logo"><h1>潮 汐 视 界</h1><p>TIDAL VISION · ADMIN</p></div><label for="token-input">访问令牌（Bearer Token）</label><input type="password" id="token-input" placeholder="粘贴 Token 后回车或点击登录" autocomplete="off" autofocus onkeydown="if(event.key==='Enter') doLogin()" /><button onclick="doLogin()">登 录</button><div class="err" id="err-msg"></div><div class="hint"> Token 由服务器启动时生成，请在服务器控制台查看<br> Token 将保存在浏览器本地，下次自动登录<br><a href="#" onclick="localStorage.removeItem(STORE_KEY);document.getElementById('token-input').value='';showErr('已清除，请重新输入');return false;" style="color:#8B7340;text-decoration:none;margin-top:6px;display:inline-block;">清除 Token 重新输入</a></div></div> <script>
   const STORE_KEY = 'tidal_admin_token';
   const GUARD_KEY = 'tidal_redirect_guard';
 
@@ -194,5 +163,4 @@
     document.getElementById('err-msg').textContent = msg;
   }
 </script>
-</body>
-</html>
+</body></html>
