@@ -513,6 +513,42 @@
   ],
   "allOrders": [
     {
+      "id": 1781179928622,
+      "date": "2026-06-11",
+      "customer": "罗森电竞",
+      "customerId": 72,
+      "amount": 470,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 413,
+      "cashPay": 57
+    },
+    {
+      "id": 1781179890933,
+      "date": "2026-06-11",
+      "customer": "铭心电竞",
+      "customerId": 43,
+      "amount": 50,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 50
+    },
+    {
+      "id": 1781179859329,
+      "date": "2026-06-11",
+      "customer": "沈文鹏",
+      "customerId": 52,
+      "amount": 2000,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 2000
+    },
+    {
       "id": 1781122909942,
       "date": "2026-06-11",
       "customer": "当当跑刀俱乐部",
@@ -20778,9 +20814,9 @@
       "id": 1780847452213,
       "name": "罗森电竞",
       "customer": "罗森电竞",
-      "balance": 413,
+      "balance": 0,
       "totalRecharge": 388,
-      "totalConsume": 0
+      "totalConsume": 413
     }
   ],
   "rechargeTiers": [
@@ -20920,5 +20956,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-11T04:21:53.155+08:00"
+  "syncedAt": "2026-06-11T20:12:22.161+08:00"
 }
