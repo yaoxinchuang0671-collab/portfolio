@@ -513,6 +513,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781186669650,
+      "date": "2026-06-11",
+      "customer": "人字拖",
+      "customerId": 95,
+      "amount": 88,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 88
+    },
+    {
       "id": 1781179928622,
       "date": "2026-06-11",
       "customer": "罗森电竞",
@@ -20956,5 +20968,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-11T21:55:45.974+08:00"
+  "syncedAt": "2026-06-11T22:04:38.801+08:00"
 }
