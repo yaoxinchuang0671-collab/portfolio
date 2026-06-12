@@ -515,6 +515,30 @@
   ],
   "allOrders": [
     {
+      "id": 1781290974445,
+      "date": "2026-06-13",
+      "customer": "罗森电竞",
+      "customerId": 6,
+      "amount": 43,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 43,
+      "cashPay": 0
+    },
+    {
+      "id": 1781290961370,
+      "date": "2026-06-13",
+      "customer": "盾锋电竞",
+      "customerId": 20,
+      "amount": 3,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 3,
+      "cashPay": 0
+    },
+    {
       "id": 1,
       "date": "2025-09-01",
       "customer": "别捏我的肥脸",
@@ -20910,9 +20934,9 @@
       "id": 100000,
       "name": "盾锋电竞",
       "customer": "盾锋电竞",
-      "balance": 303,
+      "balance": 300,
       "totalRecharge": 776,
-      "totalConsume": 2300
+      "totalConsume": 2303
     },
     {
       "id": 100001,
@@ -20950,9 +20974,9 @@
       "id": 1780847452213,
       "name": "罗森电竞",
       "customer": "罗森电竞",
-      "balance": 243,
+      "balance": 200,
       "totalRecharge": 676,
-      "totalConsume": 470
+      "totalConsume": 513
     }
   ],
   "rechargeTiers": [
@@ -21100,5 +21124,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-12T22:45:52.951+08:00"
+  "syncedAt": "2026-06-13T03:03:36.638+08:00"
 }
