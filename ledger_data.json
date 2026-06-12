@@ -515,6 +515,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781251590288,
+      "date": "2026-06-12",
+      "customer": "吴振光",
+      "customerId": 3,
+      "amount": 25,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 25
+    },
+    {
       "id": 1781217009259,
       "date": "2026-06-12",
       "customer": "罗森电竞",
@@ -21099,5 +21111,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-12T08:13:47.885+08:00"
+  "syncedAt": "2026-06-12T16:21:54.653+08:00"
 }
