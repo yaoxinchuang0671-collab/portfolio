@@ -515,6 +515,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781291735284,
+      "date": "2026-06-13",
+      "customer": "罗森电竞",
+      "customerId": 48,
+      "amount": 266.66,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 200,
+      "cashPay": 66.66000000000003
+    },
+    {
       "id": 1781290974445,
       "date": "2026-06-13",
       "customer": "罗森电竞",
@@ -20974,9 +20986,9 @@
       "id": 1780847452213,
       "name": "罗森电竞",
       "customer": "罗森电竞",
-      "balance": 200,
+      "balance": 0,
       "totalRecharge": 676,
-      "totalConsume": 513
+      "totalConsume": 713
     }
   ],
   "rechargeTiers": [
@@ -21124,5 +21136,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-13T03:15:08.162+08:00"
+  "syncedAt": "2026-06-13T03:16:46.166+08:00"
 }
