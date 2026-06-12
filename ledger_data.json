@@ -531,11 +531,11 @@
       "date": "2026-06-12",
       "customer": "盾锋电竞",
       "customerId": 88,
-      "amount": 250,
+      "amount": 240,
       "type": "电竞设计",
       "detail": "",
       "status": "completed",
-      "memberDeduct": 250,
+      "memberDeduct": 240,
       "cashPay": 0
     },
     {
@@ -20861,9 +20861,9 @@
       "id": 100000,
       "name": "盾锋电竞",
       "customer": "盾锋电竞",
-      "balance": 50,
+      "balance": 60,
       "totalRecharge": 776,
-      "totalConsume": 2553
+      "totalConsume": 2543
     },
     {
       "id": 100001,
@@ -20935,114 +20935,162 @@
   "productList": [],
   "transactions": [
     {
-      "id": 1781191737459,
-      "date": "2026-06-11 23:28",
-      "type": "recharge",
-      "amount": 300,
-      "balance": 713,
-      "remark": "充值¥288（赠送¥12）"
-    },
-    {
-      "id": 1780847452213,
-      "date": "2026-06-07 23:50",
-      "type": "recharge",
-      "amount": 413,
-      "balance": 413,
-      "remark": "充值¥388（赠送¥25）"
-    },
-    {
       "id": 1,
-      "date": "2026-01-06",
+      "date": "2025-12-06",
       "type": "consume",
-      "amount": -50,
+      "amount": -350,
       "balance": "-",
       "remark": "电竞设计"
     },
     {
       "id": 2,
-      "date": "2026-01-06",
-      "type": "consume",
-      "amount": -130,
-      "balance": "-",
-      "remark": "电竞设计"
-    },
-    {
-      "id": 3,
-      "date": "2026-01-12",
-      "type": "consume",
-      "amount": -240,
-      "balance": "-",
-      "remark": "电竞设计"
-    },
-    {
-      "id": 4,
-      "date": "2026-01-14",
-      "type": "consume",
-      "amount": -5,
-      "balance": "-",
-      "remark": "电竞设计"
-    },
-    {
-      "id": 5,
-      "date": "2026-01-19",
-      "type": "consume",
-      "amount": -140,
-      "balance": "-",
-      "remark": "电竞设计"
-    },
-    {
-      "id": 6,
-      "date": "2026-01-21",
-      "type": "consume",
-      "amount": -60,
-      "balance": "-",
-      "remark": "电竞设计"
-    },
-    {
-      "id": 7,
-      "date": "2026-03-08",
-      "type": "consume",
-      "amount": -120,
-      "balance": "-",
-      "remark": "电竞设计"
-    },
-    {
-      "id": 8,
-      "date": "2026-04-22",
+      "date": "2025-12-18",
       "type": "consume",
       "amount": -80,
       "balance": "-",
       "remark": "电竞设计"
     },
     {
-      "id": 9,
-      "date": "2026-05-22",
+      "id": 3,
+      "date": "2025-12-19",
       "type": "consume",
-      "amount": -600,
+      "amount": -110,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 4,
+      "date": "2025-12-22",
+      "type": "consume",
+      "amount": -120,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 5,
+      "date": "2025-12-28",
+      "type": "consume",
+      "amount": -10,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 6,
+      "date": "2025-12-31",
+      "type": "consume",
+      "amount": -240,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 7,
+      "date": "2026-01-06",
+      "type": "consume",
+      "amount": -230,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 8,
+      "date": "2026-01-13",
+      "type": "consume",
+      "amount": -140,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 9,
+      "date": "2026-02-03",
+      "type": "consume",
+      "amount": -140,
       "balance": "-",
       "remark": "电竞设计"
     },
     {
       "id": 10,
-      "date": "2026-06-03",
+      "date": "2026-02-03",
       "type": "consume",
-      "amount": -90,
+      "amount": -120,
       "balance": "-",
       "remark": "电竞设计"
     },
     {
       "id": 11,
-      "date": "2026-06-04 19:38",
-      "type": "recharge",
-      "amount": 588,
+      "date": "2026-02-05",
+      "type": "consume",
+      "amount": -180,
       "balance": "-",
-      "remark": "充值（2026-06-04）"
+      "remark": "电竞设计"
     },
     {
       "id": 12,
-      "date": "2026-06-06",
+      "date": "2026-02-15",
       "type": "consume",
-      "amount": -550,
+      "amount": -240,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 13,
+      "date": "2026-03-03",
+      "type": "consume",
+      "amount": -170,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 14,
+      "date": "2026-03-21",
+      "type": "consume",
+      "amount": -60,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 15,
+      "date": "2026-03-22",
+      "type": "consume",
+      "amount": -105,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 16,
+      "date": "2026-03-24",
+      "type": "consume",
+      "amount": -5,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 17,
+      "date": "2026-04-01",
+      "type": "recharge",
+      "amount": 388,
+      "balance": "-",
+      "remark": "充值（2026-04-01）"
+    },
+    {
+      "id": 18,
+      "date": "2026-05-06",
+      "type": "recharge",
+      "amount": 388,
+      "balance": "-",
+      "remark": "充值（2026-05-06）"
+    },
+    {
+      "id": 19,
+      "date": "2026-06-12",
+      "type": "consume",
+      "amount": -240,
+      "balance": "-",
+      "remark": "电竞设计"
+    },
+    {
+      "id": 20,
+      "date": "2026-06-12",
+      "type": "consume",
+      "amount": -3,
       "balance": "-",
       "remark": "电竞设计"
     }
@@ -21051,5 +21099,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-12T07:01:24.206+08:00"
+  "syncedAt": "2026-06-12T08:13:47.885+08:00"
 }
