@@ -515,6 +515,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781311494517,
+      "date": "2026-06-13",
+      "customer": "魔丸电竞",
+      "customerId": 64,
+      "amount": 160,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 160
+    },
+    {
       "id": 1781299320105,
       "date": "2026-06-13",
       "customer": "当当跑刀俱乐部",
@@ -21148,5 +21160,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-13T08:30:43.214+08:00"
+  "syncedAt": "2026-06-13T08:45:10.660+08:00"
 }
