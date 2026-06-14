@@ -511,9 +511,58 @@
     "栖云轩电竞",
     "陈先森。",
     "测试客户",
-    "游龙鼠电竞"
+    "游龙鼠电竞",
+    "软桃电竞"
   ],
   "allOrders": [
+    {
+      "id": 1781449210357,
+      "date": "2026-06-14",
+      "customer": "栖云轩电竞",
+      "customerId": 80,
+      "amount": 70,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 70
+    },
+    {
+      "id": 1781449181701,
+      "date": "2026-06-14",
+      "customer": "软桃电竞",
+      "customerId": 79,
+      "amount": 70,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 70
+    },
+    {
+      "id": 1781449159798,
+      "date": "2026-06-14",
+      "customer": "闰土RuNTu（李帅兵）",
+      "customerId": 52,
+      "amount": 200,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 200
+    },
+    {
+      "id": 1781449129422,
+      "date": "2026-06-14",
+      "customer": "魔丸电竞",
+      "customerId": 66,
+      "amount": 60,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "pending",
+      "memberDeduct": 0,
+      "cashPay": 60
+    },
     {
       "id": 1781311494517,
       "date": "2026-06-13",
@@ -21160,5 +21209,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-13T12:08:46.387+08:00"
+  "syncedAt": "2026-06-14T23:00:36.622+08:00"
 }
