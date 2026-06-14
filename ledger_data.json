@@ -516,6 +516,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781469600921,
+      "date": "2026-06-15",
+      "customer": "闰土RuNTu（李帅兵）",
+      "customerId": 25,
+      "amount": 80,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 80
+    },
+    {
       "id": 1781449210357,
       "date": "2026-06-14",
       "customer": "栖云轩电竞",
@@ -547,7 +559,7 @@
       "amount": 200,
       "type": "电竞设计",
       "detail": "",
-      "status": "pending",
+      "status": "completed",
       "memberDeduct": 0,
       "cashPay": 200
     },
@@ -21209,5 +21221,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-15T01:10:38.778+08:00"
+  "syncedAt": "2026-06-15T04:40:09.439+08:00"
 }
