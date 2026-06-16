@@ -516,6 +516,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781572620462,
+      "date": "2026-06-16",
+      "customer": "冠圣电竞",
+      "customerId": 42,
+      "amount": 60,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 60
+    },
+    {
       "id": 1781534499295,
       "date": "2026-06-15",
       "customer": "喵核电竞",
@@ -21233,5 +21245,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-15T22:41:43.060+08:00"
+  "syncedAt": "2026-06-16T09:17:19.628+08:00"
 }
