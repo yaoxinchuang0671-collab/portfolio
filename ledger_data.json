@@ -516,6 +516,18 @@
   ],
   "allOrders": [
     {
+      "id": 1781610737575,
+      "date": "2026-06-16",
+      "customer": "小怪电竞",
+      "customerId": 8,
+      "amount": 15,
+      "type": "电竞设计",
+      "detail": "",
+      "status": "completed",
+      "memberDeduct": 0,
+      "cashPay": 15
+    },
+    {
       "id": 1781572620462,
       "date": "2026-06-16",
       "customer": "冠圣电竞",
@@ -21245,5 +21257,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-16T09:17:19.628+08:00"
+  "syncedAt": "2026-06-16T20:39:02.270+08:00"
 }
