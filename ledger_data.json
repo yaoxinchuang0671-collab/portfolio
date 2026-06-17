@@ -515,18 +515,6 @@
   ],
   "allOrders": [
     {
-      "id": 1781665727089,
-      "date": "2026-06-17",
-      "customer": "当当跑刀俱乐部",
-      "customerId": 87,
-      "amount": 90,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 90
-    },
-    {
       "id": 1,
       "date": "2025-09-01",
       "customer": "别捏我的肥脸",
@@ -20890,7 +20878,7 @@
       "amount": 150,
       "type": "电竞设计",
       "detail": "",
-      "status": "completed",
+      "status": "pending",
       "memberDeduct": 0,
       "cashPay": 150
     }
@@ -21112,5 +21100,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-17T16:31:56.480+08:00"
+  "syncedAt": "2026-06-17T16:35:59.740+08:00"
 }
