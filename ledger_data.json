@@ -511,165 +511,20 @@
     "栖云轩电竞",
     "陈先森。",
     "测试客户",
-    "游龙鼠电竞",
-    "软桃电竞"
+    "游龙鼠电竞"
   ],
   "allOrders": [
     {
-      "id": 1781610737575,
-      "date": "2026-06-16",
-      "customer": "小怪电竞",
-      "customerId": 8,
-      "amount": 15,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 15
-    },
-    {
-      "id": 1781572620462,
-      "date": "2026-06-16",
-      "customer": "冠圣电竞",
-      "customerId": 42,
-      "amount": 60,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 60
-    },
-    {
-      "id": 1781534499295,
-      "date": "2026-06-15",
-      "customer": "喵核电竞",
-      "customerId": 41,
-      "amount": 60,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 60
-    },
-    {
-      "id": 1781469600921,
-      "date": "2026-06-15",
-      "customer": "闰土RuNTu（李帅兵）",
-      "customerId": 25,
-      "amount": 80,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 80
-    },
-    {
-      "id": 1781449210357,
-      "date": "2026-06-14",
-      "customer": "栖云轩电竞",
-      "customerId": 80,
-      "amount": 70,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 70
-    },
-    {
-      "id": 1781449181701,
-      "date": "2026-06-14",
-      "customer": "软桃电竞",
-      "customerId": 79,
-      "amount": 70,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 70
-    },
-    {
-      "id": 1781449159798,
-      "date": "2026-06-14",
-      "customer": "闰土RuNTu（李帅兵）",
-      "customerId": 52,
-      "amount": 200,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 200
-    },
-    {
-      "id": 1781449129422,
-      "date": "2026-06-14",
-      "customer": "魔丸电竞",
-      "customerId": 66,
-      "amount": 60,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 60
-    },
-    {
-      "id": 1781311494517,
-      "date": "2026-06-13",
-      "customer": "魔丸电竞",
-      "customerId": 64,
-      "amount": 160,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 0,
-      "cashPay": 160
-    },
-    {
-      "id": 1781299320105,
-      "date": "2026-06-13",
+      "id": 1781665727089,
+      "date": "2026-06-17",
       "customer": "当当跑刀俱乐部",
-      "customerId": 31,
-      "amount": 60,
+      "customerId": 87,
+      "amount": 90,
       "type": "电竞设计",
       "detail": "",
       "status": "completed",
       "memberDeduct": 0,
-      "cashPay": 60
-    },
-    {
-      "id": 1781291735284,
-      "date": "2026-06-13",
-      "customer": "罗森电竞",
-      "customerId": 48,
-      "amount": 266.66,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 200,
-      "cashPay": 66.66000000000003
-    },
-    {
-      "id": 1781290974445,
-      "date": "2026-06-13",
-      "customer": "罗森电竞",
-      "customerId": 6,
-      "amount": 43,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 43,
-      "cashPay": 0
-    },
-    {
-      "id": 1781290961370,
-      "date": "2026-06-13",
-      "customer": "盾锋电竞",
-      "customerId": 20,
-      "amount": 3,
-      "type": "电竞设计",
-      "detail": "",
-      "status": "completed",
-      "memberDeduct": 3,
-      "cashPay": 0
+      "cashPay": 90
     },
     {
       "id": 1,
@@ -21035,7 +20890,7 @@
       "amount": 150,
       "type": "电竞设计",
       "detail": "",
-      "status": "completed",
+      "status": "pending",
       "memberDeduct": 0,
       "cashPay": 150
     }
@@ -21067,9 +20922,9 @@
       "id": 100000,
       "name": "盾锋电竞",
       "customer": "盾锋电竞",
-      "balance": 300,
+      "balance": 303,
       "totalRecharge": 776,
-      "totalConsume": 2303
+      "totalConsume": 2300
     },
     {
       "id": 100001,
@@ -21107,9 +20962,9 @@
       "id": 1780847452213,
       "name": "罗森电竞",
       "customer": "罗森电竞",
-      "balance": 0,
+      "balance": 243,
       "totalRecharge": 676,
-      "totalConsume": 713
+      "totalConsume": 470
     }
   ],
   "rechargeTiers": [
@@ -21257,5 +21112,5 @@
     "wechatOK": false,
     "autoBackup": true
   },
-  "syncedAt": "2026-06-16T20:39:02.270+08:00"
+  "syncedAt": "2026-06-17T11:08:49.600+08:00"
 }
