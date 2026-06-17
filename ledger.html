@@ -77,51 +77,101 @@ body {
 }
 .menu-icon { font-size:16px; width:22px; text-align:center; flex-shrink:0; }
 
-/* ===== 侧边栏底部同步按钮 ===== */
+/* ===== 侧边栏底部保存区 ===== */
 .sidebar-footer {
   padding: 12px 16px 20px;
   border-top: 1px solid var(--border);
-  display: flex; flex-direction: column; gap: 6px;
+  display: flex; flex-direction: column; gap: 8px;
 }
-.btn-save-local {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  height: 38px; border: 1px solid var(--border-gold);
+
+/* 保存按钮容器 */
+.save-group {
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+/* 主保存按钮 */
+.btn-save {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  height: 42px; border: 1px solid var(--border-gold);
   background: var(--gold-bg); color: var(--gold-light);
   border-radius: var(--radius-sm); cursor: pointer;
-  font-size: 13px; font-weight: 600; transition: all 0.2s;
-  width: 100%;
+  font-size: 14px; font-weight: 600; transition: all 0.25s;
+  width: 100%; position: relative; overflow: hidden;
 }
-.btn-save-local:hover {
-  background: var(--gold-bg2); border-color: var(--gold);
+.btn-save:hover { background: var(--gold-bg2); border-color: var(--gold); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(196,160,108,0.15); }
+.btn-save:active { transform: translateY(0); }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* 同步成功状态 */
+.btn-save.synced {
+  background: rgba(107,142,35,0.12); border-color: rgba(107,142,35,0.3); color: #9ACD32;
 }
-.btn-save-local:disabled {
-  opacity: 0.5; cursor: not-allowed;
+.btn-save.synced:hover { background: rgba(107,142,35,0.2); border-color: rgba(107,142,35,0.5); }
+
+/* 同步失败状态 */
+.btn-save.error {
+  background: rgba(220,80,80,0.12); border-color: rgba(220,80,80,0.3); color: #F08080;
 }
-.btn-save-cloud {
-  background: rgba(100,149,237,0.12);
-  border-color: rgba(100,149,237,0.3);
-  color: #6495ED;
+.btn-save.error:hover { background: rgba(220,80,80,0.2); border-color: rgba(220,80,80,0.5); }
+
+/* 保存中状态 — 脉动动画 */
+.btn-save.syncing {
+  background: rgba(100,149,237,0.15); border-color: rgba(100,149,237,0.4); color: #87CEEB;
+  animation: save-pulse 1.5s ease-in-out infinite;
 }
-.btn-save-cloud:hover {
-  background: rgba(100,149,237,0.2);
-  border-color: rgba(100,149,237,0.5);
+@keyframes save-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(100,149,237,0.3); }
+  50% { box-shadow: 0 0 12px 2px rgba(100,149,237,0.15); }
 }
-.btn-save-refresh {
-  background: transparent;
-  border-color: var(--border);
+
+/* 未保存变更指示 — 右上角小圆点 */
+.btn-save.dirty::after {
+  content: ''; position: absolute; top: 8px; right: 10px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--gold, #C4A06C);
+  box-shadow: 0 0 6px var(--gold, #C4A06C);
+  animation: dot-blink 1.2s ease-in-out infinite;
+}
+@keyframes dot-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.btn-save .btn-save-icon { font-size: 16px; line-height: 1; flex-shrink: 0; }
+.btn-save .spin { display: inline-block; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 保存元信息行 */
+.save-meta {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 11px; color: var(--text-secondary);
+}
+.save-meta-time { color: var(--text-dim, #888); }
+.save-meta-count {
+  background: var(--bg-tertiary, rgba(255,255,255,0.06));
+  padding: 2px 8px; border-radius: 10px; font-weight: 600;
   color: var(--text-secondary);
-  margin-top: 4px;
+}
+
+/* 自动保存提示 */
+.auto-save-hint {
+  font-size: 11px; color: #6B8E23; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  animation: fade-in 0.3s ease;
+}
+@keyframes fade-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 强制刷新按钮 */
+.btn-save-refresh {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-secondary); height: 34px;
+  border-radius: var(--radius-sm); cursor: pointer;
+  font-size: 12px; font-weight: 500; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
 }
 .btn-save-refresh:hover {
-  border-color: var(--gold-dim);
-  color: var(--gold-light);
-}
-.btn-save-local .spin {
-  display: inline-block; animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-.sync-time {
-  font-size: 11px; color: var(--text-secondary); text-align: center;
+  border-color: var(--gold-dim); color: var(--gold-light);
+  background: var(--gold-bg);
 }
 
 /* ===== 主内容 ===== */
@@ -142,6 +192,30 @@ body {
   font-size:13px; font-weight:700; color:#1A1A0A; cursor:pointer;
 }
 .page-content { flex:1; padding: 24px 28px; overflow-y:auto; }
+
+/* ===== 数据来源状态栏 ===== */
+.data-source-bar {
+  height: 32px; background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; padding: 0 28px; flex-shrink: 0;
+  font-size: 11px; color: var(--text-secondary);
+}
+.data-source-bar .ds-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.ds-dot.file { background: #6B8E23; box-shadow: 0 0 6px rgba(107,142,35,.5); }
+.ds-dot.local { background: #DAA520; box-shadow: 0 0 6px rgba(218,165,32,.5); }
+.ds-dot.empty { background: #8B3A3A; box-shadow: 0 0 6px rgba(139,58,58,.5); }
+.data-source-bar .ds-sep { color: var(--border); }
+.data-source-bar .ds-val { color: var(--gold-light); font-weight: 600; }
+.data-source-bar .ds-btn {
+  font-size: 10px; padding: 2px 8px; border-radius: 4px;
+  border: 1px solid var(--border); background: transparent;
+  color: var(--text-secondary); cursor: pointer;
+  transition: all .15s;
+}
+.data-source-bar .ds-btn:hover { border-color: var(--gold); color: var(--gold); }
 
 /* ===== 统计卡片 ===== */
 .stat-cards { display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap; }
@@ -263,6 +337,7 @@ body {
 }
 .cust-select-item:last-child { border-bottom:none; }
 .cust-select-item:hover { background:var(--gold-bg); color:var(--gold-light); }
+.cust-select-item.active { background:var(--gold-bg); color:var(--gold-light); }
 .cust-select-item .member-badge { font-size:10px; color:var(--gold); border:1px solid rgba(212,168,67,0.3); padding:1px 6px; border-radius:3px; }
 .cust-select-empty { padding:14px; text-align:center; color:var(--text-secondary); font-size:13px; }
 
@@ -555,7 +630,7 @@ body {
     /* 加载遮罩 */
     #loading-overlay {
       position: fixed; top:0; left:0; right:0; bottom:0;
-      background: var(--bg);
+      background: var(--bg-deep);
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       z-index: 9999;
@@ -568,8 +643,22 @@ body {
       border-radius: 50%;
       animation: spin 0.9s linear infinite;
     }
-    #loading-overlay p { color: var(--text-dim); font-size: 14px; margin:0; }
+    #loading-overlay p { color: var(--text-secondary); font-size: 14px; margin:0; }
 
+
+    /* 禁用图片保存 */
+    img {
+      -webkit-user-drag: none !important;
+      -khtml-user-drag: none !important;
+      -moz-user-drag: none !important;
+      user-drag: none !important;
+      -webkit-touch-callout: none !important;
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      user-select: none !important;
+      pointer-events: auto;
+    }
   </style>
 </head>
 <body>
@@ -614,29 +703,28 @@ body {
         </div>
       </div>
       <div class="sidebar-footer">
-        <!-- 本地环境：自动保存到文件，仅保留上传云端 -->
-        <template v-if="isLocalhost">
-          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToCloud">
-            <span v-if="savingCloud" class="spin">⏳</span>
-            <span v-else>☁️</span>
-            {{ savingCloud ? '保存中...' : '保存到云端' }}
+        <!-- 保存按钮 — 状态集成 -->
+        <div class="save-group">
+          <button class="btn-save" :class="saveBtnClass" :disabled="savingCloud" @click="saveToCloud">
+            <span class="btn-save-icon">
+              <span v-if="savingCloud" class="spin">⏳</span>
+              <span v-else-if="cloudStatus==='synced'">✅</span>
+              <span v-else-if="cloudStatus==='error'">⚠️</span>
+              <span v-else>☁️</span>
+            </span>
+            <span>{{ saveBtnLabel }}</span>
           </button>
-        </template>
-        <!-- 线上环境：直接保存到云端 -->
-        <template v-else>
-          <button class="btn-save-local btn-save-cloud" :disabled="savingCloud" @click="saveToCloud">
-            <span v-if="savingCloud" class="spin">⏳</span>
-            <span v-else>☁️</span>
-            {{ savingCloud ? '保存中...' : '保存到云端' }}
-          </button>
-        </template>
-        <button class="btn-save-local btn-save-refresh" @click="forceRefreshFromCloud">
-          🔄 强制刷新数据
-        </button>
-        <div class="sync-time" v-if="lastSyncTime">{{ lastSyncTime }}</div>
-        <div class="sync-time" v-if="cloudStatus" :style="{color: cloudStatus==='online'?'#6B8E23':cloudStatus==='error'?'#8B3A3A':'var(--text-secondary)'}">
-          {{ cloudStatusText }}
+          <div class="save-meta" v-if="lastSyncTime || allOrders.length">
+            <span class="save-meta-count" v-if="allOrders.length">{{ allOrders.length }}条</span>
+            <span class="save-meta-time" v-if="lastSyncTime">{{ lastSyncTime }}</span>
+          </div>
+          <div class="auto-save-hint" v-if="autoSaveJustNow">
+            ⚡ 刚刚自动保存
+          </div>
         </div>
+        <button class="btn-save-refresh" @click="forceRefreshFromCloud">
+          🔄 强制刷新
+        </button>
       </div>
     </div>
 
@@ -645,9 +733,19 @@ body {
       <div class="header">
         <div class="header-title">{{ pageTitle }}</div>
         <div class="header-right">
-          <span class="header-date">2026年6月</span>
+          <span class="header-date">{{ todayDate }}</span>
           <div class="header-avatar" title="微信用户">T</div>
         </div>
+      </div>
+      <!-- ★ 数据来源状态栏：一目了然知道数据存在哪 -->
+      <div class="data-source-bar">
+        <span class="ds-dot" :class="dataSource.class"></span>
+        <span>{{ dataSource.label }}</span>
+        <span class="ds-sep">·</span>
+        <span class="ds-val">{{ allOrders.length }}</span> 条订单
+        <span class="ds-sep">·</span>
+        <span>{{ dataSource.detail }}</span>
+        <button class="ds-btn" @click="exportDataJSON" title="导出全部数据为 JSON 文件">📤 导出</button>
       </div>
       <div class="page-content">
 
@@ -746,7 +844,7 @@ body {
               </select>
             </div>
             <div class="toolbar-right">
-              <input class="search-input" v-model="orderF.search" placeholder="搜索客户...">
+              <input class="search-input" v-model="orderF.search" placeholder="搜索客户..." autocomplete="off">
               <button class="btn btn-gold" @click="openOrderModal()">＋ 新建订单</button>
             </div>
           </div>
@@ -797,16 +895,18 @@ body {
                       class="cust-select-input"
                       v-model="orderForm.customer"
                       placeholder="输入或选择客户"
-                      @focus="custDropdownOpen=true"
-                      @input="custDropdownOpen=true"
+                      @focus="custDropdownOpen=true; custActiveIdx=-1"
+                      @input="custDropdownOpen=true; custActiveIdx=-1"
                       @blur="setTimeout(()=>custDropdownOpen=false,200)"
+                      @keydown="handleCustKeydown"
                     >
                     <div class="cust-select-dropdown" v-if="custDropdownOpen && filteredCustOptions.length>0">
                       <div
                         class="cust-select-item"
-                        v-for="c in filteredCustOptions"
+                        :class="{'active': custActiveIdx === index}"
+                        v-for="(c, index) in filteredCustOptions"
                         :key="c"
-                        @mousedown.prevent="orderForm.customer=c; custDropdownOpen=false"
+                        @mousedown.prevent="orderForm.customer=c; custDropdownOpen=false; custActiveIdx=-1"
                       >
                         <span>{{ c }}</span>
                         <span v-if="isMember(c)" class="member-badge">会员 ¥{{ getMemberBalance(c) }}</span>
@@ -816,6 +916,10 @@ body {
                       <div class="cust-select-empty">按回车新增「{{ orderForm.customer }}」</div>
                     </div>
                   </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">订单日期 *</label>
+                  <input class="form-input" v-model="orderForm.date" type="date" style="font-size:14px;padding:10px 12px;color-scheme:dark">
                 </div>
                 <div class="form-group">
                   <label class="form-label">金额 (¥) *</label>
@@ -880,7 +984,7 @@ body {
         <template v-if="page==='customers'">
           <div class="toolbar">
             <div class="toolbar-left">
-              <input class="search-input" v-model="custSearch" placeholder="搜索客户...">
+              <input class="search-input" v-model="custSearch" placeholder="搜索客户..." autocomplete="off">
             </div>
             <div class="toolbar-right">
               <button class="btn btn-gold" @click="showAddCust=true">＋ 新增客户</button>
@@ -992,7 +1096,7 @@ body {
         <template v-if="page==='members'">
           <div class="toolbar">
             <div class="toolbar-left">
-              <input class="search-input" v-model="memSearch" placeholder="搜索会员...">
+              <input class="search-input" v-model="memSearch" placeholder="搜索会员..." autocomplete="off">
             </div>
             <div class="toolbar-right">
               <button class="btn btn-gold" @click="openRecharge()">＋ 会员充值</button>
@@ -1521,6 +1625,22 @@ createApp({
       reports:'统计报表', monthly:'月总表', settings:'系统设置'
     };
     const pageTitle = computed(() => pageTitles[page.value]);
+
+    // ★ 一键导出数据为 JSON 文件下载
+    function exportDataJSON() {
+      var payload = buildPayload();
+      var json = JSON.stringify(payload, null, 2);
+      var blob = new Blob([json], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'ledger_data_backup_' + new Date().toISOString().slice(0,10) + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('✅ 已导出 ' + allOrders.value.length + ' 条订单');
+    }
 
     // ===== 业务类型 =====
     const bizTypes = ['电竞设计','平台装修','小程序搭建'];
@@ -3834,10 +3954,11 @@ createApp({
     });
 
     // ===== 记账 =====
-    const orderForm = ref({customer:'', amount:null, type:'电竞设计', detail:'', completed:true});
+    const orderForm = ref({customer:'', date:today, amount:null, type:'电竞设计', detail:'', completed:true});
     const editingOrderId = ref(null);
     const showOrderModal = ref(false);
     const custDropdownOpen = ref(false);
+    const custActiveIdx = ref(-1);
 
     // 过滤客户下拉选项
     const filteredCustOptions = computed(() => {
@@ -3860,6 +3981,7 @@ createApp({
       // 填充表单
       orderForm.value = {
         customer: order.customer,
+        date: order.date || today,
         amount: order.amount,
         type: order.type,
         detail: order.detail || '',
@@ -3877,7 +3999,42 @@ createApp({
     function closeOrderModal() {
       showOrderModal.value = false;
       editingOrderId.value = null;
-      orderForm.value = {customer:'', amount:null, type:'电竞设计', detail:'', completed:true};
+      orderForm.value = {customer:'', date:today, amount:null, type:'电竞设计', detail:'', completed:true};
+      custActiveIdx.value = -1;
+    }
+
+    function handleCustKeydown(e) {
+      var list = filteredCustOptions.value;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (list.length > 0) {
+          custActiveIdx.value = (custActiveIdx.value + 1) % list.length;
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (list.length > 0) {
+          custActiveIdx.value = (custActiveIdx.value - 1 + list.length) % list.length;
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (list.length > 0 && custActiveIdx.value >= 0) {
+          orderForm.value.customer = list[custActiveIdx.value];
+          custDropdownOpen.value = false;
+          custActiveIdx.value = -1;
+        } else if (list.length > 0) {
+          orderForm.value.customer = list[0];
+          custDropdownOpen.value = false;
+          custActiveIdx.value = -1;
+        } else if (orderForm.value.customer && orderForm.value.customer.trim()) {
+          var name = orderForm.value.customer.trim();
+          if (!allCustomers.value.includes(name)) {
+            allCustomers.value.push(name);
+            toast('新客户「' + name + '」已添加', 'gold');
+          }
+          custDropdownOpen.value = false;
+          custActiveIdx.value = -1;
+        }
+      }
     }
 
     function submitOrder() {
@@ -3941,7 +4098,7 @@ createApp({
       } else {
         // 新建模式
         allOrders.value.unshift({
-          id: Date.now(), date: today,
+          id: Date.now(), date: orderForm.value.date || today,
           customer: name, customerId: Math.floor(Math.random()*100),
           amount: amt, type: orderForm.value.type,
           detail: orderForm.value.detail, status: orderForm.value.completed ? 'completed' : 'pending',
@@ -4565,11 +4722,13 @@ createApp({
       toast('已恢复默认档位','gold');
     }
 
-    // ===== 云同步配置（COS） =====
-    // 本地环境走 /save-ledger，线上走 /api/ledger（由 server.py 代理到 COS）
-    // 注意：isLocalhost 在本文件更下方声明，这里只做占位，在 isLocalhost 声明后设置
+    // ===== 云同步配置 =====
+    // 本地环境走 localhost:8080，线上走云服务器 API
+    // ★ 部署到云服务器后，将 CLOUD_API_BASE 改为实际地址
+    // ★ 云服务器 API 地址（DNS 生效后改回 https://api.chaoxiivision.cn）
+    var CLOUD_API_BASE = 'http://119.91.147.180:8080';  // 临时用 IP，DNS 通后换回域名
     var API_BASE = '';
-    var LEDGER_API = '/api/ledger';
+    var LEDGER_API = '/api/ledger';  // 默认本地，isLocalhost 声明后动态修正
 
     // 北京时间 ISO 字符串（带 +08:00 偏移，文件可读性更好）
     function getBeijingISOString() {
@@ -4597,14 +4756,15 @@ createApp({
     }
 
     function buildPayload() {
+      // ★ 深拷贝：防止上传过程中 allOrders.value 被修改导致数据不一致
       return {
-        allCustomers:      allCustomers.value,
-        allOrders:         allOrders.value,
-        allMemberBalances: allMemberBalances.value,
-        memberList:        memberList.value,
-        rechargeTiers:     rechargeTiers.value,
-        productList:       productList.value,
-        transactions:      transactions.value,
+        allCustomers:      JSON.parse(JSON.stringify(allCustomers.value)),
+        allOrders:         JSON.parse(JSON.stringify(allOrders.value)),
+        allMemberBalances: JSON.parse(JSON.stringify(allMemberBalances.value)),
+        memberList:        JSON.parse(JSON.stringify(memberList.value)),
+        rechargeTiers:     JSON.parse(JSON.stringify(rechargeTiers.value)),
+        productList:       JSON.parse(JSON.stringify(productList.value)),
+        transactions:      JSON.parse(JSON.stringify(transactions.value)),
         settings: { wechatOK: wechatOK.value, autoBackup: autoBackup.value },
         syncedAt: getBeijingISOString(),
       };
@@ -4624,11 +4784,9 @@ createApp({
       }
     }
 
-    // 启动时：从云端拉取最新数据（cloud 优先，local 兜底）
+    // 启动时：从云端拉取最新数据（通过 API，优先 COS 兜底本地）
     function loadFromCloud() {
-      // 线上环境：直接从 COS 读取 ledger_data.json（静态托管公开文件）
-      var url = isLocalhost ? LEDGER_API : '/ledger_data.json';
-      return fetch(url + '?t=' + Date.now(), { cache: 'no-store' })
+      return fetch(LEDGER_API + '?t=' + Date.now(), { cache: 'no-store' })
         .then(function (r) {
           if (!r.ok) throw new Error('HTTP ' + r.status);
           return r.json();
@@ -4645,7 +4803,7 @@ createApp({
         });
     }
 
-    // 保存到本地服务器（写入 ledger_data.json 文件）
+    // 保存到本地服务器（写入 ledger_data.json + 后台推 COS）
     const savingLocal = ref(false);
     function saveToLocalServer() {
       if (savingLocal.value) return;
@@ -4654,7 +4812,7 @@ createApp({
       var payload = buildPayload();
       payload.syncedAt = getBeijingISOString();
 
-      fetch('/save-ledger', {
+      fetch('/api/ledger', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -4663,8 +4821,8 @@ createApp({
       .then(function (res) {
         if (res.ok) {
           lastSyncTime.value = '已保存 ' + formatSyncTime(payload.syncedAt);
-          toast('数据已保存到本地！', 'gold');
-          console.log('[账本] 已保存到 ledger_data.json');
+          toast('数据已保存到本地+COS同步中！', 'gold');
+          console.log('[账本] 已保存到 ledger_data.json，COS后台推送中');
         } else {
           throw new Error(res.error || '保存失败');
         }
@@ -4683,7 +4841,7 @@ createApp({
     // ════════════════════════════════════════════
     const dataReady = ref(false);   // 数据是否加载完成（防止初始闪屏）
     const savingCloud = ref(false);
-    const cloudStatus = ref(''); // 'online' | 'offline' | 'error' | ''
+    const cloudStatus = ref(''); // 'synced' | 'syncing' | 'error' | ''
     const cloudStatusText = computed(function() {
       if (cloudStatus.value === 'online') return '✓ 云端已连接';
       if (cloudStatus.value === 'synced') return '✓ 已同步到云端';
@@ -4692,37 +4850,35 @@ createApp({
       return '';
     });
 
+    // 按钮 CSS class
+    const saveBtnClass = computed(function() {
+      if (savingCloud.value) return 'syncing';
+      if (cloudStatus.value === 'synced') return 'synced';
+      if (cloudStatus.value === 'error') return 'error';
+      return '';
+    });
 
+    // 按钮文本
+    const saveBtnLabel = computed(function() {
+      if (savingCloud.value) return '同步中...';
+      if (cloudStatus.value === 'synced') return '已同步';
+      if (cloudStatus.value === 'error') return '重试同步';
+      return '保存到云端';
+    });
 
-    // ===== 云端保存：通过 SCF 代理（所有环境通用） =====
-    // 【重要】请在腾讯云 SCF 创建好后，将下面的 URL 替换为真实的 SCF 触发器 URL
-    const SCF_LEDGER_URL = 'https://1438664071-9ipeVhYf1.ap-guangzhou.tencentscf.com';
-
-    function saveToGitHub(payload) {
-      var now = getBeijingISOString();
-      payload.syncedAt = now;
-      var body = JSON.stringify(payload, null, 2);
-
-      return fetch(SCF_LEDGER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: body })
-      })
-        .then(function(r) {
-          if (!r.ok) throw new Error('SCF HTTP ' + r.status);
-          return r.json();
-        })
-        .then(function(res) {
-          if (!res.ok) throw new Error(res.error || 'SCF 返回失败');
-          console.log('[账本] 已通过 SCF 保存到 GitHub (commit:', res.commit, ')');
-        })
-        .catch(function(e) {
-          console.error('[账本] SCF 保存失败:', e);
-          throw e;
-        });
+    // 自动保存闪现标记
+    var autoSaveJustNow = ref(false);
+    var _autoSaveFlashTimer = null;
+    function flashAutoSave() {
+      autoSaveJustNow.value = true;
+      clearTimeout(_autoSaveFlashTimer);
+      _autoSaveFlashTimer = setTimeout(function() { autoSaveJustNow.value = false; }, 2500);
     }
 
-    // 保存到云端（所有环境：本地走 /save-ledger，线上走 GitHub API）
+
+
+    // ===== 云端 API 保存 =====
+    // 统一走 server.py 的 /api/ledger（不管本地还是线上，都是同一套逻辑）
     function saveToCloud() {
       if (savingCloud.value) return;
       savingCloud.value = true;
@@ -4730,87 +4886,61 @@ createApp({
 
       var payload = buildPayload();
 
-      // 线上环境：保存到 GitHub（触发 Action 自动同步到 COS）
-      if (!isLocalhost) {
-        saveToGitHub(payload)
-          .then(function() {
-            cloudStatus.value = 'synced';
-            lastSyncTime.value = '云端 ' + formatSyncTime(payload.syncedAt);
-            toast('已保存到 GitHub，正在同步到 COS...', 'gold');
-            console.log('[账本] 已保存到 GitHub（将自动同步到 COS）');
-            // 同时存一份到 localStorage 作为备份
-            saveToLocal();
-          })
-          .catch(function(e) {
-            cloudStatus.value = 'error';
-            // 降级：存到 localStorage
-            saveToLocal();
-            toast('云端保存失败，已缓存到浏览器: ' + (e.message || '网络错误'), 'danger');
-            console.error('[账本] GitHub 保存失败:', e);
-          })
-          .finally(function() {
-            savingCloud.value = false;
-          });
-        return;
-      }
-
-      // 本地环境：直接写文件
-      fetch('/save-ledger', {
+      fetch(LEDGER_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       })
-        .then(function(r) {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          return r.json();
-        })
+        .then(function(r) { return r.json(); })
         .then(function(res) {
-          lastSyncTime.value = '本地 ' + formatSyncTime(payload.syncedAt);
-          cloudStatus.value = 'synced';
-          toast('已保存到本地文件！', 'gold');
-          console.log('[账本] 已保存到 ledger_data.json');
+          if (res.ok) {
+            cloudStatus.value = 'synced';
+            lastSyncTime.value = (isLocalhost ? '本地' : '云端') + ' ' + formatSyncTime(payload.syncedAt);
+            savingCloud.value = false;
+            console.log('[账本] 已保存到云端（COS 后台推送中）');
+            // 同时存一份到 localStorage 作为备份
+            saveToLocal();
+          } else {
+            throw new Error(res.error || 'server returned ok=false');
+          }
         })
         .catch(function(e) {
           cloudStatus.value = 'error';
-          toast('保存失败: ' + (e.message || '网络错误'), 'gold');
-          console.error('[账本] 本地保存失败:', e);
-        })
-        .finally(function() {
           savingCloud.value = false;
+          saveToLocal(); // 降级：存到 localStorage
+          toast('云端保存失败，已缓存到浏览器: ' + (e.message || '网络错误'), 'danger');
+          console.error('[账本] 保存失败:', e);
         });
     }
 
-    // 强制从云端刷新数据（覆盖本地 + 本地环境同步写入文件）
+    // 强制从云端刷新数据（覆盖本地，双向同步到 COS）
     function forceRefreshFromCloud() {
       toast('正在从云端拉取最新数据...', 'gold');
       loadFromCloud()
         .then(function() {
-          // 本地环境：拉取成功后同步写入 ledger_data.json 文件
-          var isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-          if (isLocal) {
-            var payload = buildPayload();
-            payload.syncedAt = getBeijingISOString();
-            fetch('/save-ledger', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload),
-            }).then(function(r) { return r.json(); })
-              .then(function(res) {
-                if (res.ok) {
-                  console.log('[账本] 云端数据已同步到本地文件');
-                  toast('数据已刷新，本地文件已同步！', 'gold');
-                } else {
-                  console.warn('[账本] 本地文件同步失败:', res.error);
-                  toast('数据已刷新，但本地文件同步失败', 'danger');
-                }
-              })
-              .catch(function(e) {
-                console.warn('[账本] 本地文件写入失败:', e.message);
-                toast('数据已刷新，本地文件写入失败', 'danger');
-              });
-          } else {
-            toast('数据已刷新！', 'gold');
-          }
+          // 拉取成功后回写，确保本地+COS 都是最新
+          var payload = buildPayload();
+          payload.syncedAt = getBeijingISOString();
+          fetch(LEDGER_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          }).then(function(r) { return r.json(); })
+            .then(function(res) {
+              if (res.ok) {
+                console.log('[账本] 云端数据已同步刷新，COS 后台推送中');
+                lastSyncTime.value = '云端刷新 ' + formatSyncTime(payload.syncedAt);
+                cloudStatus.value = 'synced';
+                toast('✅ 数据已从云端刷新并同步！', 'gold');
+              } else {
+                console.warn('[账本] 回写失败:', res.error);
+                toast('数据已刷新，但回写失败', 'danger');
+              }
+            })
+            .catch(function(e) {
+              console.warn('[账本] 回写失败:', e.message);
+              toast('数据已刷新，回写失败', 'danger');
+            });
         })
         .catch(function(e) {
           toast('刷新失败: ' + e.message, 'danger');
@@ -4825,7 +4955,42 @@ createApp({
 
     // 环境标识（暴露给模板）
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    API_BASE = isLocalhost ? '' : '';
+    API_BASE = isLocalhost ? '' : CLOUD_API_BASE;
+    LEDGER_API = isLocalhost ? '/api/ledger' : (CLOUD_API_BASE + '/api/ledger');
+
+    // ===== 数据来源状态（一目了然）=====
+    const todayDate = computed(function() {
+      var d = new Date();
+      return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
+    });
+    var dataSource = ref({ label:'', class:'', detail:'' });
+    var _dsTimer = null;
+    function updateDataSource() {
+      clearTimeout(_dsTimer);
+      _dsTimer = setTimeout(function() {
+        var ds = dataSource.value;
+        if (allOrders.value.length > 0) {
+          var st = lastSyncTime.value || '';
+          if (isLocalhost) {
+            if (st.indexOf('COS') === 0 || st.indexOf('云端') === 0) {
+              ds.label = '☁️ COS 云端'; ds.class = 'file'; ds.detail = 'localhost ← COS · ' + st;
+            } else {
+              ds.label = '💾 本地文件'; ds.class = 'file'; ds.detail = 'localhost · ' + (st || '刚加载');
+            }
+          } else {
+            ds.label = '🌐 浏览器缓存'; ds.class = 'local'; ds.detail = 'COS 线上 · ' + (st || 'localStorage');
+          }
+        } else {
+          ds.label = '⚠️ 暂无数据'; ds.class = 'empty'; ds.detail = '请从云端恢复或手动录入';
+        }
+      }, 100);
+    }
+    updateDataSource();
+    // 订单数或 lastSyncTime 变化时自动更新
+    watchEffect(function() {
+      if (allOrders.value.length > 0) updateDataSource();
+    });
+    watch(function() { return lastSyncTime.value; }, function() { updateDataSource(); });
 
     // ===== Toast =====
     const toastShow = ref(false);
@@ -4866,14 +5031,13 @@ createApp({
       } catch (e) { console.warn('[账本] localStorage 写入失败', e); }
     }
 
-    // 本地服务器防抖同步（仅本地环境有效）
+    // 服务器自动防抖同步
     var _syncTimer = null;
     function syncToServer() {
-      if (!isLocalhost) return; // 线上环境无本地服务器，跳过
       clearTimeout(_syncTimer);
       _syncTimer = setTimeout(function () {
         var payload = buildPayload();
-        fetch('/save-ledger', {
+        fetch(LEDGER_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -4883,46 +5047,44 @@ createApp({
               var now = new Date();
               lastSyncTime.value = '已保存 ' + now.getHours().toString().padStart(2,'0') + ':' +
                                    now.getMinutes().toString().padStart(2,'0');
-              console.log('[账本] 已同步到本地服务器');
+              flashAutoSave();
+              console.log('[账本] 已同步到服务器（COS后台推送中）');
             }
           })
-          .catch(function (e) { console.warn('[账本] 本地服务器同步失败', e); });
+          .catch(function (e) { console.warn('[账本] 同步失败', e); });
       }, 2000);
     }
 
     // ════════════════════════════════════════════
     // 启动数据加载策略
     // ════════════════════════════════════════════
-    // 本地环境：直接读取本地文件 ledger_data.json
-    // 线上环境：API 优先，失败回退到 localStorage
+    // 统一通过 /api/ledger 加载（server.py 优先读 COS，兜底本地文件）
+    // 失败时回退到 localStorage
 
     function initLoadData() {
-      if (isLocalhost) {
-        fetch('/ledger_data.json', { cache: 'no-store' })
-          .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-          .then(function(d) {
+      fetch(LEDGER_API + '?t=' + Date.now(), { cache: 'no-store' })
+        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(d) {
+          if (d && d.allOrders && d.allOrders.length > 0) {
             applyPayload(d);
             var ts = formatSyncTime(d.syncedAt);
-            lastSyncTime.value = '本地文件 ' + ts;
-            console.log('[账本] 已从本地文件加载 (syncedAt:', d.syncedAt || '?', ')');
-          })
-          .catch(function(e) {
-            console.warn('[账本] 本地文件读取失败，保留当前数据:', e.message);
-            toast('本地文件读取失败，请确认服务器已启动', 'warning');
-          })
-          .finally(function() { dataReady.value = true; });
-      } else {
-        loadFromCloud()
-          .then(function() {
-            cloudStatus.value = 'online';
-          })
-          .catch(function(e) {
-            console.warn('[账本] 云端拉取失败，使用本地数据:', e.message);
-            cloudStatus.value = 'offline';
+            var source = d._source || (isLocalhost ? '本地文件' : '云端');
+            lastSyncTime.value = source + ' ' + ts;
+            console.log('[账本] 已通过 API 加载 (来源:', source, ', allOrders:', d.allOrders.length, ', syncedAt:', d.syncedAt || '?', ')');
+          } else {
+            console.warn('[账本] 数据为空，尝试 localStorage...');
             loadFromLocal();
-          })
-          .finally(function() { dataReady.value = true; });
-      }
+            if (allOrders.value.length === 0) {
+              toast('暂无数据，请通过"强制刷新"从云端拉取', 'warning');
+            }
+          }
+        })
+        .catch(function(e) {
+          console.warn('[账本] API 加载失败:', e.message);
+          loadFromLocal(); // 兜底：localStorage
+          toast('云端加载失败，已使用缓存数据', 'warning');
+        })
+        .finally(function() { dataReady.value = true; });
     }
 
     initLoadData();
@@ -4932,21 +5094,16 @@ createApp({
       orderPage.value = 1;
     });
 
-    // 实时自动保存：本地环境直接写文件，线上环境只存 localStorage
-    // 防抖 1200ms，避免大数据量 JSON.stringify + buildPayload 阻塞主线程
+    // 实时自动保存：防抖后同步到服务器（本地/云端统一）
     var _saveTimer = null;
     watchEffect(function () {
-      // 轻量依赖收集（避免每次触发都执行 buildPayload）
       var _dep = allOrders.value.length + allCustomers.value.length + memberList.value.length +
                  transactions.value.length + productList.value.length + rechargeTiers.value.length +
                  (wechatOK.value ? 1 : 0) + (autoBackup.value ? 1 : 0);
       clearTimeout(_saveTimer);
       _saveTimer = setTimeout(function () {
-        if (isLocalhost) {
-          syncToServer(); // 本地：直接保存到 ledger_data.json 文件
-        } else {
-          saveToLocal();  // 线上：存到 localStorage
-        }
+        syncToServer(); // 自动保存到服务器 → 本地文件 + COS 后台推送
+        saveToLocal();  // 同时缓存到 localStorage 作为兜底
       }, 1200);
     });
 
@@ -4958,7 +5115,7 @@ createApp({
       monthIncome, monthAvg, pendingCount, totalBalance,
       topCustomers,
       orderForm, submitOrder, delOrder, editOrder, editingOrderId, showOrderModal, openOrderModal, closeOrderModal,
-      custDropdownOpen, filteredCustOptions,
+      custDropdownOpen, filteredCustOptions, custActiveIdx, handleCustKeydown,
       isMember, getMemberBalance, orderDeductPreview,
       orderF, filteredOrders, pagedOrders, orderPage, orderTotalPages,
       custSearch, filteredCustomers, showCustDetail, showAddCust,
@@ -4984,8 +5141,9 @@ createApp({
       wechatOK, autoBackup,
       isLocalhost,
       savingLocal, lastSyncTime, saveToLocalServer,
-      savingCloud, cloudStatus, cloudStatusText, saveToCloud, forceRefreshFromCloud,
-      toastShow, toastMsg, toastType, toast
+      savingCloud, cloudStatus, cloudStatusText, saveBtnClass, saveBtnLabel, autoSaveJustNow, saveToCloud, forceRefreshFromCloud,
+      toastShow, toastMsg, toastType, toast,
+      todayDate, dataSource, exportDataJSON
     };
   }
 }).mount('#app');
